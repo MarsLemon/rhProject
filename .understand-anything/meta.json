@@ -1,8 +1,31 @@
 {
-  "lastAnalyzedAt": "2026-06-04T06:10:26.744Z",
-  "gitCommitHash": "N/A",
+  "lastAnalyzedAt": "2026-06-04T09:37:25.493Z",
+  "gitCommitHash": "N/A (merged, re-run merge-understand-graph.mjs to refresh)",
   "version": "1.0.0",
-  "analyzedFiles": 1,
-  "scope": "cross-project-placeholder",
-  "note": "Run understand-anything inside each subproject to populate its own graph."
+  "analyzedFiles": 2973,
+  "subprojects": [
+    {
+      "name": "wk-PPTist-ui",
+      "lastAnalyzedAt": "2026-06-04T01:27:21.143Z",
+      "gitCommitHash": "1c279a0fbfb851f6ca9ada9e3620dc8b7d1a3442",
+      "analyzedFiles": 346,
+      "graphRef": "wk-PPTist-ui/.understand-anything/knowledge-graph.json"
+    },
+    {
+      "name": "wk-train-center-service",
+      "lastAnalyzedAt": "2026-06-04T06:10:26.737Z",
+      "gitCommitHash": "N/A (relocated, run understand-anything in subdir to refresh)",
+      "analyzedFiles": 1638,
+      "graphRef": "wk-train-center-service/.understand-anything/knowledge-graph.json"
+    },
+    {
+      "name": "wk-train-center-ui",
+      "lastAnalyzedAt": "2026-06-04T09:12:40.235Z",
+      "gitCommitHash": "8e04bdbc74b778045e20188621833c465f6ec4fc",
+      "analyzedFiles": 1240,
+      "graphRef": "wk-train-center-ui/.understand-anything/knowledge-graph.json"
+    }
+  ],
+  "scope": "cross-project-merged",
+  "note": "Aggregated from all subproject .understand-anything/ graphs. To refresh: npm run understand:merge -- --apply"
 }
