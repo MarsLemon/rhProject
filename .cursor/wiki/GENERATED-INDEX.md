@@ -1,6 +1,6 @@
 # GENERATED-INDEX（自动生成，勿手改）
 
-> 生成时间：2026-06-04T01:13:34.457Z
+> 生成时间：2026-06-04T03:22:07.072Z
 > 命令：`node scripts/sync-cursor-wiki-index.mjs` 或 `npm run sync:wiki`
 
 ## wk-train-center-service
