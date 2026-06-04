@@ -1,6 +1,8 @@
 {
-  "lastAnalyzedAt": "2026-06-04T01:38:25.971Z",
-  "gitCommitHash": "N/A (not a git repository)",
+  "lastAnalyzedAt": "2026-06-04T06:10:26.744Z",
+  "gitCommitHash": "N/A",
   "version": "1.0.0",
-  "analyzedFiles": 2724
+  "analyzedFiles": 1,
+  "scope": "cross-project-placeholder",
+  "note": "Run understand-anything inside each subproject to populate its own graph."
 }
