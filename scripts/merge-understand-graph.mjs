@@ -250,6 +250,10 @@ async function main() {
   }
   const mergedLayers = [...layerMap.values()];
 
+  // 保留根已有 tour（如 install-monorepo-tour 写入的跨子项目导览），
+  // 不再清空。如果根没有 tour，则保留为空数组（schema 要求）。
+  const preservedTour = Array.isArray(rootGraph.tour) ? rootGraph.tour : [];
+
   const mergedGraph = {
     version: rootGraph.version || "1.0.0",
     project: {
@@ -262,7 +266,7 @@ async function main() {
     nodes: mergedNodes,
     edges: mergedEdges,
     layers: mergedLayers,
-    tour: undefined,
+    tour: preservedTour,
   };
   await fs.writeFile(ROOT_GRAPH, JSON.stringify(mergedGraph, null, 2));
   console.log(`  wrote ${path.relative(REPO_ROOT, ROOT_GRAPH)}  ${(Buffer.byteLength(JSON.stringify(mergedGraph)) / 1024 / 1024).toFixed(2)} MB`);
