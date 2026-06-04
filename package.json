@@ -17,6 +17,8 @@
     "prune:logs:scheduled": ".cursor\\scheduled-tasks\\tasks\\prune-logs.cmd",
     "register:scheduled-tasks": "powershell -NoProfile -ExecutionPolicy Bypass -File .cursor/scheduled-tasks/register.ps1",
     "register:sync-wiki-task": "powershell -NoProfile -ExecutionPolicy Bypass -File .cursor/scheduled-tasks/register-wiki-only.ps1",
-    "ensure:jvm-log-dir": "node scripts/ensure-jvm-log-dir.mjs"
+    "ensure:jvm-log-dir": "node scripts/ensure-jvm-log-dir.mjs",
+    "understand:split": "node scripts/split-understand-graph.mjs --apply",
+    "understand:split:dry": "node scripts/split-understand-graph.mjs"
   }
 }
