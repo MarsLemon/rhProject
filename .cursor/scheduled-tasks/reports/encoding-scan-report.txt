@@ -1,0 +1,6 @@
+# Encoding scan report (2026-06-03T06:33:59.720Z)
+Total issues: 1
+
+wk-mhc-ui/remotes/trade-center/src/app/inquiry-quote/inquiry-screen/customer-demand/customer-demand.component.ts
+  - contains 4-question-mark placeholder
+

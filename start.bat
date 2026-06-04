@@ -1,0 +1,467 @@
+@echo off
+setlocal enabledelayedexpansion
+chcp 65001 >nul
+
+rem 以本脚本所在目录为 monorepo 根；若脚本在 rhProject 外侧，则尝试 rhProject 子目录
+set "RH_ROOT=%~dp0"
+if "%RH_ROOT:~-1%"=="\" set "RH_ROOT=%RH_ROOT:~0,-1%"
+if not exist "!RH_ROOT!\wk-mhc-ui" if exist "!RH_ROOT!\rhProject\wk-mhc-ui" set "RH_ROOT=!RH_ROOT!\rhProject"
+if not exist "!RH_ROOT!\wk-mhc-ui" (
+    echo 未找到 monorepo 根目录（缺少 wk-mhc-ui），请把 start.bat 放在 rhProject 根目录。
+    pause
+    exit /b 1
+)
+
+set "PWSH="
+if exist "%ProgramFiles%\PowerShell\7\pwsh.exe" (
+    set "PWSH=%ProgramFiles%\PowerShell\7\pwsh.exe"
+)
+if not defined PWSH if exist "%ProgramFiles(x86)%\PowerShell\7\pwsh.exe" (
+    set "PWSH=%ProgramFiles(x86)%\PowerShell\7\pwsh.exe"
+)
+if not defined PWSH (
+    for /f "delims=" %%I in ('where pwsh 2^>nul') do (
+        echo %%I | findstr /i /c:"WindowsApps" >nul
+        if errorlevel 1 (
+            set "PWSH=%%I"
+            goto :pwsh_resolved
+        )
+    )
+)
+:pwsh_resolved
+if not defined PWSH (
+    echo PowerShell 7 ^(pwsh^) 未找到，请先安装：https://aka.ms/powershell
+    pause
+    exit /b 1
+)
+if not exist "!PWSH!" (
+    echo PowerShell 7 路径无效: !PWSH!
+    pause
+    exit /b 1
+)
+
+set "WT="
+where wt >nul 2>&1 && set "WT=wt"
+if not defined WT if exist "%LOCALAPPDATA%\Microsoft\WindowsApps\wt.exe" (
+    set "WT=%LOCALAPPDATA%\Microsoft\WindowsApps\wt.exe"
+)
+
+echo ========================================
+if defined WT (
+    echo   智能培训系统 - 一键启动服务 ^(Windows Terminal + PowerShell 7^)
+) else (
+    echo   智能培训系统 - 一键启动服务 ^(PowerShell 7^)
+)
+echo ========================================
+echo.
+
+rem 检查 hosts 文件配置
+echo [检查] 正在检查 hosts 文件配置...
+findstr /C:"127.0.0.1" /C:"sbp.winkong.local" C:\Windows\System32\drivers\etc\hosts | findstr /V "^#" >nul 2>&1
+if !errorlevel! equ 0 (
+    echo ✅ hosts 文件配置正确
+) else (
+    echo ⚠️  hosts 文件未配置或配置被注释
+    echo.
+    echo MHC 微前端项目需要配置 hosts 文件：
+    echo   127.0.0.1  sbp.winkong.local
+    echo.
+    echo 请手动编辑 C:\Windows\System32\drivers\etc\hosts 文件
+    echo 取消注释或添加上述配置（需要管理员权限）
+    echo.
+    set /p CONTINUE="是否继续启动其他服务？(Y/N，默认Y): "
+    if /i "!CONTINUE!"=="N" exit /b 1
+    echo.
+)
+
+rem 检查端口占用并清理
+:check_ports
+set RETRY_COUNT=0
+
+:retry_check
+echo [检查] 正在检查端口占用情况...
+echo.
+
+set PORT1=0
+set PORT2=0
+set PORT3=0
+set PORT4=0
+set PORT5=0
+set PORT6=0
+set PID1=
+set PID2=
+set PID3=
+set PID4=
+set PID5=
+set PID6=
+
+rem 检查 4201 端口
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":4201 " ^| findstr "LISTENING"') do (
+    set PID1=%%a
+    set PORT1=1
+)
+
+if !PORT1! equ 1 (
+    echo ⚠️  端口 4201 已被占用 (PID: !PID1!)
+) else (
+    echo ✅ 端口 4201 可用
+)
+
+rem 检查 4212 端口
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":4212 " ^| findstr "LISTENING"') do (
+    set PID2=%%a
+    set PORT2=1
+)
+
+if !PORT2! equ 1 (
+    echo ⚠️  端口 4212 已被占用 (PID: !PID2!)
+) else (
+    echo ✅ 端口 4212 可用
+)
+
+rem 检查 5173 端口
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":5173 " ^| findstr "LISTENING"') do (
+    set PID3=%%a
+    set PORT3=1
+)
+
+if !PORT3! equ 1 (
+    echo ⚠️  端口 5173 已被占用 (PID: !PID3!)
+) else (
+    echo ✅ 端口 5173 可用
+)
+
+rem 检查 8101 端口
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":8101 " ^| findstr "LISTENING"') do (
+    set PID4=%%a
+    set PORT4=1
+)
+
+if !PORT4! equ 1 (
+    echo ⚠️  端口 8101 已被占用 (PID: !PID4!)
+) else (
+    echo ✅ 端口 8101 可用
+)
+
+rem 检查 8086 端口
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":8086 " ^| findstr "LISTENING"') do (
+    set PID5=%%a
+    set PORT5=1
+)
+
+if !PORT5! equ 1 (
+    echo ⚠️  端口 8086 已被占用 (PID: !PID5!)
+) else (
+    echo ✅ 端口 8086 可用
+)
+
+rem 检查 4213 端口
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":4213 " ^| findstr "LISTENING"') do (
+    set PID6=%%a
+    set PORT6=1
+)
+
+if !PORT6! equ 1 (
+    echo ⚠️  端口 4213 已被占用 (PID: !PID6!)
+) else (
+    echo ✅ 端口 4213 可用
+)
+
+echo.
+
+rem 如果所有端口都被占用，询问是否清理
+if !PORT1! equ 1 if !PORT2! equ 1 if !PORT3! equ 1 if !PORT4! equ 1 if !PORT5! equ 1 if !PORT6! equ 1 (
+    set /a RETRY_COUNT+=1
+    if !RETRY_COUNT! gtr 3 (
+        echo ❌ 端口清理失败超过3次，可能无权限或其他问题
+        echo.
+        echo 请手动关闭以下进程：
+        echo   端口 4201 - PID: !PID1!
+        echo   端口 4212 - PID: !PID2!
+        echo   端口 5173 - PID: !PID3!
+        echo   端口 8101 - PID: !PID4!
+        echo   端口 8086 - PID: !PID5!
+        echo   端口 4213 - PID: !PID6!
+        echo.
+        pause
+        exit /b 1
+    )
+
+    echo 所有端口均被占用！
+    set /p CLEAN_CHOICE="是否清理所有占用的端口？(Y/N，默认Y): "
+    if /i "!CLEAN_CHOICE!"=="N" (
+        goto :select_services
+    )
+
+    echo.
+    echo [清理] 正在清理占用的端口...
+    if defined PID1 (
+        echo 正在关闭 PID !PID1! ...
+        taskkill /F /PID !PID1! >nul 2>&1
+    )
+    if defined PID2 (
+        echo 正在关闭 PID !PID2! ...
+        taskkill /F /PID !PID2! >nul 2>&1
+    )
+    if defined PID3 (
+        echo 正在关闭 PID !PID3! ...
+        taskkill /F /PID !PID3! >nul 2>&1
+    )
+    if defined PID4 (
+        echo 正在关闭 PID !PID4! ...
+        taskkill /F /PID !PID4! >nul 2>&1
+    )
+    if defined PID5 (
+        echo 正在关闭 PID !PID5! ...
+        taskkill /F /PID !PID5! >nul 2>&1
+    )
+    if defined PID6 (
+        echo 正在关闭 PID !PID6! ...
+        taskkill /F /PID !PID6! >nul 2>&1
+    )
+    echo 等待端口释放...
+    timeout /t 5 /nobreak >nul
+    echo ✅ 端口清理完成
+    echo.
+    goto :retry_check
+)
+
+rem 选择要启动的服务
+:select_services
+echo.
+echo ========================================
+echo   请选择要启动的服务：
+echo ========================================
+echo.
+echo   0. 全部启动
+echo   1. MHC服务                    (端口 4201)
+echo   2. MHC-Mobile服务              (端口 8086)
+echo   3. Train-Center-UI            (端口 4212)
+echo   4. Train-Center-UI-V3         (端口 4213)
+echo   5. WK-Train-Center-Service    (端口 8101)
+echo   6. PPTist服务                 (端口 5173)
+echo   示例：1/2/3 或 1,2,3
+set /p SERVICE_CHOICE="请选择 (默认0): "
+if "!SERVICE_CHOICE!"=="" set SERVICE_CHOICE=0
+
+set START_MHC=0
+set START_MHC_MOBILE=0
+set START_TRAIN=0
+set START_TRAIN_V3=0
+set START_WK_AI=0
+set START_PPT=0
+set CUSTOM_STARTED=0
+
+set "CHECK_CHOICE=!SERVICE_CHOICE!"
+set "CHECK_CHOICE=!CHECK_CHOICE:/=!"
+if not "!CHECK_CHOICE!"=="!SERVICE_CHOICE!" goto :start_custom
+set "CHECK_CHOICE=!SERVICE_CHOICE!"
+set "CHECK_CHOICE=!CHECK_CHOICE:,=!"
+if not "!CHECK_CHOICE!"=="!SERVICE_CHOICE!" goto :start_custom
+set "CHECK_CHOICE=!SERVICE_CHOICE!"
+set "CHECK_CHOICE=!CHECK_CHOICE:，=!"
+if not "!CHECK_CHOICE!"=="!SERVICE_CHOICE!" goto :start_custom
+set "CHECK_CHOICE=!SERVICE_CHOICE!"
+set "CHECK_CHOICE=!CHECK_CHOICE: =!"
+if not "!CHECK_CHOICE!"=="!SERVICE_CHOICE!" goto :start_custom
+
+if "!SERVICE_CHOICE!"=="0" (
+    call :start_all_no_status
+    goto :show_status
+)
+if "!SERVICE_CHOICE!"=="1" (
+    call :start_mhc_no_status
+    goto :show_status
+)
+if "!SERVICE_CHOICE!"=="2" (
+    call :start_mhc_mobile_no_status
+    goto :show_status
+)
+if "!SERVICE_CHOICE!"=="3" (
+    call :start_train_no_status
+    goto :show_status
+)
+if "!SERVICE_CHOICE!"=="4" (
+    call :start_train_v3_no_status
+    goto :show_status
+)
+if "!SERVICE_CHOICE!"=="5" (
+    call :start_wk_ai_server_no_status
+    goto :show_status
+)
+if "!SERVICE_CHOICE!"=="6" (
+    call :start_ppt_no_status
+    goto :show_status
+)
+echo 无效选择，请重新运行脚本
+pause
+exit /b 1
+
+rem 组合输入启动（示例：2/3/4 或 2,3,4）
+:start_custom
+set "SERVICE_CHOICE_NORM=!SERVICE_CHOICE:/= !"
+set "SERVICE_CHOICE_NORM=!SERVICE_CHOICE_NORM:,= !"
+set "SERVICE_CHOICE_NORM=!SERVICE_CHOICE_NORM:，= !"
+
+for %%i in (!SERVICE_CHOICE_NORM!) do (
+    call :start_by_token %%i
+)
+
+if !CUSTOM_STARTED! equ 0 (
+    echo 无效选择，请重新运行脚本
+    pause
+    exit /b 1
+)
+
+set SERVICE_CHOICE=99
+goto :show_status
+
+:start_by_token
+if "%~1"=="0" (
+    call :start_all_no_status
+    set CUSTOM_STARTED=1
+    goto :eof
+)
+if "%~1"=="1" (
+    call :start_mhc_no_status
+    set CUSTOM_STARTED=1
+    goto :eof
+)
+if "%~1"=="2" (
+    call :start_mhc_mobile_no_status
+    set CUSTOM_STARTED=1
+    goto :eof
+)
+if "%~1"=="3" (
+    call :start_train_no_status
+    set CUSTOM_STARTED=1
+    goto :eof
+)
+if "%~1"=="4" (
+    call :start_train_v3_no_status
+    set CUSTOM_STARTED=1
+    goto :eof
+)
+if "%~1"=="5" (
+    call :start_wk_ai_server_no_status
+    set CUSTOM_STARTED=1
+    goto :eof
+)
+if "%~1"=="6" (
+    call :start_ppt_no_status
+    set CUSTOM_STARTED=1
+    goto :eof
+)
+goto :eof
+
+rem ===== 标记要启动的服务（不立即 spawn）=====
+:start_mhc_no_status
+if !START_MHC! equ 1 goto :eof
+echo [启动] mhc
+set START_MHC=1
+goto :eof
+
+:start_mhc_mobile_no_status
+if !START_MHC_MOBILE! equ 1 goto :eof
+echo [启动] mhc-m
+set START_MHC_MOBILE=1
+goto :eof
+
+:start_train_no_status
+if !START_TRAIN! equ 1 goto :eof
+echo [启动] train
+set START_TRAIN=1
+goto :eof
+
+:start_train_v3_no_status
+if !START_TRAIN_V3! equ 1 goto :eof
+echo [启动] train-v3
+set START_TRAIN_V3=1
+goto :eof
+
+:start_wk_ai_server_no_status
+if !START_WK_AI! equ 1 goto :eof
+echo [启动] service
+set START_WK_AI=1
+goto :eof
+
+:start_ppt_no_status
+if !START_PPT! equ 1 goto :eof
+echo [启动] pptist
+set START_PPT=1
+goto :eof
+
+:start_all_no_status
+echo.
+echo [启动] 正在启动所有服务...
+call :start_mhc_no_status
+call :start_mhc_mobile_no_status
+call :start_train_no_status
+call :start_train_v3_no_status
+call :start_wk_ai_server_no_status
+call :start_ppt_no_status
+goto :eof
+
+rem ===== 单窗口多 Tab 启动（逐个追加 Tab，避免 batch 拼接命令出错）=====
+rem 用法: call :open_tab tab名 工作目录 运行命令
+:open_tab
+if defined WT (
+    if not defined WT_TAB_WIN (
+        "!WT!" -w -1 nt --suppressApplicationTitle --title %~1 -d "%~2" -- "!PWSH!" -NoLogo -NoExit -Command "%~3"
+        set "WT_TAB_WIN=1"
+        timeout /t 2 /nobreak >nul
+    ) else (
+        "!WT!" -w 0 nt --suppressApplicationTitle --title %~1 -d "%~2" -- "!PWSH!" -NoLogo -NoExit -Command "%~3"
+        timeout /t 1 /nobreak >nul
+    )
+) else (
+    start "%~1" "!PWSH!" -NoLogo -NoExit -Command "Set-Location -LiteralPath '%~2'; %~3"
+)
+goto :eof
+
+:launch_collected_tabs
+set "WT_TAB_WIN="
+if !START_MHC! equ 1 call :open_tab mhc "!RH_ROOT!\wk-mhc-ui" "npm run train:lan"
+if !START_MHC_MOBILE! equ 1 call :open_tab mhc-m "!RH_ROOT!\wk-mhc-mobile" "npm run start"
+if !START_TRAIN! equ 1 call :open_tab train "!RH_ROOT!\wk-train-center-ui" "cmd /c npm run dev"
+if !START_TRAIN_V3! equ 1 call :open_tab train-v3 "!RH_ROOT!\wk-train-center-ui-v3" "npm run dev"
+if !START_WK_AI! equ 1 call :open_tab service "!RH_ROOT!\wk-train-center-service" "mvn spring-boot:run -f !RH_ROOT!\wk-train-center-service\yf-web\pom.xml"
+if !START_PPT! equ 1 call :open_tab pptist "!RH_ROOT!\wk-PPTist-ui" "npm run dev"
+goto :eof
+
+rem 显示启动状态
+:show_status
+call :launch_collected_tabs
+echo.
+echo ========================================
+echo ✅ 服务已启动！
+echo ========================================
+echo.
+echo 服务访问地址：
+if !START_MHC! equ 1 (
+    echo   - mhc:        http://localhost:4201
+)
+if !START_MHC_MOBILE! equ 1 (
+    echo   - mhc-m:      http://localhost:8086
+)
+if !START_TRAIN! equ 1 (
+    echo   - train:      http://localhost:4212
+)
+if !START_TRAIN_V3! equ 1 (
+    echo   - train-v3:   http://localhost:4213
+)
+if !START_WK_AI! equ 1 (
+    echo   - service:    http://localhost:8101
+)
+if !START_PPT! equ 1 (
+    echo   - pptist:     http://localhost:5173
+)
+
+echo.
+if defined WT (
+    echo 提示：所有服务已在同一个 Windows Terminal 窗口中以 Tab 形式启动...
+) else (
+    echo 提示：未检测到 Windows Terminal，各服务在独立 PowerShell 7 窗口中启动...
+)
+echo.
+pause

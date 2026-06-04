@@ -1,0 +1,42 @@
+{
+  "name": "oss-console",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local OSS file browser for rhProject (personal use)",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -n server,web -c blue,green \"pnpm run dev:server\" \"pnpm run dev:web\"",
+    "dev:web": "vite",
+    "dev:server": "tsx watch server/index.ts",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  },
+  "dependencies": {
+    "ali-oss": "^6.22.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "element-plus": "^2.9.1",
+    "express": "^4.21.2",
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@types/ali-oss": "^6.16.11",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.2",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "concurrently": "^9.1.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.6",
+    "vitest": "^2.1.8",
+    "vue-tsc": "^2.2.0"
+  }
+}

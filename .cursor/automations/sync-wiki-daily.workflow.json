@@ -1,0 +1,28 @@
+{
+  "name": "rhProject sync wiki index",
+  "description": "按 schedule 在 rhProject 根目录执行 npm run sync:wiki，更新 .cursor/wiki/GENERATED-INDEX.md（Qoder Repowiki 索引）。",
+  "workflow": {
+    "triggers": [
+      {
+        "cron": {
+          "cron": "0 8 * * *"
+        }
+      }
+    ],
+    "actions": [],
+    "prompts": [
+      {
+        "prompt": "You are maintaining the rhProject monorepo wiki index.\n\n1. Ensure the workspace root is rhProject (monorepo with wk-train-center-service, wk-train-center-ui, .cursor/wiki).\n2. Run: npm run sync:wiki\n3. Confirm success by reading the last 5 lines of .cursor/wiki/GENERATED-INDEX.md — expect a line like **合计**：397 篇 (count may vary).\n4. If the command fails, report stderr and whether .qoder/repowiki paths exist.\n5. Do not regenerate Repowiki in Qoder; only sync the index from existing repowiki files.\n6. Reply briefly: timestamp, total count, and whether GENERATED-INDEX was updated.\n"
+      }
+    ],
+    "model": "",
+    "gitConfig": {
+      "repo": "",
+      "branch": "main"
+    },
+    "agentOptions": {
+      "skipInstall": false
+    },
+    "memoryEnabled": false
+  }
+}

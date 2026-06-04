@@ -1,0 +1,15 @@
+---
+description: >-
+  Business/architecture tasks should consult project wiki (INDEX + rh-project-wiki skill).
+alwaysApply: false
+---
+
+# 项目 Wiki（Cursor）
+
+涉及**业务逻辑、模块边界、API 契约、培训/课程/考试/计划**的实现或评审时：
+
+1. 先读 `.cursor/wiki/INDEX.md`
+2. 按 `.cursor/skills/rh-project-wiki/SKILL.md` 顺序查阅 RepoWiki / rules / documents
+3. 文档与源码冲突时以源码为准并说明
+
+若用户 @ wiki 或全量索引 `GENERATED-INDEX.md` 过期，运行 `node scripts/sync-cursor-wiki-index.mjs`。

@@ -1,0 +1,22 @@
+{
+  "name": "rh-project",
+  "private": true,
+  "type": "module",
+  "description": "rhProject monorepo workspace scripts",
+  "scripts": {
+    "verify:chinese": "node scripts/chinese-encoding/verify-chinese-encoding.mjs",
+    "scan:chinese": "node scripts/chinese-encoding/scan-all-encoding-report.mjs",
+    "fix:encoding": "node scripts/chinese-encoding/fix-all-encoding.mjs",
+    "repair:chinese-from-v2": "node scripts/chinese-encoding/repair-chinese-encoding.mjs",
+    "sync:wiki": "node scripts/sync-cursor-wiki-index.mjs",
+    "verify:wiki-index": "node scripts/verify-wiki-index.mjs",
+    "sync:wiki:scheduled": ".cursor\\scheduled-tasks\\tasks\\sync-wiki.cmd",
+    "audit:skills": "node scripts/audit-cursor-skills.mjs",
+    "audit:skills:scheduled": ".cursor\\scheduled-tasks\\tasks\\skill-cleaner.cmd",
+    "scan:chinese:scheduled": ".cursor\\scheduled-tasks\\tasks\\scan-chinese.cmd",
+    "prune:logs:scheduled": ".cursor\\scheduled-tasks\\tasks\\prune-logs.cmd",
+    "register:scheduled-tasks": "powershell -NoProfile -ExecutionPolicy Bypass -File .cursor/scheduled-tasks/register.ps1",
+    "register:sync-wiki-task": "powershell -NoProfile -ExecutionPolicy Bypass -File .cursor/scheduled-tasks/register-wiki-only.ps1",
+    "ensure:jvm-log-dir": "node scripts/ensure-jvm-log-dir.mjs"
+  }
+}

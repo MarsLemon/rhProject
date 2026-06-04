@@ -1,0 +1,15 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-WebApplication<yf-web>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.yf.web.WebApplication",
+            "projectName": "yf-web",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": "-XX:ErrorFile=logs/jvm/app_hs_err_%p.log -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=logs/jvm"
+        }
+    ]
+}

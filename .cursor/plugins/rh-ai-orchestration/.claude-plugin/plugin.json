@@ -1,0 +1,8 @@
+{
+  "name": "rh-ai-orchestration",
+  "version": "0.1.0",
+  "description": "Routes rhProject work across Cursor (code), Claude (analysis), and Qoder (RepoWiki).",
+  "author": {
+    "name": "rhProject"
+  }
+}

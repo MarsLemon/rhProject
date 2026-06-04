@@ -1,0 +1,36 @@
+---
+description: Cursor/Claude/Qoder 三工具职责路由。代码主要在 Cursor，分析交 Claude，Wiki 由 Qoder RepoWiki。
+alwaysApply: true
+---
+
+# AI 三工具协作编排规则
+
+## 职责（固定）
+
+| 工具 | 负责 | 禁止 |
+|------|------|------|
+| **Cursor** | 改代码、build/test、`verify:chinese`、主 Agent、PR | 独立生成 RepoWiki |
+| **Claude** | 拆需求、方案对比、产出 deep-dive 文档 | 直接 Write 含中文的 `.vue/.ts` |
+| **Qoder** | 生成/刷新 `.qoder/repowiki` 与 `.qoder/rules` | 改日常 ui-v3 源码 |
+
+## 知识库
+
+Qoder 刷新 Wiki → Git 提交 repowiki → `npm run sync:wiki` → Cursor/Claude 读 `.cursor/wiki/`
+
+权威顺序：**当前分支源码** > `.qoder/rules` > Repowiki > `documents/` > AI 推断
+
+## 任务当前（Cursor Agent）
+
+1. 业务/API/架构类：先读 `.cursor/wiki/INDEX.md`，或 `.cursor/skills/rh-project-wiki/SKILL.md`
+2. 若 Claude 已产出方案：按 `.cursor/skills/ai-tool-orchestration/reference.md` 交接，避免 Cursor 重复分析
+3. Wiki 过期：提示用户 Qoder 刷新后再 `npm run sync:wiki`
+
+## 常见路由
+
+- 写/改代码 → **Cursor**（本会话）
+- 只读分析/方案 → 建议 **Claude**，结论交 Cursor 执行
+- 补知识/刷新文档 → **Qoder** + `sync:wiki`
+- Vue3 迁移 → Cursor + `wk-train-center-ui-v3/.cursor/skills/*`
+- 中文源码 → 遵守 `chinese-encoding-guard`；子 Agent 批次后 `npm run verify:chinese`
+
+详情：`.cursor/skills/ai-tool-orchestration/SKILL.md`

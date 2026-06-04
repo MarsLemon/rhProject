@@ -1,0 +1,133 @@
+masterDir: C:\Users\RUHAI\AISkills
+language: zh
+git:
+  enabled: false
+  remote: ""
+  autoPush: false
+watch:
+  enabled: false
+  debounceMs: 3000
+apps:
+  - name: AdaL
+    skillsPath: C:\Users\RUHAI\.adal\skills
+    enabled: false
+  - name: Amp
+    skillsPath: C:\Users\RUHAI\.amp\skills
+    enabled: false
+  - name: Antigravity
+    skillsPath: C:\Users\RUHAI\.gemini\antigravity\skills
+    enabled: false
+  - name: Augment
+    skillsPath: C:\Users\RUHAI\.augment\skills
+    enabled: false
+  - name: Claude Code
+    skillsPath: C:\Users\RUHAI\.claude\skills
+    enabled: true
+  - name: Cline
+    skillsPath: C:\Users\RUHAI\.cline\skills
+    enabled: false
+  - name: CodeBuddy
+    skillsPath: C:\Users\RUHAI\.codebuddy\skills
+    enabled: false
+  - name: Codex
+    skillsPath: C:\Users\RUHAI\.codex\skills
+    enabled: false
+  - name: Command Code
+    skillsPath: C:\Users\RUHAI\.commandcode\skills
+    enabled: false
+  - name: Continue
+    skillsPath: C:\Users\RUHAI\.continue\skills
+    enabled: false
+  - name: Cortex Code
+    skillsPath: C:\Users\RUHAI\.snowflake\cortex\skills
+    enabled: false
+  - name: Crush
+    skillsPath: C:\Users\RUHAI\.config\crush\skills
+    enabled: false
+  - name: Cursor
+    skillsPath: C:\Users\RUHAI\.cursor\skills
+    enabled: true
+  - name: Droid
+    skillsPath: C:\Users\RUHAI\.factory\skills
+    enabled: false
+  - name: Gemini CLI
+    skillsPath: C:\Users\RUHAI\.gemini\skills
+    enabled: false
+  - name: GitHub Copilot
+    skillsPath: C:\Users\RUHAI\.copilot\skills
+    enabled: false
+  - name: Goose
+    skillsPath: C:\Users\RUHAI\.config\goose\skills
+    enabled: false
+  - name: iFlow CLI
+    skillsPath: C:\Users\RUHAI\.iflow\skills
+    enabled: false
+  - name: Junie
+    skillsPath: C:\Users\RUHAI\.junie\skills
+    enabled: false
+  - name: Kilo Code
+    skillsPath: C:\Users\RUHAI\.kilocode\skills
+    enabled: false
+  - name: Kimi Code CLI
+    skillsPath: C:\Users\RUHAI\.config\kimi\skills
+    enabled: false
+  - name: Kiro CLI
+    skillsPath: C:\Users\RUHAI\.kiro\skills
+    enabled: false
+  - name: Kode
+    skillsPath: C:\Users\RUHAI\.kode\skills
+    enabled: false
+  - name: MCPJam
+    skillsPath: C:\Users\RUHAI\.mcpjam\skills
+    enabled: false
+  - name: Mistral Vibe
+    skillsPath: C:\Users\RUHAI\.vibe\skills
+    enabled: false
+  - name: Mux
+    skillsPath: C:\Users\RUHAI\.mux\skills
+    enabled: false
+  - name: Neovate
+    skillsPath: C:\Users\RUHAI\.neovate\skills
+    enabled: false
+  - name: OpenClaw
+    skillsPath: C:\Users\RUHAI\.openclaw\skills
+    enabled: false
+  - name: OpenCode
+    skillsPath: C:\Users\RUHAI\.opencode\skills
+    enabled: false
+  - name: OpenHands
+    skillsPath: C:\Users\RUHAI\.openhands\skills
+    enabled: false
+  - name: Pi
+    skillsPath: C:\Users\RUHAI\.pi\agent\skills
+    enabled: false
+  - name: Pochi
+    skillsPath: C:\Users\RUHAI\.pochi\skills
+    enabled: false
+  - name: Qoder
+    skillsPath: C:\Users\RUHAI\.qoder\skills
+    enabled: true
+  - name: Qwen Code
+    skillsPath: C:\Users\RUHAI\.qwen\skills
+    enabled: false
+  - name: Replit
+    skillsPath: C:\Users\RUHAI\.config\replit\skills
+    enabled: false
+  - name: Roo Code
+    skillsPath: C:\Users\RUHAI\.roo\skills
+    enabled: false
+  - name: Trae
+    skillsPath: C:\Users\RUHAI\.trae\skills
+    enabled: false
+  - name: Trae CN
+    skillsPath: C:\Users\RUHAI\.trae\skills
+    enabled: false
+  - name: Windsurf
+    skillsPath: C:\Users\RUHAI\.codeium\windsurf\skills
+    enabled: false
+  - name: Zencoder
+    skillsPath: C:\Users\RUHAI\.zencoder\skills
+    enabled: false
+  - name: Universal
+    skillsPath: C:\Users\RUHAI\.agents\skills
+    enabled: true

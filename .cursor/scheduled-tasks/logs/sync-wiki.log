@@ -1,0 +1,46 @@
+
+===== 周三 2026/06/03  8:00:01.66 sync:wiki start =====
+
+> sync:wiki
+> node scripts/sync-cursor-wiki-index.mjs
+
+Wrote E:\rhProject\.cursor\wiki\GENERATED-INDEX.md (397 entries)
+
+> verify:wiki-index
+> node scripts/verify-wiki-index.mjs
+
+# Wiki index check (2026-06-03T00:00:02.642Z)
+
+disk_md_total: 397
+index_total: 397
+
+## Sources
+- E:\rhProject\wk-train-center-service\.qoder\repowiki\zh\content → 230 (ok)
+- E:\rhProject\wk-train-center-ui\.qoder\repowiki\zh\content → 167 (ok)
+
+status: OK
+
+Report: E:\rhProject\.cursor\scheduled-tasks\reports\wiki-index-check.txt
+
+===== 周四 2026/06/04  8:00:02.17 sync:wiki start =====
+
+> sync:wiki
+> node scripts/sync-cursor-wiki-index.mjs
+
+Wrote E:\rhProject\.cursor\wiki\GENERATED-INDEX.md (398 entries)
+
+> verify:wiki-index
+> node scripts/verify-wiki-index.mjs
+
+# Wiki index check (2026-06-04T00:00:02.942Z)
+
+disk_md_total: 398
+index_total: 398
+
+## Sources
+- E:\rhProject\wk-train-center-service\.qoder\repowiki\zh\content → 231 (ok)
+- E:\rhProject\wk-train-center-ui\.qoder\repowiki\zh\content → 167 (ok)
+
+status: OK
+
+Report: E:\rhProject\.cursor\scheduled-tasks\reports\wiki-index-check.txt

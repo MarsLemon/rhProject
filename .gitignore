@@ -1,0 +1,6 @@
+# JVM crash / diagnostic output (default dir: logs/jvm/)
+/hs_err_pid*.log
+/replay_pid*.log
+/logs/jvm/*
+!/logs/jvm/.gitkeep
+*.hprof
