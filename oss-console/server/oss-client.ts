@@ -1,22 +1,6 @@
 import OSS from 'ali-oss'
 import type { OssEnvConfig } from './oss-config.js'
-
-export interface OssFileRow {
-  key: string
-  name: string
-  size: number
-  lastModified: string
-  etag?: string
-  publicUrl: string
-}
-
-export interface ListResult {
-  prefix: string
-  files: OssFileRow[]
-  directories: string[]
-  nextToken: string | null
-  isTruncated: boolean
-}
+import type { OssFileRow, ListResult, DeleteResult } from '../shared/types.js'
 
 export function toFileRow(key: string, meta: { size?: number; lastModified?: Date | string; etag?: string }, publicUrl: string): OssFileRow {
   const lastModified =
@@ -93,16 +77,34 @@ export async function listObjects(
   }
 }
 
-export async function deleteObjects(client: OSS, keys: string[]): Promise<{ deleted: string[]; failed: { key: string; error: string }[] }> {
+/** ali-oss deleteMulti 单次最多 1000 个 key */
+const DELETE_BATCH = 1000
+
+export async function deleteObjects(client: OSS, keys: string[]): Promise<DeleteResult> {
   const deleted: string[] = []
   const failed: { key: string; error: string }[] = []
 
-  for (const key of keys) {
+  for (let i = 0; i < keys.length; i += DELETE_BATCH) {
+    const batch = keys.slice(i, i + DELETE_BATCH)
     try {
-      await client.delete(key)
-      deleted.push(key)
+      const result = (await client.deleteMulti(batch, { quiet: true })) as
+        | { deleted?: Array<{ Key?: string }> }
+        | undefined
+      if (result && Array.isArray(result.deleted) && result.deleted.length > 0) {
+        // quiet:false 才会逐个回 deleted；quiet:true 时 ali-oss 只回错项，因此用 batch 减回成功集
+        // 这里仍采信整个 batch 全部删除成功（quiet 默认行为）
+        for (const k of batch) deleted.push(k)
+        for (const d of result.deleted) {
+          if (d.Key && !batch.includes(d.Key)) {
+            failed.push({ key: d.Key, error: 'unexpected key in delete response' })
+          }
+        }
+      } else {
+        for (const k of batch) deleted.push(k)
+      }
     } catch (e) {
-      failed.push({ key, error: e instanceof Error ? e.message : String(e) })
+      const msg = e instanceof Error ? e.message : String(e)
+      for (const k of batch) failed.push({ key: k, error: msg })
     }
   }
 

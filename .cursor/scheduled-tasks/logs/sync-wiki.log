@@ -44,3 +44,26 @@ index_total: 398
 status: OK
 
 Report: E:\rhProject\.cursor\scheduled-tasks\reports\wiki-index-check.txt
+
+===== 周五 2026/06/05  8:00:01.45 sync:wiki start =====
+
+> sync:wiki
+> node scripts/sync-cursor-wiki-index.mjs
+
+Wrote E:\rhProject\.cursor\wiki\GENERATED-INDEX.md (398 entries)
+
+> verify:wiki-index
+> node scripts/verify-wiki-index.mjs
+
+# Wiki index check (2026-06-05T00:00:02.286Z)
+
+disk_md_total: 398
+index_total: 398
+
+## Sources
+- E:\rhProject\wk-train-center-service\.qoder\repowiki\zh\content → 231 (ok)
+- E:\rhProject\wk-train-center-ui\.qoder\repowiki\zh\content → 167 (ok)
+
+status: OK
+
+Report: E:\rhProject\.cursor\scheduled-tasks\reports\wiki-index-check.txt

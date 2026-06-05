@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage, ElMessageBox, type UploadRequestOptions } from 'element-plus'
 import { computed, onMounted, ref } from 'vue'
 import {
   deleteObjects,
@@ -7,6 +7,7 @@ import {
   formatBytes,
   listObjects,
   signObject,
+  uploadFiles,
   type ConsoleConfig,
   type OssFileRow
 } from './api'
@@ -19,6 +20,14 @@ const selectedKeys = ref<string[]>([])
 const loading = ref(false)
 const nextToken = ref<string | null>(null)
 const tokenStack = ref<string[]>([])
+const uploadPercent = ref(0)
+
+// 与 server/upload.ts ALLOWED_EXT 保持一致；浏览器侧只是体验过滤，真正的白名单校验在后端
+const ACCEPT_EXT =
+  '.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.md,.csv,' +
+  '.jpg,.jpeg,.png,.gif,.webp,.svg,.bmp,' +
+  '.mp4,.mp3,.wav,.mov,.avi,.mkv,.m4a,' +
+  '.zip,.rar,.7z,.tar,.gz'
 
 const breadcrumbParts = computed(() => {
   const p = prefix.value || ''
@@ -79,21 +88,32 @@ async function copyKey(key: string) {
 }
 
 async function previewFile(row: OssFileRow) {
+  // 公开桶：publicUrl 是完整直连 URL，直接打开
+  if (row.publicUrl) {
+    window.open(row.publicUrl, '_blank')
+    return
+  }
+  // 私有桶：publicUrl === ''，必须走签名 URL
   try {
     const { url } = await signObject(row.key)
     window.open(url, '_blank')
-  } catch {
-    window.open(row.publicUrl, '_blank')
+  } catch (e) {
+    ElMessage.error(e instanceof Error ? e.message : String(e))
   }
 }
 
 async function confirmDelete() {
   if (selectedKeys.value.length === 0) return
-  await ElMessageBox.confirm(`确定删除 ${selectedKeys.value.length} 个对象？不可恢复。`, '删除确认', {
-    type: 'warning',
-    confirmButtonText: '删除',
-    cancelButtonText: '取消'
-  })
+  // ElMessageBox.confirm 用户取消时会 reject，必须 try/catch 接住
+  try {
+    await ElMessageBox.confirm(
+      `确定删除 ${selectedKeys.value.length} 个对象？不可恢复。`,
+      '删除确认',
+      { type: 'warning', confirmButtonText: '删除', cancelButtonText: '取消' }
+    )
+  } catch {
+    return
+  }
   loading.value = true
   try {
     const result = await deleteObjects(selectedKeys.value)
@@ -107,6 +127,32 @@ async function confirmDelete() {
     ElMessage.error(e instanceof Error ? e.message : String(e))
   } finally {
     loading.value = false
+  }
+}
+
+async function customUpload(options: UploadRequestOptions) {
+  uploadPercent.value = 0
+  try {
+    const file = options.file
+    if (!file) return
+    const result = await uploadFiles([file], prefix.value, (p) => (uploadPercent.value = p))
+    uploadPercent.value = 100
+    if (result.failed.length) {
+      const detail = result.failed
+        .slice(0, 3)
+        .map((f) => `${f.name}(${f.error})`)
+        .join('; ')
+      ElMessage.warning(
+        `已上传 ${result.uploaded.length}，失败 ${result.failed.length}：${detail}`
+      )
+    } else {
+      ElMessage.success(`已上传 ${result.uploaded.length} 个文件`)
+    }
+    await loadList(tokenStack.value[tokenStack.value.length - 1])
+  } catch (e) {
+    ElMessage.error(e instanceof Error ? e.message : String(e))
+  } finally {
+    setTimeout(() => (uploadPercent.value = 0), 500)
   }
 }
 
@@ -127,24 +173,46 @@ onMounted(async () => {
       <div>
         <h1>OSS Console</h1>
         <p v-if="config" class="meta">
-          {{ config.bucket }} · {{ config.region }}
+          {{ config.bucket }} · {{ config.region }} · {{ config.security }}
         </p>
       </div>
       <el-tag type="info">本地自用 · 凭证仅在 server/.env</el-tag>
     </header>
 
     <section class="toolbar">
-      <el-input v-model="prefix" placeholder="前缀，如 dev/AI-training/" clearable @keyup.enter="navigatePrefix(prefix)">
+      <el-input
+        v-model="prefix"
+        placeholder="前缀，如 dev/AI-training/"
+        clearable
+        @keyup.enter="navigatePrefix(prefix)"
+      >
         <template #prepend>Prefix</template>
         <template #append>
           <el-button @click="navigatePrefix(prefix)">进入</el-button>
         </template>
       </el-input>
+      <el-upload
+        multiple
+        :show-file-list="false"
+        :http-request="customUpload"
+        :accept="ACCEPT_EXT"
+      >
+        <el-button type="primary" plain>上传到当前前缀</el-button>
+      </el-upload>
       <el-button :disabled="!selectedKeys.length" type="danger" @click="confirmDelete">
         删除选中 ({{ selectedKeys.length }})
       </el-button>
-      <el-button :loading="loading" @click="loadList(tokenStack[tokenStack.length - 1])">刷新</el-button>
+      <el-button :loading="loading" @click="loadList(tokenStack[tokenStack.length - 1])">
+        刷新
+      </el-button>
     </section>
+
+    <el-progress
+      v-if="uploadPercent > 0 && uploadPercent < 100"
+      :percentage="uploadPercent"
+      :stroke-width="6"
+      class="progress"
+    />
 
     <nav class="breadcrumb">
       <span
@@ -230,12 +298,17 @@ onMounted(async () => {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+  align-items: center;
   margin-bottom: 12px;
 }
 
 .toolbar .el-input {
   flex: 1;
   min-width: 280px;
+}
+
+.progress {
+  margin: 4px 0 12px;
 }
 
 .breadcrumb {

@@ -62,7 +62,12 @@ function prefixId(id, project) {
   if (typeof id !== "string") return id;
   for (const ns of NS_PREFIXES) {
     const re = new RegExp(`^${ns}:`);
-    if (re.test(id)) return `${ns}:${project}/${id.slice(ns.length + 1)}`;
+    if (re.test(id)) {
+      // 幂等保护: 子图谱的 ID 若已带项目前缀(如 fix-service-understand-graph 修复后),
+      // 不再重复拼接, 直接返回。避免产生 file:wk-xxx/wk-xxx/... 的双重前缀。
+      if (id.startsWith(`${ns}:${project}/`)) return id;
+      return `${ns}:${project}/${id.slice(ns.length + 1)}`;
+    }
   }
   // 纯路径（罕见）：wk-PPTist-ui/src/foo.ts
   if (id.startsWith(project + "/")) return id;
