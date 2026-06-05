@@ -243,6 +243,10 @@ async function main() {
   ];
 
   // 收集 layers（去重 by id）
+  // 关键: 子图谱的 layer 总是最新的(子项目图谱被 fix 脚本规范化后, layer.nodeIds 带前缀),
+  //       必须覆盖根图谱中已有的同名 layer(根图谱的 layer 可能来自旧 merge,nodeIds 不带前缀),
+  //       否则根 dashboard 会显示 "0 files"。
+  // 根图谱独有的 layer (id 不在子图谱中) 保留 rootGraph.layers 的版本, 但只保留 "跨项目" 类型的(如 applications)。
   const layerMap = new Map();
   for (const l of rootGraph.layers || []) layerMap.set(l.id, l);
   for (const p of subprojects) {
@@ -250,7 +254,8 @@ async function main() {
     if (!b) continue;
     const subGraph = JSON.parse(await fs.readFile(path.join(REPO_ROOT, p, ".understand-anything", "knowledge-graph.json"), "utf8"));
     for (const l of subGraph.layers || []) {
-      if (!layerMap.has(l.id)) layerMap.set(l.id, { ...l, scope: "merged" });
+      // 总是用子图谱的最新 layer 覆盖(子图谱 ID/filePath 已规范化)
+      layerMap.set(l.id, { ...l, scope: "merged" });
     }
   }
   const mergedLayers = [...layerMap.values()];

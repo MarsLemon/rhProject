@@ -1,26 +1,26 @@
 {
-  "lastAnalyzedAt": "2026-06-05T06:45:19.769Z",
+  "lastAnalyzedAt": "2026-06-05T08:03:46.767Z",
   "gitCommitHash": "N/A (merged, re-run merge-understand-graph.mjs to refresh)",
   "version": "1.0.0",
   "analyzedFiles": 2974,
   "subprojects": [
     {
       "name": "wk-PPTist-ui",
-      "lastAnalyzedAt": "2026-06-05T06:45:19.261Z",
+      "lastAnalyzedAt": "2026-06-05T07:33:37.502Z",
       "gitCommitHash": "1c279a0fbfb851f6ca9ada9e3620dc8b7d1a3442",
       "analyzedFiles": 346,
       "graphRef": "wk-PPTist-ui/.understand-anything/knowledge-graph.json"
     },
     {
       "name": "wk-train-center-service",
-      "lastAnalyzedAt": "2026-06-05T05:21:34.971Z",
+      "lastAnalyzedAt": "2026-06-05T07:33:37.282Z",
       "gitCommitHash": "N/A (relocated, run understand-anything in subdir to refresh)",
       "analyzedFiles": 1639,
       "graphRef": "wk-train-center-service/.understand-anything/knowledge-graph.json"
     },
     {
       "name": "wk-train-center-ui",
-      "lastAnalyzedAt": "2026-06-05T06:45:18.979Z",
+      "lastAnalyzedAt": "2026-06-05T07:33:37.411Z",
       "gitCommitHash": "8b0c9669a08924252a4d5ba672b16ea885d1dbba",
       "analyzedFiles": 989,
       "graphRef": "wk-train-center-ui/.understand-anything/knowledge-graph.json"

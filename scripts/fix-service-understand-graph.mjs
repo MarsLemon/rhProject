@@ -88,18 +88,21 @@ function pathFromId(id) {
   return parsed.rest; // 包含或不含 / 都返回
 }
 
+// 剥除子项目前缀, 得到真正的相对路径
+function stripPrefix(p) {
+  if (typeof p !== "string") return p;
+  if (p.startsWith(PREFIX)) return p.slice(PREFIX.length);
+  return p;
+}
+
 // 计算 node 的相对路径(不带项目前缀)
 function nodeRelativePath(node) {
-  if (typeof node.path === "string" && node.path) return node.path;
-  if (typeof node.filePath === "string" && node.filePath) {
-    return node.filePath.startsWith(PREFIX)
-      ? node.filePath.slice(PREFIX.length)
-      : node.filePath;
-  }
+  if (typeof node.path === "string" && node.path) return stripPrefix(node.path);
+  if (typeof node.filePath === "string" && node.filePath) return stripPrefix(node.filePath);
   // 从 id 推断(仅对 file 节点有意义)
   if (node.type === "file" && typeof node.id === "string") {
     const before = restOfId(node.id)?.rest;
-    if (before) return before;
+    if (before) return stripPrefix(before);
   }
   return null;
 }
@@ -182,6 +185,57 @@ async function main() {
     }
   }
 
+  // ========== 第三.五步: 重写 layers[].nodeIds (和 tour.steps[].nodeId) ==========
+  // 否则 layer 卡片会因 nodeId 不匹配而显示 "0 files"
+  // 注意: 节点的 ID 已在第二步重写, 所以 [节点当前 ID 集合] 是带前缀的。
+  //       layers 中的 nodeId 可能是未带前缀的原始 ID, 不在 idMap 中,
+  //       此时需用 prefixId 转换 + 验证转换后能匹配上某个节点。
+  const currentNodeIds = new Set(nodes.map((n) => n.id));
+  let layerNodeIdChanged = 0;
+  let layerNodeIdUnresolved = 0;
+  for (const layer of graph.layers || []) {
+    if (!Array.isArray(layer.nodeIds)) continue;
+    layer.nodeIds = layer.nodeIds.map((nid) => {
+      if (typeof nid !== "string") return nid;
+      // 1) 直接在 idMap 中
+      if (idMap.has(nid)) {
+        const newId = idMap.get(nid);
+        if (newId !== nid) layerNodeIdChanged++;
+        return newId;
+      }
+      // 2) 已经是带前缀的形式(已经修过)
+      if (currentNodeIds.has(nid)) return nid;
+      // 3) 尝试 prefixId 转换(用于修复 layer.nodeIds 未带前缀的情况)
+      const newId = prefixId(nid);
+      if (newId !== nid && currentNodeIds.has(newId)) {
+        layerNodeIdChanged++;
+        return newId;
+      }
+      // 4) 真的解析不到
+      layerNodeIdUnresolved++;
+      return nid;
+    });
+  }
+  let tourStepNodeIdChanged = 0;
+  if (graph.tour && Array.isArray(graph.tour.steps)) {
+    for (const step of graph.tour.steps) {
+      if (typeof step.nodeId !== "string") continue;
+      if (idMap.has(step.nodeId)) {
+        const newId = idMap.get(step.nodeId);
+        if (newId !== step.nodeId) {
+          step.nodeId = newId;
+          tourStepNodeIdChanged++;
+        }
+      } else if (!currentNodeIds.has(step.nodeId)) {
+        const newId = prefixId(step.nodeId);
+        if (newId !== step.nodeId && currentNodeIds.has(newId)) {
+          step.nodeId = newId;
+          tourStepNodeIdChanged++;
+        }
+      }
+    }
+  }
+
   // ========== 第四步: 计算新 file 数 ==========
   const fileCount = nodes.filter(n => n.type === "file").length;
   const nodesWithoutFilePath = nodes.filter(n => n.type === "file" && !n.filePath).length;
@@ -194,6 +248,8 @@ async function main() {
   console.log(`  节点 path 加前缀:       ${pathPrefixed}`);
   console.log(`  边 source 改写:         ${edgeSourceChanged}`);
   console.log(`  边 target 改写:         ${edgeTargetChanged}`);
+  console.log(`  layer.nodeIds 改写:     ${layerNodeIdChanged} (未解析: ${layerNodeIdUnresolved})`);
+  console.log(`  tour step.nodeId 改写:  ${tourStepNodeIdChanged}`);
   console.log(`  修复后无 filePath 的 file 节点: ${nodesWithoutFilePath}`);
   console.log(`  修复后 file 节点总数:   ${fileCount}`);
   console.log(`  修复后 analyzedFiles:   ${fileCount} (原错误值: 6638)`);
