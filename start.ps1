@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   智能培训系统 - 一键启动服务 (Windows Terminal + PowerShell 7)
@@ -23,30 +23,6 @@ $OutputEncoding = [System.Text.Encoding]::UTF8
 chcp 65001 | Out-Null
 $ErrorActionPreference = 'Stop'
 
-# ==================== wt 自启: 不在 wt 里就跳进 wt ====================
-# wt 启动子进程时会设置 $env:WT_SESSION=<guid>
-# 没设说明当前不在 wt -> 用 wt 重新启动本脚本
-if (-not $env:WT_SESSION) {
-    $scriptPath = $MyInvocation.MyCommand.Path
-    $scriptDir  = Split-Path -Parent $scriptPath
-    $wtCmd = Get-Command wt -ErrorAction SilentlyContinue
-    if ($wtCmd) {
-        Write-Host "正在跳入 Windows Terminal..." -ForegroundColor Cyan
-        # 故意只写 'wt' 和 'pwsh' (不写完整路径), 让 wt 启动子进程时通过 PATH 解析
-        # 彻底绕开 wt 内部对完整路径重新 quote 的引号 bug
-        Start-Process -FilePath 'wt' -ArgumentList @(
-            '-w', '-1', 'nt',
-            '--title', 'rh-start',
-            '-d', $scriptDir,
-            '--', 'pwsh',
-            '-NoLogo', '-NoExit',
-            '-File', $scriptPath
-        )
-        # 当前进程退出, 让 wt 新窗口里的 pwsh 跑菜单
-        exit 0
-    }
-    Write-Host "[提示] 未检测到 Windows Terminal, 在当前窗口继续..." -ForegroundColor Yellow
-}
 
 # ==================== 路径与基础检查 ====================
 
@@ -60,7 +36,6 @@ if (-not (Test-Path (Join-Path $RhRoot 'wk-mhc-ui'))) {
         $RhRoot = $alt
     } else {
         Write-Host "未找到 monorepo 根目录(缺少 wk-mhc-ui), 请把 start.ps1 放在 rhProject 根目录。" -ForegroundColor Red
-        Read-Host "按 Enter 退出"
         exit 1
     }
 }
@@ -122,23 +97,26 @@ if ($hostsOk) {
 
 $Ports = @(4201, 4212, 5173, 8101, 8086, 4213)
 
-function Test-PortListening {
-    param([int]$Port)
+# 一次性拉取所有 Listen 端口, 本地哈希查找
+# (避免对每个端口都调一次 Get-NetTCPConnection, 那样需扫全表 N 次)
+function Get-ListeningPortMap {
+    $map = @{}
     try {
-        $conn = Get-NetTCPConnection -State Listen -LocalPort $Port -ErrorAction Stop
-        return $conn
-    } catch {
-        return $null
-    }
+        $conns = Get-NetTCPConnection -State Listen -ErrorAction Stop
+        foreach ($c in $conns) {
+            $map[[int]$c.LocalPort] = $c
+        }
+    } catch {}
+    return $map
 }
 
 function Format-PortStatus {
-    param([int]$Port)
-    $conn = Test-PortListening -Port $Port
+    param([int]$Port, [hashtable]$Map)
+    $conn = $Map[$Port]
     if ($conn) {
-        $pid = $conn.OwningProcess
-        Write-Host "  ⚠️  端口 $Port 已被占用 (PID: $pid)" -ForegroundColor Yellow
-        return @{ Busy = $true; Pid = $pid }
+        $procId = $conn.OwningProcess
+        Write-Host "  ⚠️  端口 $Port 已被占用 (PID: $procId)" -ForegroundColor Yellow
+        return @{ Busy = $true; Pid = $procId }
     } else {
         Write-Host "  ✅ 端口 $Port 可用" -ForegroundColor Green
         return @{ Busy = $false; Pid = $null }
@@ -146,22 +124,27 @@ function Format-PortStatus {
 }
 
 function Kill-Port {
-    param([int]$Port)
-    $conn = Test-PortListening -Port $Port
+    param([int]$Port, [hashtable]$Map)
+    $conn = $Map[$Port]
     if ($conn) {
         Write-Host "  正在关闭 PID $($conn.OwningProcess) ..." -ForegroundColor DarkYellow
         Stop-Process -Id $conn.OwningProcess -Force -ErrorAction SilentlyContinue
     }
 }
 
+$sw = [System.Diagnostics.Stopwatch]::StartNew()
 Write-Host ""
 Write-Host "[检查] 正在检查端口占用情况..." -ForegroundColor Cyan
 Write-Host ""
 
+$listenMap = Get-ListeningPortMap
+
 $portStatus = @{}
 foreach ($p in $Ports) {
-    $portStatus[$p] = Format-PortStatus -Port $p
+    $portStatus[$p] = Format-PortStatus -Port $p -Map $listenMap
 }
+
+Write-Host ("  耗时: {0}ms" -f $sw.ElapsedMilliseconds) -ForegroundColor DarkGray
 
 # 如果所有端口都忙, 询问清理
 $allBusy = -not ($portStatus.Values | Where-Object { -not $_.Busy } | Select-Object -First 1)
@@ -170,7 +153,6 @@ while ($allBusy -and $retry -lt 3) {
     $retry++
     if ($retry -gt 3) {
         Write-Host "❌ 端口清理失败超过3次, 可能无权限或其他问题" -ForegroundColor Red
-        Read-Host "按 Enter 退出"
         exit 1
     }
     Write-Host ""
@@ -179,15 +161,17 @@ while ($allBusy -and $retry -lt 3) {
     if ($clean -eq 'N') { break }
     Write-Host ""
     Write-Host "[清理] 正在清理占用的端口..." -ForegroundColor Cyan
-    foreach ($p in $Ports) { Kill-Port -Port $p }
+    foreach ($p in $Ports) { Kill-Port -Port $p -Map $listenMap }
     Write-Host "  等待端口释放..." -ForegroundColor DarkYellow
-    Start-Sleep -Seconds 5
-    Write-Host "  ✅ 端口清理完成" -ForegroundColor Green
-    Write-Host ""
+    Start-Sleep -Seconds 2
+    # 清理后重新查一次, 状态以新表为准
+    $listenMap = Get-ListeningPortMap
     $portStatus = @{}
     foreach ($p in $Ports) {
-        $portStatus[$p] = Format-PortStatus -Port $p
+        $portStatus[$p] = Format-PortStatus -Port $p -Map $listenMap
     }
+    Write-Host "  ✅ 端口清理完成" -ForegroundColor Green
+    Write-Host ""
     $allBusy = -not ($portStatus.Values | Where-Object { -not $_.Busy } | Select-Object -First 1)
 }
 
@@ -209,34 +193,63 @@ Write-Host "========================================" -ForegroundColor White
 Write-Host "  请选择要启动的服务:" -ForegroundColor White
 Write-Host "========================================" -ForegroundColor White
 Write-Host ""
-Write-Host "  0. 全部启动" -ForegroundColor Gray
+Write-Host "  0.  全部启动 (除后端 5)" -ForegroundColor Gray
+Write-Host "  00. 全部启动 (含后端 5)" -ForegroundColor Gray
 foreach ($s in $Services) {
     Write-Host ("  {0}. {1,-22} (端口 {2})" -f $s.Key, $s.Name, $s.Port) -ForegroundColor Gray
 }
-Write-Host "  示例: 1/2/3 或 1,2,3" -ForegroundColor DarkGray
+Write-Host "  示例: 0, 00, 1/2/3, 1,2,5" -ForegroundColor DarkGray
 Write-Host ""
 
-$choice = Read-Host "请选择 (默认0)"
+$choice = Read-Host "请选择 (默认 0 = 除后端外全部)"
 if ([string]::IsNullOrWhiteSpace($choice)) { $choice = '0' }
 
-# 解析选择: 支持 0, 1-6, 1/2/3, 1,2,3
+# 解析选择: 支持 0(全部除后端), 00(全部含后端), 1-6, 组合如 1,2/3
 $selected = New-Object System.Collections.Generic.List[object]
-$tokens = $choice -split '[/,\s，]+' | Where-Object { $_ }
-$validTokens = $tokens | Where-Object { $_ -match '^[0-6]$' }
 
-if (-not $validTokens) {
-    Write-Host "无效选择, 请重新运行脚本" -ForegroundColor Red
-    Read-Host "按 Enter 退出"
-    exit 1
+# 00 优先: 全部启动 (含后端)
+$isAll = $false
+if ($choice -match '(^|[\s/,，])00($|[\s/,，])') {
+    $isAll = $true
 }
 
-if ($validTokens -contains '0') {
-    # 全部
+# 0: 全部启动 (除后端 5)
+# 注意: 需在 00 判定之后再判定 0, 避免被 00 吞掉
+$cleanChoice = $choice
+if (-not $isAll) {
+    if ($cleanChoice -match '(^|[\s/,，])0($|[\s/,，])') {
+        $isAllButBackend = $true
+    }
+    # 去掉单独的 0 token
+    $cleanChoice = $cleanChoice -replace '(^|[\s/,，])0($|[\s/,，])', '$1$2'
+}
+
+# 解析剩余的具体编号 1-6
+$tokens = $cleanChoice -split '[/,\s，]+' | Where-Object { $_ }
+$validTokens = $tokens | Where-Object { $_ -match '^[1-6]$' }
+
+if ($isAll) {
+    # 00: 全部启动 (含后端)
     $selected.AddRange($Services)
+} elseif ($isAllButBackend) {
+    # 0: 全部启动 (除后端 5)
+    foreach ($s in $Services) {
+        if ($s.Key -ne '5') { $selected.Add($s) }
+    }
+    # 补充用户额外指定的具体编号 (跳过 5)
+    foreach ($t in $validTokens) {
+        if ($t -eq '5') { continue }
+        $s = $Services | Where-Object { $_.Key -eq $t }
+        if ($s -and -not ($selected | Where-Object { $_.Name -eq $s.Name })) {
+            $selected.Add($s)
+        }
+    }
 } else {
     foreach ($t in $validTokens) {
         $s = $Services | Where-Object { $_.Key -eq $t }
-        if ($s) { $selected.Add($s) }
+        if ($s -and -not ($selected | Where-Object { $_.Name -eq $s.Name })) {
+            $selected.Add($s)
+        }
     }
 }
 
@@ -262,19 +275,28 @@ function Open-WtTab {
         [string]$Command
     )
 
-    # 关键: 用数组传参, PowerShell 自动正确加引号包裹含空格的元素
-    # 注意: 故意只写 'pwsh' (不写 PwshExe 完整路径), 让 wt 启动子进程时通过 PATH 自己解析
-    #       这样可以彻底绕开 wt 内部对完整路径重新 quote 的 bug
-    $args = @(
+    # wt 把 -- 后面的所有 token 拼成单个字符串传给 CreateProcessW 的 lpApplicationName,
+    # 只要路径含空格 (如 "Program Files") 就会产生多个 token 被拼接, 导致 0x80070002。
+    # 修复: 创建临时 .cmd 文件, 将 pwsh 命令写入其中, 然后把 .cmd 路径
+    # (TEMP 路径无空格 = 单 token) 传给 wt, 确保 wt 只看到一个文件名。
+    $cmdFile = Join-Path $env:TEMP "wt-$TabName-$([Guid]::NewGuid().ToString('N').Substring(0,8)).cmd"
+    $scriptText = "Set-Location -LiteralPath `"$Cwd`"; $Command"
+    $encodedCmd = [Convert]::ToBase64String(
+        [System.Text.Encoding]::Unicode.GetBytes($scriptText))
+    @(
+        '@echo off'
+        "`"$PwshExe`" -NoLogo -NoExit -e `"$encodedCmd`""
+    ) | Set-Content -LiteralPath $cmdFile -Encoding ASCII
+
+    # cmdFile 路径无空格, 是 -- 后面的唯一 token, wt 能正确找到并执行
+    $wtArgs = @(
         '-w', $WindowFlag, 'nt',
         '--suppressApplicationTitle',
         '--title', $TabName,
         '-d', $Cwd,
-        '--', 'pwsh',
-        '-NoLogo', '-NoExit',
-        '-Command', $Command
+        '--', $cmdFile
     )
-    Start-Process -FilePath $WtExe -ArgumentList $args
+    Start-Process -FilePath $WtExe -ArgumentList $wtArgs
 }
 
 function Open-Independent {
@@ -284,8 +306,8 @@ function Open-Independent {
         [string]$Cwd,
         [string]$Command
     )
-    # 独立 PowerShell 窗口: 同样只写 'pwsh', 让 Windows 自己 PATH 解析
-    Start-Process -FilePath 'pwsh' -ArgumentList @(
+    # 独立 PowerShell 窗口: 使用完整路径确保可靠找到 pwsh
+    Start-Process -FilePath $PwshExe -ArgumentList @(
         '-NoLogo', '-NoExit',
         '-Command', "Set-Location -LiteralPath '$Cwd'; $Command"
     ) -WorkingDirectory $Cwd -WindowStyle Normal
@@ -332,4 +354,3 @@ if ($HasWt) {
     Write-Host "提示: 未检测到 Windows Terminal, 各服务在独立 PowerShell 7 窗口中启动..." -ForegroundColor DarkGray
 }
 Write-Host ""
-Read-Host "按 Enter 退出"
