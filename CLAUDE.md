@@ -2,6 +2,27 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 跨模块硬约束（每次会话必看）
+
+> 改业务代码前必须读 `.claude/projects/E--rhProject/memory/` 下的相关笔记。
+
+| 主域 | 必查联动域 | 关键笔记 |
+|---|---|---|
+| 课程 | 学习任务、培训计划、统计、AI 答疑 | `domain-coupling-course-study-task` |
+| 学习任务 | 课程、培训计划、AI 答疑 | `domain-coupling-course-study-task` |
+| 培训计划 | 学习任务、课程、考试 | `domain-coupling-course-study-task` |
+| 考试 | 培训计划、用户、权限 | `domain-overview` |
+| AI 答疑 | 课程（学习记录）、培训计划（节点） | `domain-coupling-course-study-task` |
+
+**改动流程**（详见 memory 笔记 `workflow-cross-module-check`）：
+
+1. 读 `domain-overview` 定位域
+2. 读对应 `domain-coupling-*` 笔记查耦合点
+3. 列影响清单（后端/Vue2/Vue3/H5/DB/Wiki）给用户确认
+4. 改完跑 `verify:chinese` + `mvn compile` + `npm run typecheck`
+
+**禁止**：跳过"列影响清单"直接改代码；删除 `el_training_record` 字段；改节点枚举不通知 AI 模块。
+
 ## Project Overview
 
 This is a multi-project monorepo for an intelligent training system (智能培训系统). The main projects are:

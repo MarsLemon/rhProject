@@ -1,0 +1,31 @@
+---
+description: 跨业务域硬耦合检查规则。改课程/学习任务/培训计划任一域前必触发。
+globs:
+  - "**/yf-module-course/**/*.java"
+  - "**/yf-module-training-plan/**/*.java"
+  - "**/wk-module-ai/**/*.java"
+  - "**/el_training_record**"
+alwaysApply: false
+---
+
+# 跨域改动硬约束
+
+## 触发条件
+
+满足以下任一条件时，本规则生效：
+
+- 改动的文件在 `yf-module-course`、`yf-module-training-plan`、`wk-module-ai` 任意模块下
+- 改动的 SQL 涉及 `el_training_*`、`tp_training_plan_*`、`el_training_record` 表
+- 改动是"节点类型/完成条件/学时换算"相关枚举或字段
+
+## 强制动作
+
+1. **必须先读** `C:\Users\RUHAI\.claude\projects\E--rhProject\memory\domain-coupling-course-study-task.md`
+2. **必须先列** 后端/Vue2/Vue3/H5/DB/Wiki 6 个维度的改动清单
+3. **必须先问** 用户是否确认所有联动点
+
+## 禁止动作
+
+- 改 `el_training_record` 字段不通知 AI 模块
+- 改培训计划节点枚举不同步学习任务
+- 改课程时长不查"差异化配置"方案

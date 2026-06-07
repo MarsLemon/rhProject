@@ -1,0 +1,188 @@
+# Skill Cleaner Report (Cursor audit)
+
+generated: 2026-06-07T01:00:01.616Z
+roots_scanned: 5
+skills_discovered: 87
+description_chars_total: 9887
+discovery_line_tokens_total: 5083
+
+## Skill Budget (discovery metadata)
+
+context_tokens_assumed: 272,000
+2%_budget_tokens: 5,440
+all_skill_descriptions_tokens: 5,083
+used_of_2%_budget: 93.4%
+used_of_context: 1.87%
+
+## Root Summary
+
+- C:\Users\RUHAI\.cursor\skills: 55 skills
+- C:\Users\RUHAI\.claude\skills: 0 skills
+- C:\Users\RUHAI\.cursor\plugins\local: 24 skills
+- E:\rhProject\.cursor\skills: 3 skills
+- E:\rhProject\wk-train-center-ui-v3\.cursor\skills: 5 skills
+
+## Duplicates By Name
+
+- none
+
+## Duplicates By Body (near-copy content)
+
+- none
+
+## Description Candidates (>=120 chars or line >=200)
+
+- **hook-development** (525 chars, ~159 tok)
+  path: C:\Users\RUHAI\.cursor\plugins\local\plugin-dev\skills\hook-development\SKILL.md
+  desc: This skill should be used when the user asks to "create a hook", "add a PreToolUse/PostToolUse/Stop hook", "validate tool use", "implement prompt-based hooks", …
+- **command-development** (488 chars, ~151 tok)
+  path: C:\Users\RUHAI\.cursor\plugins\local\plugin-dev\skills\command-development\SKILL.md
+  desc: This skill should be used when the user asks to "create a slash command", "add a command", "write a custom command", "define command arguments", "use command fr…
+- **build-mcp-server** (486 chars, ~151 tok)
+  path: C:\Users\RUHAI\.cursor\plugins\local\mcp-server-dev\skills\build-mcp-server\SKILL.md
+  desc: This skill should be used when the user asks to "build an MCP server", "create an MCP", "make an MCP integration", "wrap an API for Claude", "expose tools to Cl…
+- **build-mcp-app** (453 chars, ~141 tok)
+  path: C:\Users\RUHAI\.cursor\plugins\local\mcp-server-dev\skills\build-mcp-app\SKILL.md
+  desc: This skill should be used when the user wants to build an "MCP app", add "interactive UI" or "widgets" to an MCP server, "render components in chat", build "MCP…
+- **mcp-integration** (438 chars, ~137 tok)
+  path: C:\Users\RUHAI\.cursor\plugins\local\plugin-dev\skills\mcp-integration\SKILL.md
+  desc: This skill should be used when the user asks to "add MCP server", "integrate MCP", "configure MCP in plugin", "use .mcp.json", "set up Model Context Protocol", …
+- **plugin-structure** (433 chars, ~136 tok)
+  path: C:\Users\RUHAI\.cursor\plugins\local\plugin-dev\skills\plugin-structure\SKILL.md
+  desc: This skill should be used when the user asks to "create a plugin", "scaffold a plugin", "understand plugin structure", "organize plugin components", "set up plu…
+- **cardputer-buddy** (411 chars, ~130 tok)
+  path: C:\Users\RUHAI\.cursor\plugins\local\cwc-makers\skills\cardputer-buddy\SKILL.md
+  desc: Iterate on the Cardputer-Adv MicroPython app bundle (Claude Buddy, Snake, Hello) after the device is already provisioned via m5-onboard. Use when the user wants…
+- **plugin-settings** (408 chars, ~129 tok)
+  path: C:\Users\RUHAI\.cursor\plugins\local\plugin-dev\skills\plugin-settings\SKILL.md
+  desc: This skill should be used when the user asks about "plugin settings", "store plugin configuration", "user-configurable plugin", ".local.md files", "plugin state…
+- **build-mcpb** (403 chars, ~127 tok)
+  path: C:\Users\RUHAI\.cursor\plugins\local\mcp-server-dev\skills\build-mcpb\SKILL.md
+  desc: This skill should be used when the user wants to "package an MCP server", "bundle an MCP", "make an MCPB", "ship a local MCP server", "distribute a local MCP", …
+- **agent-development** (357 chars, ~118 tok)
+  path: C:\Users\RUHAI\.cursor\plugins\local\plugin-dev\skills\agent-development\SKILL.md
+  desc: This skill should be used when the user asks to "create an agent", "add an agent", "write a subagent", "agent frontmatter", "when to use description", "agent ex…
+- **claude-automation-recommender** (354 chars, ~125 tok)
+  path: C:\Users\RUHAI\.cursor\plugins\local\claude-code-setup\skills\claude-automation-recommender\SKILL.md
+  desc: Analyze a codebase and recommend Claude Code automations (hooks, subagents, skills, plugins, MCP servers). Use when user asks for automation recommendations, wa…
+- **claude-md-improver** (338 chars, ~116 tok)
+  path: C:\Users\RUHAI\.cursor\plugins\local\claude-md-management\skills\claude-md-improver\SKILL.md
+  desc: Audit and improve CLAUDE.md files in repositories. Use when user asks to check, audit, update, improve, or fix CLAUDE.md files. Scans for all CLAUDE.md files, e…
+- **m5-onboard** (329 chars, ~108 tok)
+  path: C:\Users\RUHAI\.cursor\plugins\local\cwc-makers\skills\m5-onboard\SKILL.md
+  desc: End-to-end onboarding for a freshly-plugged-in M5Stack ESP32 device (Cardputer, Cardputer-Adv, Core, CoreS3, Stick) — detect on USB, flash UIFlow 2.0 firmware, …
+- **skill-creator** (319 chars, ~107 tok)
+  path: C:\Users\RUHAI\.cursor\plugins\local\skill-creator\skills\skill-creator\SKILL.md
+  desc: Create new skills, modify and improve existing skills, and measure skill performance. Use when users want to create a skill from scratch, edit, or optimize an e…
+- **skill-development** (290 chars, ~101 tok)
+  path: C:\Users\RUHAI\.cursor\plugins\local\plugin-dev\skills\skill-development\SKILL.md
+  desc: This skill should be used when the user wants to "create a skill", "add a skill to plugin", "write a new skill", "improve skill description", "organize skill co…
+- **playground** (268 chars, ~92 tok)
+  path: C:\Users\RUHAI\.cursor\plugins\local\playground\skills\playground\SKILL.md
+  desc: Creates interactive HTML playgrounds — self-contained single-file explorers that let users configure something visually through controls, see a live preview, an…
+- **frontend-design** (234 chars, ~87 tok)
+  path: C:\Users\RUHAI\.cursor\plugins\local\frontend-design\skills\frontend-design\SKILL.md
+  desc: Create distinctive, production-grade frontend interfaces with high design quality. Use this skill when the user asks to build web components, pages, or applicat…
+- **example-skill** (228 chars, ~84 tok)
+  path: C:\Users\RUHAI\.cursor\plugins\local\example-plugin\skills\example-skill\SKILL.md
+  desc: This skill should be used when the user asks to "demonstrate skills", "show skill format", "create a skill template", or discusses skill development patterns. P…
+- **configure** (209 chars, ~76 tok)
+  path: C:\Users\RUHAI\.cursor\plugins\local\imessage\skills\configure\SKILL.md
+  desc: Check iMessage channel setup and review access policy. Use when the user asks to configure iMessage, asks "how do I set this up" or "who can reach me," or wants…
+- **access** (201 chars, ~73 tok)
+  path: C:\Users\RUHAI\.cursor\plugins\local\imessage\skills\access\SKILL.md
+  desc: Manage iMessage channel access — approve pairings, edit allowlists, set DM/group policy. Use when the user asks to pair, approve someone, check who's allowed, o…
+
+## Stack relevance (rhProject / Vue3)
+
+**建议保留（业务/栈）**: rh-project-wiki, chinese-encoding-guard, vue2-to-vue3-component-migration, api-development, page-adaptation, style-management, el-link-to-detail-link
+
+## Full inventory
+
+- access [cursor-plugin-local] desc=201ch ~73tok
+- agent-development [cursor-plugin-local] desc=357ch ~118tok
+- ai-tool-orchestration [cursor-global] desc=2ch ~24tok
+- api-development [cursor-global] desc=105ch ~83tok
+- autoplan [cursor-global] desc=64ch ~59tok
+- babysit [cursor-global] desc=2ch ~18tok
+- benchmark [cursor-global] desc=31ch ~33tok
+- benchmark-models [cursor-global] desc=26ch ~34tok
+- browse [cursor-global] desc=40ch ~35tok
+- build-mcp-app [cursor-plugin-local] desc=453ch ~141tok
+- build-mcp-server [cursor-plugin-local] desc=486ch ~151tok
+- build-mcpb [cursor-plugin-local] desc=403ch ~127tok
+- canary [cursor-global] desc=17ch ~25tok
+- cardputer-buddy [cursor-plugin-local] desc=411ch ~130tok
+- careful [cursor-global] desc=21ch ~29tok
+- chinese-encoding-guard [cursor-global] desc=2ch ~25tok
+- claude-automation-recommender [cursor-plugin-local] desc=354ch ~125tok
+- claude-md-improver [cursor-plugin-local] desc=338ch ~116tok
+- codex [cursor-global] desc=34ch ~29tok
+- command-development [cursor-plugin-local] desc=488ch ~151tok
+- configure [cursor-plugin-local] desc=209ch ~76tok
+- context-restore [cursor-global] desc=37ch ~37tok
+- context-save [cursor-global] desc=16ch ~28tok
+- cso [cursor-global] desc=21ch ~25tok
+- design-consultation [cursor-global] desc=62ch ~65tok
+- design-html [cursor-global] desc=39ch ~35tok
+- design-review [cursor-global] desc=52ch ~52tok
+- design-shotgun [cursor-global] desc=45ch ~48tok
+- devex-review [cursor-global] desc=19ch ~30tok
+- document-generate [cursor-global] desc=28ch ~39tok
+- document-release [cursor-global] desc=17ch ~30tok
+- el-link-to-detail-link [cursor-global] desc=117ch ~91tok
+- example-command [cursor-plugin-local] desc=105ch ~55tok
+- example-skill [cursor-plugin-local] desc=228ch ~84tok
+- freeze [cursor-global] desc=26ch ~32tok
+- frontend-design [cursor-plugin-local] desc=234ch ~87tok
+- gstack-openclaw-ceo-review [cursor-global] desc=50ch ~61tok
+- gstack-openclaw-investigate [cursor-global] desc=44ch ~58tok
+- gstack-openclaw-office-hours [cursor-global] desc=54ch ~62tok
+- gstack-openclaw-retro [cursor-global] desc=86ch ~89tok
+- gstack-upgrade [cursor-global] desc=17ch ~29tok
+- guard [cursor-global] desc=34ch ~36tok
+- hackernews-frontpage [cursor-global] desc=29ch ~39tok
+- health [cursor-global] desc=15ch ~24tok
+- hook-development [cursor-plugin-local] desc=525ch ~159tok
+- investigate [cursor-global] desc=19ch ~29tok
+- land-and-deploy [cursor-global] desc=17ch ~30tok
+- landing-report [cursor-global] desc=25ch ~35tok
+- learn [cursor-global] desc=10ch ~24tok
+- loop [cursor-global] desc=2ch ~16tok
+- m5-onboard [cursor-plugin-local] desc=329ch ~108tok
+- make-pdf [cursor-global] desc=33ch ~31tok
+- math-olympiad [cursor-plugin-local] desc=0ch ~27tok
+- mcp-integration [cursor-plugin-local] desc=438ch ~137tok
+- office-hours [cursor-global] desc=30ch ~31tok
+- open-gstack-browser [cursor-global] desc=43ch ~41tok
+- page-adaptation [cursor-global] desc=149ch ~108tok
+- pair-agent [cursor-global] desc=26ch ~32tok
+- pixpin-desktop-screenshots [cursor-global] desc=2ch ~27tok
+- plan-ceo-review [cursor-global] desc=23ch ~32tok
+- plan-design-review [cursor-global] desc=37ch ~44tok
+- plan-devex-review [cursor-global] desc=21ch ~34tok
+- plan-eng-review [cursor-global] desc=20ch ~32tok
+- plan-tune [cursor-global] desc=43ch ~42tok
+- playground [cursor-plugin-local] desc=268ch ~92tok
+- plugin-settings [cursor-plugin-local] desc=408ch ~129tok
+- plugin-structure [cursor-plugin-local] desc=433ch ~136tok
+- qa [cursor-global] desc=33ch ~31tok
+- qa-only [cursor-global] desc=21ch ~27tok
+- retro [cursor-global] desc=15ch ~23tok
+- review [cursor-global] desc=18ch ~24tok
+- rh-project-wiki [cursor-global] desc=2ch ~21tok
+- scrape [cursor-global] desc=16ch ~25tok
+- session-report [cursor-plugin-local] desc=154ch ~66tok
+- setup-browser-cookies [cursor-global] desc=48ch ~43tok
+- setup-deploy [cursor-global] desc=26ch ~30tok
+- setup-gbrain [cursor-global] desc=86ch ~57tok
+- shell [cursor-global] desc=2ch ~17tok
+- ship [cursor-global] desc=73ch ~53tok
+- skill-creator [cursor-plugin-local] desc=319ch ~107tok
+- skill-development [cursor-plugin-local] desc=290ch ~101tok
+- skillify [cursor-global] desc=51ch ~40tok
+- spec [cursor-global] desc=33ch ~36tok
+- split-to-prs [cursor-global] desc=2ch ~20tok
+- style-management [cursor-global] desc=71ch ~77tok
+- vue2-to-vue3-component-migration [cursor-global] desc=116ch ~96tok
+- writing-hookify-rules [cursor-plugin-local] desc=191ch ~75tok
