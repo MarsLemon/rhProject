@@ -8,3 +8,5 @@
 # understand-anything: relocation backups created by scripts/split-understand-graph.mjs
 # (one-off artifacts; keep locally for rollback, do not commit)
 /.understand-anything/**/*.bak.[0-9]*
+
+tempImg/

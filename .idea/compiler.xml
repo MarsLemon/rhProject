@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="yf-module-plan" />
+        <module name="wk-general" />
+        <module name="wk-module-course" />
+        <module name="wk-module-voice" />
+        <module name="yf-module-exam" />
+        <module name="yf-module-training-plan" />
+        <module name="wk-module-openapi" />
+        <module name="yf-module-openapi" />
+        <module name="yf-ability" />
+        <module name="yf-module-system" />
+        <module name="yf-module-notify" />
+        <module name="wk-module-vision" />
+        <module name="wk-module-exam" />
+        <module name="yf-job" />
+        <module name="wk-module-file-source" />
+        <module name="yf-core" />
+        <module name="yf-module-repo" />
+        <module name="yf-web" />
+        <module name="yf-module-course" />
+        <module name="wk-module-ai" />
+        <module name="wk-module-infra" />
+        <module name="yf-module-stat" />
+      </profile>
+    </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="wk-general" options="-parameters" />
+      <module name="wk-module-ai" options="-parameters" />
+      <module name="wk-module-course" options="-parameters" />
+      <module name="wk-module-exam" options="-parameters" />
+      <module name="wk-module-file-source" options="-parameters" />
+      <module name="wk-module-infra" options="-parameters" />
+      <module name="wk-module-openapi" options="-parameters" />
+      <module name="wk-module-vision" options="-parameters" />
+      <module name="wk-module-voice" options="-parameters" />
+      <module name="wk-modules" options="-parameters" />
+      <module name="yf-ability" options="-parameters" />
+      <module name="yf-core" options="-parameters" />
+      <module name="yf-exam-server" options="-parameters" />
+      <module name="yf-job" options="-parameters" />
+      <module name="yf-module-course" options="-parameters" />
+      <module name="yf-module-exam" options="-parameters" />
+      <module name="yf-module-notify" options="-parameters" />
+      <module name="yf-module-openapi" options="-parameters" />
+      <module name="yf-module-plan" options="-parameters" />
+      <module name="yf-module-repo" options="-parameters" />
+      <module name="yf-module-stat" options="-parameters" />
+      <module name="yf-module-system" options="-parameters" />
+      <module name="yf-module-training-plan" options="-parameters" />
+      <module name="yf-modules" options="-parameters" />
+      <module name="yf-web" options="-parameters" />
+    </option>
+  </component>
+</project>
