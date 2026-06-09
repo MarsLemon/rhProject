@@ -1,15 +1,15 @@
 # GENERATED-INDEX（自动生成，勿手改）
 
-> 生成时间：2026-06-08T00:00:01.628Z
+> 生成时间：2026-06-09T00:00:04.570Z
 > 命令：`node scripts/sync-cursor-wiki-index.mjs` 或 `npm run sync:wiki`
 
 ## wk-train-center-service
 
-共 **233** 篇，Repowiki 根：`wk-train-center-service/.qoder/repowiki/zh/content/`
+共 **232** 篇，Repowiki 根：`wk-train-center-service/.qoder/repowiki/zh/content/`
 
 ### (root)
 
-- `181b1fc0-8cc3-4a64-b17a-329b5eb02313.md`
+- `6695f157-a60c-4b33-952c-44d9fb01e4f9.md`
 - `百炼文件重复清理工具.md`
 - `故障排除与FAQ.md`
 - `快速开始.md`
@@ -211,8 +211,7 @@
 - `业务功能/系统管理/日志管理.md`
 - `业务功能/系统管理/系统管理.md`
 - `业务功能/系统管理/用户管理.md`
-- `业务功能/系统管理/知识图谱管理/知识图谱管理.md`
-- `业务功能/系统管理/知识图谱管理/知识图谱基础设施增强.md`
+- `业务功能/系统管理/知识图谱管理.md`
 - `业务功能/系统管理/字典管理.md`
 - `业务功能/消息通知/通知渠道.md`
 - `业务功能/消息通知/通知事件.md`
@@ -493,4 +492,4 @@
 
 ---
 
-**合计**：402 篇
+**合计**：401 篇

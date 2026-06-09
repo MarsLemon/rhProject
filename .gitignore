@@ -10,3 +10,6 @@
 /.understand-anything/**/*.bak.[0-9]*
 
 tempImg/
+**/*.log
+logs/train-center/*
+.cursor/scheduled-tasks/logs/sync-wiki.log

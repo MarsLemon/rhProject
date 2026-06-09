@@ -4,5 +4,6 @@
     "files.encoding": "utf8",
     "files.autoGuessEncoding": false,
     "java.configuration.updateBuildConfiguration": "automatic",
-    "java.jdt.ls.vmargs": "-XX:ErrorFile=logs/jvm/jdtls_hs_err_%p.log -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=logs/jvm"
+    "java.jdt.ls.vmargs": "-XX:ErrorFile=logs/jvm/jdtls_hs_err_%p.log -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=logs/jvm",
+    "editorjumper.selectedIDE": "IDEA"
 }

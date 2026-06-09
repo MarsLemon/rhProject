@@ -10,9 +10,9 @@
         <module name="yf-module-plan" />
         <module name="wk-general" />
         <module name="wk-module-course" />
-        <module name="wk-module-voice" />
         <module name="yf-module-exam" />
         <module name="yf-module-training-plan" />
+        <module name="wk-module-voice" />
         <module name="wk-module-openapi" />
         <module name="yf-module-openapi" />
         <module name="yf-ability" />

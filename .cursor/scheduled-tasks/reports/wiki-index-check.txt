@@ -1,10 +1,10 @@
-# Wiki index check (2026-06-08T00:00:02.007Z)
+# Wiki index check (2026-06-09T00:00:04.941Z)
 
-disk_md_total: 402
-index_total: 402
+disk_md_total: 401
+index_total: 401
 
 ## Sources
-- E:\rhProject\wk-train-center-service\.qoder\repowiki\zh\content → 233 (ok)
+- E:\rhProject\wk-train-center-service\.qoder\repowiki\zh\content → 232 (ok)
 - E:\rhProject\wk-train-center-ui\.qoder\repowiki\zh\content → 169 (ok)
 
 status: OK
