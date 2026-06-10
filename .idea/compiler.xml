@@ -11,8 +11,8 @@
         <module name="wk-general" />
         <module name="wk-module-course" />
         <module name="yf-module-exam" />
-        <module name="yf-module-training-plan" />
         <module name="wk-module-voice" />
+        <module name="yf-module-training-plan" />
         <module name="wk-module-openapi" />
         <module name="yf-module-openapi" />
         <module name="yf-ability" />
@@ -31,6 +31,9 @@
         <module name="yf-module-stat" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="yf-module-training-sign-in" target="17" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
@@ -57,6 +60,7 @@
       <module name="yf-module-stat" options="-parameters" />
       <module name="yf-module-system" options="-parameters" />
       <module name="yf-module-training-plan" options="-parameters" />
+      <module name="yf-module-training-sign-in" options="-parameters" />
       <module name="yf-modules" options="-parameters" />
       <module name="yf-web" options="-parameters" />
     </option>

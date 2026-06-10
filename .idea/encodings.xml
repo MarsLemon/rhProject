@@ -49,6 +49,8 @@
     <file url="file://$PROJECT_DIR$/wk-train-center-service/yf-modules/yf-module-system/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/wk-train-center-service/yf-modules/yf-module-training-plan/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/wk-train-center-service/yf-modules/yf-module-training-plan/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/wk-train-center-service/yf-modules/yf-module-training-sign-in/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/wk-train-center-service/yf-modules/yf-module-training-sign-in/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/wk-train-center-service/yf-web/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/wk-train-center-service/yf-web/src/main/resources" charset="UTF-8" />
   </component>
