@@ -8,6 +8,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="yf-module-plan" />
+        <module name="wk-module-qu" />
         <module name="wk-general" />
         <module name="wk-module-course" />
         <module name="yf-module-exam" />
@@ -44,6 +45,7 @@
       <module name="wk-module-file-source" options="-parameters" />
       <module name="wk-module-infra" options="-parameters" />
       <module name="wk-module-openapi" options="-parameters" />
+      <module name="wk-module-qu" options="-parameters" />
       <module name="wk-module-vision" options="-parameters" />
       <module name="wk-module-voice" options="-parameters" />
       <module name="wk-modules" options="-parameters" />

@@ -4,7 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/wk-train-center-service/yf-exam-server.iml" filepath="$PROJECT_DIR$/wk-train-center-service/yf-exam-server.iml" />
       <module fileurl="file://$PROJECT_DIR$/wk-train-center-service/yf-modules/yf-module-plan/yf-module-plan.iml" filepath="$PROJECT_DIR$/wk-train-center-service/yf-modules/yf-module-plan/yf-module-plan.iml" />
-      <module fileurl="file://$PROJECT_DIR$/wk-train-center-service/yf-modules/yf-module-training-sign-in/yf-module-training-sign-in.iml" filepath="$PROJECT_DIR$/wk-train-center-service/yf-modules/yf-module-training-sign-in/yf-module-training-sign-in.iml" />
       <module fileurl="file://$PROJECT_DIR$/wk-train-center-service/yf-web/yf-web.iml" filepath="$PROJECT_DIR$/wk-train-center-service/yf-web/yf-web.iml" />
     </modules>
   </component>
