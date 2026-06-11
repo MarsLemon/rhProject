@@ -1,5 +1,7 @@
+#!/usr/bin/env node
 /**
- * Shared scan paths and walk helpers for verify / scan-all.
+ * [Encoding-Lib] verify + scan 共享的扫描路径和遍历辅助 (collectVerifyProblems / collectFullScanProblems)
+ * 运行: 不直接运行，供 verify-chinese-encoding / scan-all-encoding-report / _run-report import 使用。
  */
 import fs from 'fs'
 import path from 'path'

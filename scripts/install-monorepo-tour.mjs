@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * 在根 .understand-anything/knowledge-graph.json 上安装/更新"monorepo 全貌"
- * 跨子项目导览（tour）。
+ * [Understand] 在根 .understand-anything/knowledge-graph.json 上安装/更新
+ * "monorepo 全貌" 跨子项目导览（tour）。
  *
  * 设计目标：
  *   - 给 monorepo 新人一个 5-7 步的高层导览，先讲清三个 app 各自定位，

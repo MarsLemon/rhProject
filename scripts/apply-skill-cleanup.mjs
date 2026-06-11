@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
- * P0/P1 skill cleanup (from skill-cleaner audit).
- * Run: node scripts/apply-skill-cleanup.mjs
+ * [Skill] 执行 P0/P1 skill 清理
+ * 归档/删除 skill-cleaner 报告标记的冗余 skill，修复 doc-sync frontmatter。
+ * 运行: node scripts/apply-skill-cleanup.mjs
  */
 import fs from 'node:fs'
 import path from 'node:path'

@@ -1,6 +1,8 @@
+#!/usr/bin/env node
 /**
- * Restore scripts/chinese-encoding/README.md as UTF-8 (ASCII + \\u escapes only).
- * Usage: node scripts/chinese-encoding/_write-readme-utf8.mjs
+ * [Encoding] 重新生成 scripts/chinese-encoding/README.md 为 UTF-8（用 \u 转义写入）
+ * 防 Cursor / 编辑器误写导致 README.md 本身乱码。
+ * 运行: node scripts/chinese-encoding/_write-readme-utf8.mjs
  */
 import fs from 'fs'
 import path from 'path'

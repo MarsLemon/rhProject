@@ -1,6 +1,8 @@
+#!/usr/bin/env node
 /**
- * One-off: write scan results to _encoding-report.txt
- * Usage: node scripts/chinese-encoding/_run-report.mjs
+ * [Encoding] 一次性生成完整编码扫描报告到 _encoding-report.txt
+ * 同时跑 verify (v3 + Cursor metadata) 和 full scan (整个 monorepo)。
+ * 运行: node scripts/chinese-encoding/_run-report.mjs
  */
 import fs from 'fs'
 import path from 'path'

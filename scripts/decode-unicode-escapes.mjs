@@ -1,6 +1,8 @@
+#!/usr/bin/env node
 /**
- * Replace \\uXXXX escape sequences with UTF-8 Chinese in source files.
- * Usage: node scripts/decode-unicode-escapes.mjs [dir...]
+ * [Encoding] 把源码文件中的 \uXXXX 转义序列还原为 UTF-8 中文
+ * 默认扫描: wk-mhc-mobile/src + wk-train-center-ui/src/views/web/ai + wk-train-center-ui-v3/src/views/web/ai
+ * 运行: node scripts/decode-unicode-escapes.mjs [dir...]
  */
 import fs from 'fs'
 import path from 'path'

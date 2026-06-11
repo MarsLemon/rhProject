@@ -1,4 +1,9 @@
 #!/usr/bin/env node
+/**
+ * [Skill] 从 GitHub 拉取 find-skills / skill-cleaner 安装到全局 Cursor skills
+ * 运行: node scripts/install-cursor-skills.mjs
+ * 目标: %USERPROFILE%\.cursor\skills
+ */
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'

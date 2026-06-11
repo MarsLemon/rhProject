@@ -1,6 +1,7 @@
 @echo off
 REM =============================================================
-REM  启动 understand-anything 仪表板(根 + 3 个子项目)
+REM  [Understand] 启动 understand-anything 仪表板（根 + 3 个子项目）
+REM  端口: 5180 (根) / 5181 (service) / 5182 (ui) / 5183 (pptist)
 REM  用法: 直接双击运行, 或在终端中执行 start-understand-dashboards.cmd
 REM  停止: 关闭对应的 4 个终端窗口, 或运行 stop-understand-dashboards.cmd
 REM =============================================================

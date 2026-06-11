@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
- * Scan Qoder RepoWiki trees and write .cursor/wiki/GENERATED-INDEX.md
- * Run from repo root after refreshing Repowiki in Qoder IDE.
+ * [Wiki] 扫描 Qoder RepoWiki 生成 .cursor/wiki/GENERATED-INDEX.md
+ * 在 Qoder IDE 刷新 Repowiki 后执行，将 .md 文件同步为 Cursor 可识别的索引。
+ * 运行: node scripts/sync-cursor-wiki-index.mjs
  */
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'

@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 /**
- * Compare Repowiki .md count vs GENERATED-INDEX.md total line.
- * Exit 0 if match; 1 if mismatch or missing index.
+ * [Wiki] 校验 wiki 索引完整性
+ * 对比 Repowiki 实际 .md 文件数量 vs GENERATED-INDEX.md 记录数。
+ * 一致则 exit 0，不一致或缺失则 exit 1。
+ * 用于定时任务或 CI 检查。
  */
 import fs from 'node:fs'
 import path from 'node:path'

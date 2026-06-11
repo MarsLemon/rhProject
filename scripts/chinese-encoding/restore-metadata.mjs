@@ -1,6 +1,8 @@
+#!/usr/bin/env node
 /**
- * Restore machine-generated UTF-8 metadata before verify (repo doc only).
- * Skill / reference / rules are maintained on disk ?? restore via git if corrupted.
+ * [Encoding] verify 前的预处理：自动重生成 v3 repo doc 为 UTF-8
+ * Skill / reference / rules 不在本脚本恢复（用 git restore 恢复）。
+ * 运行: 被 verify-chinese-encoding.mjs 自动 import。
  */
 import fs from 'fs'
 import path from 'path'

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
- * 把根 .understand-anything/knowledge-graph.json 拆到子项目（当前只支持 wk-train-center-service）。
+ * [Understand] 把根 .understand-anything/knowledge-graph.json 拆到子项目
+ * (当前默认 wk-train-center-service)
  *
  * 设计原则：
  *   - 任何 node.id 以 "file:class:module:function:endpoint:table:service:document:config:data:template:script:api:wk-train-center-service/" 开头 → 归后端

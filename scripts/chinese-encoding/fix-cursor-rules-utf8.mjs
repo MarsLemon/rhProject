@@ -1,3 +1,8 @@
+#!/usr/bin/env node
+/**
+ * [Encoding] 用 cursor-rules-content.json 重新生成 wk-train-center-ui-v3 的 .cursor/rules/ 为 UTF-8
+ * 运行: node scripts/chinese-encoding/fix-cursor-rules-utf8.mjs
+ */
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'

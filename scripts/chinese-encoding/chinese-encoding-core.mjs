@@ -1,5 +1,8 @@
+#!/usr/bin/env node
 /**
- * Shared Chinese encoding detection and Vue2 template transforms (rhProject monorepo).
+ * [Encoding-Lib] 中文编码检测与 Vue2 模板/脚本转换的核心库
+ * 暴露: allowsPlaceholderDocs / isBlockBroken / detectIssues / transformVue2Template / transformVue2ScriptImports / transformVue2File / formatRelPath / extractPart。
+ * 运行: 不直接运行，供同目录下其他脚本 import 使用。
  */
 import path from 'path'
 

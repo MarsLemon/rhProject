@@ -1,4 +1,6 @@
-# Install find-skills + skill-cleaner into global Cursor skills (~/.cursor/skills)
+# [Skill] 从 GitHub 拉取 find-skills / skill-cleaner 安装到全局 Cursor skills
+# 运行: pwsh scripts/install-cursor-skills.ps1
+# 目标: %USERPROFILE%\.cursor\skills
 $ErrorActionPreference = 'Stop'
 $skillsRoot = Join-Path $env:USERPROFILE '.cursor\skills'
 

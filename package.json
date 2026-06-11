@@ -13,6 +13,7 @@
     "sync:wiki:scheduled": ".cursor\\scheduled-tasks\\tasks\\sync-wiki.cmd",
     "audit:skills": "node scripts/audit-cursor-skills.mjs",
     "audit:skills:scheduled": ".cursor\\scheduled-tasks\\tasks\\skill-cleaner.cmd",
+    "verify:skills": "node scripts/verify-skills.mjs",
     "scan:chinese:scheduled": ".cursor\\scheduled-tasks\\tasks\\scan-chinese.cmd",
     "prune:logs:scheduled": ".cursor\\scheduled-tasks\\tasks\\prune-logs.cmd",
     "register:scheduled-tasks": "powershell -NoProfile -ExecutionPolicy Bypass -File .cursor/scheduled-tasks/register.ps1",

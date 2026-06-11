@@ -1,5 +1,9 @@
 #!/usr/bin/env node
-/** Install deep-dive-skill to global Cursor skills */
+/**
+ * [Skill] 从 davethegut/deep-dive-skill 拉取 SKILL.md / template / examples 到全局 Cursor skills
+ * 运行: node scripts/install-deep-dive-skill.mjs
+ * 目标: %USERPROFILE%\.cursor\skills\skill-deep-dive
+ */
 import fs from 'node:fs'
 import path from 'node:path'
 import os from 'node:os'

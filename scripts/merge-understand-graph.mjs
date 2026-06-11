@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 把所有子项目的 .understand-anything/knowledge-graph.json 合并到根
+ * [Understand] 把所有子项目的 .understand-anything/knowledge-graph.json 合并到根
  * .understand-anything/knowledge-graph.json。
  *
  * 与 split-understand-graph.mjs 相反方向：子项目 → 根。

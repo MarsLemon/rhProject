@@ -1,3 +1,6 @@
+# [Skill] 同时把 skill-deep-dive 安装到 Cursor 和 Claude 全局 skills，并同步 wiki 索引
+# 运行: pwsh scripts/install-deep-dive.ps1
+# 目标: %USERPROFILE%\.cursor\skills + %USERPROFILE%\.claude\skills
 $ErrorActionPreference = 'Stop'
 $base = 'https://raw.githubusercontent.com/davethegut/deep-dive-skill/main'
 $dirs = @(

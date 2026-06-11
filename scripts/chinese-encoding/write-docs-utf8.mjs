@@ -1,6 +1,7 @@
+#!/usr/bin/env node
 /**
- * Restore v3 migration docs as UTF-8 (ASCII source with \\u escapes).
- * Usage: node scripts/chinese-encoding/write-docs-utf8.mjs
+ * [Encoding] 重新生成 wk-train-center-ui-v3 的迁移文档为 UTF-8（用 \u 转义写入）
+ * 运行: node scripts/chinese-encoding/write-docs-utf8.mjs
  */
 import fs from 'fs'
 import path from 'path'

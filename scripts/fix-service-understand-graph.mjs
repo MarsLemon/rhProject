@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 一次性修复脚本: 规范化子项目图谱
+ * [Understand] 一次性规范化子项目图谱（ID 前缀、filePath、layer.nodeIds 同步）
  *
  * 修复内容:
  *  1. 给所有 file:/function:/class:/module:/endpoint:/table:/config:/document:/

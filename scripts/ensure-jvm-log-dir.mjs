@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 /**
- * Ensure logs/jvm exists and move stray JVM diagnostic files from repo root.
+ * [System] 确保 logs/jvm 目录存在，并把根目录散落的 JVM 诊断文件搬过去
+ * 匹配规则: hs_err_pid*.log / replay_pid*.log / java_pid*.hprof
+ * 运行: node scripts/ensure-jvm-log-dir.mjs
+ * 建议加入 git hook 或 Cursor scheduled-tasks 定时运行。
  */
 import fs from 'node:fs'
 import path from 'node:path'

@@ -1,6 +1,8 @@
+#!/usr/bin/env node
 /**
- * Repair corrupted Chinese in v3 Vue files by merging template from Vue2 sources.
- * Usage: node scripts/chinese-encoding/repair-chinese-encoding.mjs
+ * [Encoding] 从 Vue2 源文件合并 template 到 v3 Vue 文件，修复 v3 中损坏的中文
+ * 对应 npm run repair:chinese-from-v2。属破坏性操作（覆盖 v3 template）。
+ * 运行: node scripts/chinese-encoding/repair-chinese-encoding.mjs
  */
 import fs from 'fs'
 import path from 'path'

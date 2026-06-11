@@ -1,6 +1,7 @@
+#!/usr/bin/env node
 /**
- * Restore repo module doc as UTF-8.
- * Usage: node scripts/chinese-encoding/_write-repo-doc-utf8.mjs
+ * [Encoding] 重新生成 wk-train-center-ui-v3 模块文档为 UTF-8
+ * 运行: node scripts/chinese-encoding/_write-repo-doc-utf8.mjs
  */
 import fs from 'fs'
 import path from 'path'

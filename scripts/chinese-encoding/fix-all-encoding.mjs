@@ -1,11 +1,9 @@
+#!/usr/bin/env node
 /**
-
- * One-shot metadata encoding repair (v3 meta + docs + rules + repo doc + README).
-
- * Usage: node scripts/chinese-encoding/fix-all-encoding.mjs
-
- * Does NOT overwrite .cursor/skills — use git restore if ROS docs are corrupted.
-
+ * [Encoding] 一次性编排 v3 meta + docs + rules + repo doc + README 的 UTF-8 修复
+ * 依次 spawn: fix-v3-meta-encoding / write-docs-utf8 / fix-cursor-rules-utf8 / _write-repo-doc-utf8 / _write-readme-utf8。
+ * 对应 npm run fix:encoding。不会覆盖 .cursor/skills（用 git restore 恢复）。
+ * 运行: node scripts/chinese-encoding/fix-all-encoding.mjs
  */
 
 import { spawnSync } from 'child_process'

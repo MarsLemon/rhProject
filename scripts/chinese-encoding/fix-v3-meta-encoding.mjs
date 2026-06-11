@@ -1,6 +1,7 @@
+#!/usr/bin/env node
 /**
- * Fix v3 project meta UTF-8 (index.html, settings.ts, package.json fields).
- * Usage: node scripts/chinese-encoding/fix-v3-meta-encoding.mjs
+ * [Encoding] 修复 wk-train-center-ui-v3 项目的 meta 文件 (index.html / settings.ts / package.json) 为 UTF-8
+ * 运行: node scripts/chinese-encoding/fix-v3-meta-encoding.mjs
  */
 import fs from 'fs'
 import path from 'path'

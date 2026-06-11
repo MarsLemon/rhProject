@@ -1,3 +1,8 @@
+#!/usr/bin/env node
+/**
+ * [Encoding-Lib] 编码子系统的共享路径常量 (monorepoRoot / v3Root / vue2Root / encodingScriptsDir)
+ * 运行: 不直接运行，供同目录下其他脚本 import 使用。
+ */
 import path from 'path'
 import { fileURLToPath } from 'url'
 

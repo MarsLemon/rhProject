@@ -1,8 +1,8 @@
 /**
- * Convert JS/TS/Vue string escapes \\uXXXX to UTF-8 Chinese in source files.
- * Usage:
- *   node scripts/unescape-unicode-in-source.mjs [projectDir ...]
- * Default: wk-mhc-mobile, wk-train-center-ui, wk-train-center-ui-v3
+ * [Encoding] 把 JS/TS/Vue 源码中的 \uXXXX / \u{XXXXX} 转义还原为 UTF-8 中文
+ * 默认扫描: wk-mhc-mobile / wk-train-center-ui / wk-train-center-ui-v3 (src + scripts)
+ * 会跳过正则字符类中的 \u 以免破坏 Validators.pattern。
+ * 运行: node scripts/unescape-unicode-in-source.mjs [projectDir ...]
  */
 import fs from 'node:fs'
 import path from 'node:path'

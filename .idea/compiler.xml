@@ -13,7 +13,6 @@
         <module name="wk-module-course" />
         <module name="yf-module-exam" />
         <module name="wk-module-voice" />
-        <module name="yf-module-training-plan" />
         <module name="wk-module-openapi" />
         <module name="yf-module-openapi" />
         <module name="yf-ability" />
@@ -24,6 +23,7 @@
         <module name="yf-job" />
         <module name="wk-module-file-source" />
         <module name="yf-core" />
+        <module name="yf-module-training-sign-in" />
         <module name="yf-module-repo" />
         <module name="yf-web" />
         <module name="yf-module-course" />
@@ -33,7 +33,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="yf-module-training-sign-in" target="17" />
+      <module name="yf-module-training-plan" target="17" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

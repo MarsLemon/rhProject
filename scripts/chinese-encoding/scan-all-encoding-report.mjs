@@ -1,9 +1,8 @@
+#!/usr/bin/env node
 /**
-
- * Full monorepo encoding scan report.
-
- * Usage: node scripts/chinese-encoding/scan-all-encoding-report.mjs
-
+ * [Encoding] 全 monorepo 编码扫描（mobile / Java / docs / Cursor metadata）
+ * 比 verify 范围更广，仅报告，不阻塞。
+ * 运行: node scripts/chinese-encoding/scan-all-encoding-report.mjs
  */
 
 import { collectFullScanProblems } from './scan-config.mjs'

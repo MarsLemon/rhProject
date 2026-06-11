@@ -1,3 +1,10 @@
+#!/usr/bin/env node
+/**
+ * [Wiki-Lib] wiki 索引生成的核心工具库
+ * 暴露 walkMd / groupByTop / buildGeneratedIndexLines / syncWikiIndex 四个函数。
+ * 被 _emit-wiki-index.mjs / sync-cursor-wiki-index.mjs / verify-wiki-index.mjs 调用。
+ * 运行: 不直接运行，供其他脚本 import 使用。
+ */
 import fs from 'node:fs'
 import path from 'node:path'
 

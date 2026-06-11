@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 /**
- * Cursor-oriented skill audit (skill-cleaner style).
- * Scans ~/.cursor/skills, project .cursor/skills, optional plugin cache.
+ * [Skill] 扫描 Cursor / Claude 全局 + 项目级 skill 目录
+ * 统计 description 长度、token 占用、重复项、与 Vue3 栈相关性，输出 skill-cleaner 报告。
+ * 运行: node scripts/audit-cursor-skills.mjs
+ * 报告: .cursor/scheduled-tasks/reports/skill-cleaner-report.txt
  */
 import fs from 'node:fs'
 import path from 'node:path'

@@ -1,9 +1,9 @@
+#!/usr/bin/env node
 /**
-
- * Verify Chinese text is not corrupted (placeholder/mojibake).
-
- * Usage: node scripts/chinese-encoding/verify-chinese-encoding.mjs
-
+ * [Encoding] ROS gate：检测源码/文档/Agent metadata 中的中文乱码（占位符 / mojibake / U+FFFD）
+ * 失败时 exit 非零，可作为 prebuild / precommit 钩子。
+ * 运行: node scripts/chinese-encoding/verify-chinese-encoding.mjs
+ * 对应 npm run verify:chinese
  */
 
 import { restoreMetadataIfNeeded } from './restore-metadata.mjs'
