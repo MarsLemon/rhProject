@@ -23,13 +23,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | 项 | 事实 |
 |---|---|
 | 单一源 | `C:\Users\RUHAI\.ai-skills-store\`（**唯一修改入口**）|
-| 共享方式 | 3 个 IDE 的 8 个核心 skill 目录 = **junction** 指向单源 |
+| 共享方式 | 3 个 IDE 的 8 个核心 skill + 9 个非核心容器目录 = **junction** 指向单源（共 24 条 junction）|
 | 8 个核心 skill | review、grill-me、pixpin-desktop-screenshots、browse、context-restore、using-superpowers、brainstorming、health |
+| 9 个非核心 skill | public-video-rights-cn、self-improving-agent、idea-workflow、feynman-summary、smart-summarize、superpowers-zh、repomix、agent-browser、tokscale（**容器**，子 skill 由 hermes `os.walk(followlinks=True)` 递归发现；35 个子 skill 中 `brainstorming-zh` / `using-superpowers-zh` 为重命名避免冲突） |
 | 改 skill 内容 | **直接在 `.ai-skills-store` 改** → 3 个 IDE 自动同步 |
 | 禁止 | 在 `.claude\skills`、`.cursor\skills`、`.qoder\skills` 直接改这 8 个核心 skill（改动会被 junction 屏蔽或不生效）|
-| 55 个 0 频通用型 skill | 已从 `.claude\skills` 移到收纳盒 `zero-freq-skills-2026-06-11\`（`.cursor` `.qoder` 原本就没有 0 频）——3 个 IDE 现各剩 8 核心 junction + 3 元数据 |
+| 55 个 0 频通用型 skill | 已从 `.claude\skills` 移到收纳盒 `zero-freq-skills-2026-06-11\`（`.cursor` `.qoder` 原本就没有 0 频）——3 个 IDE 现各剩 8 核心 junction + 9 非核心 junction + 1 元数据文件（_SKILL-INDEX.md） |
 | 索引 | `.ai-skills-store\_SKILL-INDEX.md` 写明每个 skill 的频次和用途 |
-| .ai-skills-store 纯净性 | 只含 8 核心（29.84 MB），不含 gstack/test-driven-development 等非核心杂物 |
+| .ai-skills-store 纯净性 | 只含 8 核心 + 9 个白名单非核心容器（32 MB，2026-06-13），不含 gstack/test-driven-development 等非核心杂物 |
 | 备份 | `.claude\.cursor\.qoder\skills` 8 个原文件夹完整备份在 `C:\Users\RUHAI\Desktop\_private_assistant_archive\ide-skill-backup-2026-06-11\` |
 
 **2026-06-11 skill-link 落锁事件**（防回归已就位）：
@@ -42,6 +43,39 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | `~/.claude/skills/` `~/.cursor/skills/` `~/.qoder/skills/` 30 个被劫持 symlink | **已清** + 补回 6 个 grill-me/review junction |
 | 防回归脚本 | `E:\rhProject\scripts\verify-skills.mjs`（`npm run verify:skills` 触发，CI/手动）|
 | 防回归 hook | `E:\rhProject\scripts\hooks\guard-skills-write.mjs`（已配 `~/.claude/settings.json` 的 PreToolUse）|
+
+### 2.5 代码情报资源（rhproject-codebase-intel，本轮新增 2026-06-12 起强制）
+
+rhProject 已预处理两份"代码情报"资源，**改业务代码前必须先加载 skill 再动键盘**。
+
+| 资源 | 路径 | 角色 | 形态 |
+|---|---|---|---|
+| **Qoder Wiki** | `<子项目>/.qoder/repowiki/zh/content/*.md` | 业务字典 — 讲"做什么" | 597 份 markdown（16.2 MB） |
+| **知识图谱** | `<子项目>/.understand-anything/knowledge-graph.json` | 代码地图 — 讲"怎么连" | 节点/边/分层 JSON（54 MB） |
+| **kg_query.py** | `<子项目>/.understand-anything/kg_query.py` | 查询 CLI（**必须走它，别直接读 JSON**） | 6 命令：stats / find / deps / rdeps / layer / tour |
+
+**强制加载规则**（违反 = 跳过此步直接改代码）：
+
+1. **涉及以下任一子项目的业务代码改动 / 调试 / 排查** → 改前 `skill_view(name='rhproject-codebase-intel')` 加载 skill，按其 8 步标准动作执行：
+   - `wk-train-center-service`（后端，6199 节点）
+   - `wk-train-center-ui`（前端 Vue 2.7，2447 节点）
+   - `wk-train-center-ui-v3`（Vue 3，**无 repowiki**，走 `.cursor/wiki/` 或现读代码）
+   - `wk-PPTist-ui`（PPT 编辑器，575 节点）
+   - `wk-mhc-ui` / `wk-mhc-mobile`（Angular / 移动，mobile 有 100 文档 repowiki）
+
+2. **改前必查**：`python .understand-anything/kg_query.py rdeps "<要改的文件>"` 拿到影响面
+3. **跨子项目改动**：根目录 `.understand-anything/knowledge-graph.json` 是合并视图（9663 节点）
+4. **不加载的代价**：14 个 SQL + 5 个 Java 实体的速读成本，1 份 repowiki 文档就能省掉
+
+**正确叫法**（避免记忆混乱）：
+- ✅ `.understand-anything`（不是 `.under-stand`）
+- ✅ `.qoder/repowiki/`（Qoder 生成的业务 wiki）
+- ❌ 不要再说 "repowiki 图谱" / "under-stand 文档"
+
+**已知盲区**：
+- `wk-train-center-ui-v3` 和 `wk-mhc-ui` 没有 Qoder repowiki，skill 里有降级路径
+- 知识图谱是**静态 import 关系**，动态反射 / AOP 不会出现在 rdeps
+- 改动后若发现 repowiki/kg 与实际代码对不上 → 提醒用户跑 `kg_update.py` 重新分析
 
 ### 3. 临时文件归档（本轮新增）
 
@@ -296,6 +330,17 @@ Run `npm run verify:chinese` before builds to catch encoding issues.
 - grill-me - 持续追问直至共识
 - pixpin-desktop-screenshots - 读取 Windows 桌面截图
 
+**9 个非核心 skill 容器**（`scripts/verify-skills.mjs` 的 `NON_CORE_JUNCTIONS` 白名单，2026-06-13 批次新增 8 个）：
+- public-video-rights-cn - 公网视频版权风险判定框架（6/12）
+- self-improving-agent - 自我反思/学习日志到 `.learnings/`
+- idea-workflow - 4 子 skill: idea-superpowers-suite(总入口) / -to-design-doc / -to-implementation-doc / -to-ui-design-brief
+- feynman-summary - 费曼技巧摘要
+- smart-summarize - 9 子 skill: auto/adler/sq3r/cornell/feynman/concept-map/condense/retrieval/spaced
+- superpowers-zh - superpowers 完整汉化（20 子 skill，其中 2 个 `-zh` 后缀）
+- repomix - CLI 引导(把整个仓库打包给 LLM 看, npm 已装 v1.14.1)
+- agent-browser - CLI 引导(多步浏览器自动化, npm 已装 v0.27.0)
+- tokscale - CLI 引导(多 AI CLI token 用量仪表盘, 本机未装,网络被拦)
+
 **项目自带的业务 skill**（`E:\rhProject\.cursor\skills\`、`.qoder\skills\` 各自独立，未收编到 .ai-skills-store）：
 - `ddd-analysis`、`ddd-backend-design`、`ddd-implementation-flow` - DDD 建模工作流
 - `backend-code-review`、`backend-unit-test-gen` - 后端质量工具
@@ -303,7 +348,7 @@ Run `npm run verify:chinese` before builds to catch encoding issues.
 - `rh-project-wiki` - 项目 wiki 导航
 
 **plugin 自带**（不在 skills 目录，plugin 系统管理）：
-- superpowers（systematic-debugging、writing-plans 等）
+- superpowers（systematic-debugging、writing-plans 等）— 2026-06-13 已在 `settings.json` 禁掉，**改用 superpowers-zh 容器里的中文版**
 - understand-anything（understand、understand-dashboard 等）
 - frontend-design、skill-creator 等
 

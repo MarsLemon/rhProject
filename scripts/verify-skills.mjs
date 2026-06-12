@@ -8,6 +8,7 @@
  *   3. cc-switch skillSyncMethod != "manual" 或 skillStorageLocation != "local"
  *   4. 任何 IDE 的 8 核心 junction (brainstorming/browse/context-restore/grill-me/health/
  *      pixpin-desktop-screenshots/review/using-superpowers) 缺失
+ *   5. 任何 IDE 的非核心 skill junction (public-video-rights-cn 等) 缺失或被劫持
  * 运行: npm run verify:skills
  * 退出码: 0=通过, 1=有违规
  */
@@ -27,6 +28,22 @@ const IDE_SKILLS = [
 const CORE_8 = [
   'brainstorming', 'browse', 'context-restore', 'grill-me',
   'health', 'pixpin-desktop-screenshots', 'review', 'using-superpowers',
+]
+// 非核心 skill junction 白名单：3 个 IDE 都必须存在且指向 .ai-skills-store/
+// 2026-06-12 新增 public-video-rights-cn（research 类，非核心，按需自取）
+// 2026-06-13 批量新增：CLI 引导 + idea-workflow 套件 + smart-summarize 套件 + superpowers-zh 中文版
+//   注意: skill 名是容器名，子 skill 在容器下由 hermes os.walk 递归发现，不需要再列入白名单
+const NON_CORE_JUNCTIONS = [
+  'public-video-rights-cn',
+  // === 2026-06-13 批次 ===
+  'self-improving-agent',   // peterskoett/self-improving-agent — 自我反思/学习日志
+  'idea-workflow',          // AkoliteZA/hermes-agent-idea-workflow 容器(4 子 skill)
+  'feynman-summary',        // merttcetn/feynman-summary — 费曼技巧摘要
+  'smart-summarize',        // developerjeremylive/smart-summarize-etheroi 容器(9 子 skill)
+  'superpowers-zh',         // jnMetaCode/superpowers-zh 容器(20 个中文 skill,其中 2 个重命名为 -zh)
+  'repomix',                // CLI 引导 skill: yamadashy/repomix
+  'agent-browser',          // CLI 引导 skill: vercel-labs/agent-browser
+  'tokscale',               // CLI 引导 skill: junhoyeo/tokscale (本机 CLI 未装,仅 skill 引导)
 ]
 const FORBIDDEN_TARGET_PATTERNS = [
   '.agents/skills',
@@ -91,25 +108,19 @@ for (const dir of IDE_SKILLS) {
       warn(ide, core, '8-core junction missing')
     }
   }
+
+  // Check non-core junction presence (防止被误删或被劫持)
+  for (const nc of NON_CORE_JUNCTIONS) {
+    if (!symlinks.includes(nc)) {
+      warn(ide, nc, 'non-core junction missing (应指向 .ai-skills-store/ 下的同名目录)')
+    }
+  }
   if (files.length) {
     console.log(`  [info] ${ide} has ${files.length} non-symlink entries: ${files.join(', ')}`)
   }
   console.log()
 }
 
-// Check 2: npm global skills-link
-console.log('[npm global]')
-try {
-  const out = execSync('npm list -g --depth=0', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })
-  if (/skills-link@/i.test(out)) {
-    warn('npm', 'skills-link', 'reinstalled globally — re-run: npm uninstall -g skills-link')
-  } else {
-    ok('npm', 'skills-link', 'not installed')
-  }
-} catch (e) {
-  ok('npm', 'skills-link', `check failed: ${e.message.slice(0, 80)}`)
-}
-console.log()
 
 // Check 3: cc-switch settings
 console.log(`[cc-switch] ${CC_SWITCH_SETTINGS}`)

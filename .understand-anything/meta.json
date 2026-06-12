@@ -1,6 +1,6 @@
 {
-  "lastAnalyzedAt": "2026-06-05T08:03:46.767Z",
-  "gitCommitHash": "N/A (merged, re-run merge-understand-graph.mjs to refresh)",
+  "lastAnalyzedAt": "2026-06-11T00:00:00.000Z",
+  "gitCommitHash": "d12ded822d6dd7577b192d7b9a02a1c47fc8dcfa",
   "version": "1.0.0",
   "analyzedFiles": 2974,
   "subprojects": [
