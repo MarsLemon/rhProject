@@ -95,7 +95,7 @@ rhProject 已预处理两份"代码情报"资源，**改业务代码前必须先
 2. 读对应 `domain-coupling-*` 笔记查耦合点
 3. 查 `.ai-skills-store` 看是否要联动改 skill
 4. 列影响清单（后端 / Vue2 / Vue3 / H5 / DB / Wiki / AI 工具）给用户确认
-5. 改完跑 `verify:chinese` + `mvn compile` + `npm run typecheck`
+5. 改完跑 `npm run typecheck` + `vite dev` 实测编译 —— **2026-06-15 第 15 轮废弃 verify:chinese**(cursor 子智能体历史 bug)
 6. 涉及 8 个核心 skill 改动 → **在 `.ai-skills-store` 改**，**不在 3 个 IDE 改**
 
 **禁止**：
@@ -212,8 +212,8 @@ npm run build
 # Type check
 npm run typecheck
 
-# Verify Chinese encoding (runs before build)
-npm run verify:chinese
+# ~~Verify Chinese encoding (runs before build)~~ — 已废弃(2026-06-15)
+# npm run verify:chinese
 ```
 
 **Requirements:** Node.js 18+, npm 9+
@@ -245,10 +245,10 @@ npm run format:fix # Format code
 ### Monorepo Scripts (root)
 
 ```bash
-# Chinese encoding verification
-npm run verify:chinese        # Gate: verify v3 src + Cursor metadata
+# ~~Chinese encoding verification~~ — 已废弃(2026-06-15 第 15 轮)
+# npm run verify:chinese        # Gate: verify v3 src + Cursor metadata
 npm run scan:chinese          # Full monorepo scan
-npm run fix:encoding          # Repair encoding issues
+```
 npm run repair:chinese-from-v2 # Destructive: Vue2 template overwrite
 
 # Wiki sync
@@ -314,7 +314,7 @@ This project has scripts to prevent UTF-8 encoding corruption for Chinese text:
 - **Hook:** `.cursor/hooks/subagent-verify-chinese.mjs`
 - **Skill:** `.cursor/skills/chinese-encoding-guard/SKILL.md`
 
-Run `npm run verify:chinese` before builds to catch encoding issues.
+Run `npm run scan:chinese` only if you specifically suspect encoding issues (verify:chinese 已废弃,2026-06-15)。
 
 ## Skills Available
 
@@ -379,3 +379,18 @@ public Result<Void> save(@Valid @RequestBody UserCommand cmd) {
 ### Parameter Validation (Backend)
 
 All request bodies must use `@Valid` annotation for validation.
+
+## Vue3 迁移工作流（本轮新增，2026-06-13 起强制）
+
+> 用户中断 v3 迁移后回归。本节是硬约束，所有会话/子代理遇到 `wk-train-center-ui-v3` 改动必须遵守。
+
+| 项 | 约束 |
+|---|---|
+| 粒度 | **页面级**：1 个页面 1 个迁，不批量 |
+| 节奏 | 动键盘前在 IDE 用 `clarify` 出 diff 清单 → 用户确认 → 才动键盘 |
+| 完成判据 | 改完跑 `npm run typecheck` + vite dev 实测 **双绿**再报"完成"(**verify:chinese 已废弃**) |
+| 范围(本轮) | 签到 / 培训列表 / 部门树 暂不迁;`training-plan` 废弃不管 |
+| 核心目标 | v2 公共组件 bug 修复同步 + v3 现有模块 vs v2 同期代码差异 |
+| v3 空壳 | **只标记不修复** —— v3 大量 < 1KB 占位文件(尤其 `ucenter/`)是空壳,遇对应业务迁移需求才回头补 |
+| 旧 fix 大提交 | 优先处理"统一逻辑/基座补丁",业务页面 v3 不存在的不动(如 ddbc5005 改 48 文件) |
+| 通知通道 | 微信只发 1-2 句"有事要看"短通知,实际问答一律在 IDE `clarify` 完成(记录连贯) |

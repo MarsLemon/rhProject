@@ -2,7 +2,7 @@
 > scan:chinese
 > node scripts/chinese-encoding/scan-all-encoding-report.mjs
 
-# Encoding scan report (2026-06-07T23:00:02.411Z)
+# Encoding scan report (2026-06-14T23:00:02.538Z)
 Total issues: 1
 
 wk-mhc-ui/remotes/trade-center/src/app/inquiry-quote/inquiry-screen/customer-demand/customer-demand.component.ts

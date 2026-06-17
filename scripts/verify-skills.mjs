@@ -35,6 +35,7 @@ const CORE_8 = [
 //   注意: skill 名是容器名，子 skill 在容器下由 hermes os.walk 递归发现，不需要再列入白名单
 const NON_CORE_JUNCTIONS = [
   'public-video-rights-cn',
+  'report-writer-cn',   // 2026-06-12 新增：中文调研报告 + Word 导出
   // === 2026-06-13 批次 ===
   'self-improving-agent',   // peterskoett/self-improving-agent — 自我反思/学习日志
   'idea-workflow',          // AkoliteZA/hermes-agent-idea-workflow 容器(4 子 skill)
