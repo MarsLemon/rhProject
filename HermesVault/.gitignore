@@ -1,0 +1,12 @@
+# Obsidian 缓存和工作区状态
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache/
+
+# 临时文件
+.trash/
+.DS_Store
+Thumbs.db
+
+# 用户配置(每个机器不同步)
+.obsidian/themes/  # 主题走社区市场,不入库
