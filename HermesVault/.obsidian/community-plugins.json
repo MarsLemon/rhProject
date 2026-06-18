@@ -1,3 +1,18 @@
 [
-  "obsidian-mind-map"
+  "obsidian-mind-map",
+  "make-md",
+  "obsidian-outliner",
+  "tag-wrangler",
+  "obsidian-shellcommands",
+  "obsidian-tasks-plugin",
+  "obsidian-excalidraw-plugin",
+  "templater-obsidian",
+  "dataview",
+  "calendar",
+  "obsidian-kanban",
+  "quickadd",
+  "editor-width-slider",
+  "word-reader",
+  "obsidian-pandoc",
+  "iconic"
 ]

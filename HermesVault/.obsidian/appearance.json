@@ -1,6 +1,11 @@
 {
-  "baseFontSize": 16,
+  "baseFontSize": 15,
   "translucency": false,
   "theme": "system",
-  "cssTheme": "obsidian-default"
+  "cssTheme": "PLN",
+  "accentColor": "#27ecdf",
+  "interfaceFontFamily": "华文中宋,华文楷体",
+  "monospaceFontFamily": "Lucida Console,Cascadia Code,Baskerville Old Face",
+  "baseFontSizeAction": true,
+  "nativeMenus": false
 }

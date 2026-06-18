@@ -6,6 +6,9 @@
   "spellcheck": true,
   "showInlineTitle": true,
   "readableLineLength": true,
-  "strictLineBreaks": false,
-  "promptDelete": false
+  "strictLineBreaks": true,
+  "promptDelete": false,
+  "showUnsupportedFiles": true,
+  "propertiesInDocument": "visible",
+  "defaultViewMode": "preview"
 }

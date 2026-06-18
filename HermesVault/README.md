@@ -19,12 +19,12 @@
 - `log.md` — 改动流水
 - `8件套插件说明.md` — Obsidian 必装插件
 - `dataview示例.md` — Dataview + Templater 开箱用
-- `raw/` — 原始材料(只读)
-- `concepts/` — 概念页
-- `entities/` — 实体页
-- `comparisons/` — 横向对比
-- `queries/` — 值得留的查询
-- `_meta/` — 索引、归档
+- `10-raw-原始材料/` — 原始材料(只读)
+- `20-concepts-已消化笔记/` — 概念页
+- `22-entities-实体档案/` — 实体页
+- `30-comparisons-对比/` — 横向对比
+- `31-queries-查询归档/` — 值得留的查询
+- `40-_meta-归档索引/` — 索引、归档
 
 ## git 状态
 

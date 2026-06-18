@@ -13,3 +13,15 @@ tempImg/
 **/*.log
 logs/train-center/*
 .cursor/scheduled-tasks/logs/sync-wiki.log
+
+# Obsidian Vault（个人知识库,本地私有,2026-06-18 调研后启用）
+# 实际 vault 是 HermesVault/（Karpathy 模式 LLM Wiki），不是根目录的 .obsidian-vault
+# 忽略 Obsidian 运行时数据（workspace / cache），但保留 .obsidian/app.json 等配置以便跨机器同步
+/HermesVault/.obsidian/workspace.json
+/HermesVault/.obsidian/workspace-mobile.json
+/HermesVault/.obsidian/cache/
+/HermesVault/.obsidian/themes/  # 主题数据
+/HermesVault/.makemd/
+/HermesVault/.space/
+/HermesVault/.trash/
+

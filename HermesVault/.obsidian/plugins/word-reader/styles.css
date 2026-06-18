@@ -1,0 +1,379 @@
+.word-reader-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: var(--background-primary);
+}
+
+.word-reader-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 8px;
+  border-bottom: 1px solid var(--background-modifier-border);
+  background: var(--background-primary);
+}
+
+.word-reader-toolbar button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+}
+
+.word-reader-toolbar button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.word-reader-toolbar select,
+.word-reader-toolbar input {
+  height: 32px;
+}
+
+.word-reader-zoom {
+  width: 72px;
+}
+
+.word-reader-search {
+  width: 180px;
+}
+
+.word-reader-search-count {
+  min-width: 48px;
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+}
+
+.word-reader-status {
+  padding: 8px 12px;
+  color: var(--text-muted);
+  font-size: var(--font-ui-small);
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.word-reader-status.is-error {
+  color: var(--text-error);
+}
+
+.word-reader-status.is-loading {
+  color: var(--text-accent);
+}
+
+.word-reader-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.word-reader-outline {
+  display: none;
+  width: 260px;
+  min-width: 220px;
+  max-width: 34%;
+  overflow: auto;
+  border-right: 1px solid var(--background-modifier-border);
+  background: var(--background-primary);
+}
+
+.word-reader-body.is-outline-visible .word-reader-outline {
+  display: block;
+}
+
+.word-reader-outline-title {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--background-modifier-border);
+  background: var(--background-primary);
+  color: var(--text-normal);
+  font-size: var(--font-ui-small);
+  font-weight: 600;
+}
+
+.word-reader-outline-list {
+  padding: 8px 0;
+}
+
+.word-reader-outline-item {
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  padding: 4px 12px;
+  overflow: hidden;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  line-height: 1.35;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.word-reader-outline-item:hover,
+.word-reader-outline-item:focus-visible {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+.word-reader-outline-item.level-2 {
+  padding-left: 24px;
+}
+
+.word-reader-outline-item.level-3 {
+  padding-left: 36px;
+}
+
+.word-reader-outline-item.level-4,
+.word-reader-outline-item.level-5,
+.word-reader-outline-item.level-6 {
+  padding-left: 48px;
+}
+
+.word-reader-outline-empty {
+  padding: 12px;
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+}
+
+.word-reader-scroll {
+  flex: 1;
+  overflow: auto;
+  min-height: 0;
+  padding: 24px;
+  background: var(--background-secondary);
+}
+
+.word-reader-document {
+  --word-reader-zoom: 1;
+  box-sizing: border-box;
+  width: max-content;
+  min-width: 720px;
+  max-width: none;
+  margin: 0 auto;
+  color: var(--text-normal);
+  background: var(--background-primary);
+  zoom: var(--word-reader-zoom);
+}
+
+.word-reader-document.is-fit-width {
+  width: 100%;
+  min-width: 0;
+}
+
+.word-reader-document .docx-wrapper {
+  background: transparent;
+  padding: 0;
+}
+
+.word-reader-document .docx-wrapper > section.docx {
+  background: var(--background-primary);
+  color: var(--text-normal);
+  box-shadow: 0 1px 8px rgb(0 0 0 / 18%);
+}
+
+.word-reader-document.is-long-document .docx-wrapper > section.docx {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 1056px;
+}
+
+.word-reader-document .docx section,
+.word-reader-document .docx article,
+.word-reader-document .docx div,
+.word-reader-document .docx p,
+.word-reader-document .docx span,
+.word-reader-document .docx table,
+.word-reader-document .docx td,
+.word-reader-document .docx th {
+  color: inherit;
+}
+
+.theme-dark .word-reader-document .docx-wrapper > section.docx {
+  box-shadow: 0 0 0 1px var(--background-modifier-border);
+}
+
+.word-reader-document .docx,
+.word-reader-document .docx * {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.word-reader-document .docx img {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.word-reader-document.is-fit-width .docx {
+  max-width: 100%;
+}
+
+.word-reader-document img,
+.word-reader-document table {
+  max-width: 100%;
+}
+
+.word-reader-document.can-preview-images img {
+  cursor: zoom-in;
+}
+
+.modal.word-reader-image-modal-container {
+  width: min(96vw, 1400px);
+  max-width: 96vw;
+}
+
+.word-reader-image-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: min(86vh, 900px);
+  max-height: 86vh;
+  padding: 0;
+}
+
+.word-reader-image-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.word-reader-image-toolbar button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+}
+
+.word-reader-image-status {
+  margin-left: auto;
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+}
+
+.word-reader-image-viewport {
+  position: relative;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  cursor: grab;
+  touch-action: none;
+}
+
+.word-reader-image-viewport.is-dragging {
+  cursor: grabbing;
+}
+
+.word-reader-image-preview {
+  display: block;
+  max-width: none;
+  max-height: none;
+  user-select: none;
+  pointer-events: none;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+.word-reader-highlight {
+  background: #fff176;
+  color: #111;
+  border-radius: 2px;
+}
+
+.word-reader-highlight.is-current {
+  background: #ff9800;
+  color: #111;
+  outline: 2px solid rgb(0 0 0 / 35%);
+}
+
+.word-reader-empty {
+  padding: 32px;
+  color: var(--text-muted);
+}
+
+.word-reader-message-title {
+  padding: 32px 32px 8px;
+  color: var(--text-normal);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.word-reader-message-body {
+  max-width: 720px;
+  padding: 0 32px 12px;
+  color: var(--text-normal);
+  line-height: 1.5;
+}
+
+.word-reader-message-list {
+  max-width: 720px;
+  margin: 0;
+  padding: 0 32px 16px 56px;
+  color: var(--text-normal);
+  line-height: 1.5;
+}
+
+.word-reader-diagnostics {
+  max-width: 720px;
+  margin: 0 32px 16px;
+  border-top: 1px solid var(--background-modifier-border);
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.word-reader-diagnostics summary {
+  padding: 10px 0;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: var(--font-ui-small);
+  font-weight: 600;
+}
+
+.word-reader-diagnostics-list {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 6px 12px;
+  margin: 0;
+  padding: 0 0 12px;
+  font-size: var(--font-ui-smaller);
+}
+
+.word-reader-diagnostics-list dt {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.word-reader-diagnostics-list dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--text-normal);
+}
+
+.word-reader-message-actions {
+  display: flex;
+  gap: 8px;
+  padding: 0 32px 32px;
+}
+
+.word-reader-message-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+}
