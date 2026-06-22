@@ -10,7 +10,7 @@ tags: [meta, index]
 
 > 主人打开 vault 第一眼看这里。
 > 每一行是一个 wikilink + 一句话说明。
-> Last updated: 2026-06-18 | Total pages: 41 (20-concepts-已消化笔记/调研 1 + 20-concepts-已消化笔记/坑复盘 2 + 20-concepts-已消化笔记 新增 3(cron/审计/cheatsheet) + 10-raw-原始材料/articles/调研-未落实 7 + 21-fix-plans-修复经验 16 + 11 wiki 骨架 + 1 22-entities-实体档案/INVENTORY)
+> Last updated: 2026-06-18 | Total pages: 43 (新增 1 = `23-Tools-工具用法/hermes-web-extract-后端切换.md`)
 
 ## 🗺️ 看这里(5 步流程图,数字 = 流程顺序)
 
@@ -39,6 +39,10 @@ tags: [meta, index]
 - [[dataview示例]] — Dataview 查询 + Templater 模板开箱即用
 - [[log]] — 改动流水(从今天开始累积)
 
+## Inbox(待消化)
+
+- [[2026-06-18-github-trending]] — GitHub 早报样张(cron 每日产出,待主人 review 后决定是否升级到 `20-concepts/`)
+
 ## Entities(实体)
 
 - [[INVENTORY]] — 5 组件工具栈快照(Qoder / VSCode+Claude 插件 / Claude Code CLI / 终端 / Hermes)
@@ -53,6 +57,10 @@ tags: [meta, index]
 - [[审计方法论]] — 审计/检查类任务的 3 条铁律
 - [[调研/]] — 已落实的调研（20-concepts-已消化笔记/调研/,1 份;按月归档到 2026-06/）
 - [[坑复盘/]] — 坑复盘（20-concepts-已消化笔记/坑复盘/,2 份: v3 迁移 + 删文件;按月归档到 2026-06/）
+
+## Tools(工具用法)
+
+- [[hermes-web-extract-后端切换]] — web_extract 4 家后端(tavily/firecrawl/exa/parallel)自动检测 + 一键切换脚本
 
 ## Comparisons(对比)
 

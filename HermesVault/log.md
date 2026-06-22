@@ -257,3 +257,62 @@ color: var(--mk-color-pink)
 - **依据**: CLAUDE.md §5 "AI 产出物存放规范" — 调试脚本应进 `ai-scratch-scripts/{YYYY-MM-DD}/`
 - **根目录精简**: 18 项 → 17 项
 - **来源**: 主人拍板(A 选项,2026-06-18)
+
+## [2026-06-18] cron+daily-report | 建每日 GitHub 早报 cron + 落 vault Inbox
+
+- **触发**: 主人原话"做个定时任务,每天早上给我看一看 github 上有什么新鲜的"
+- **决策**: A+B(IDE 推送 + 工作日/周末两套 cron);不送微信(白月光模式,"简单不打扰")
+- **新建 cron**:
+  - `github-trending-weekday` — 周一-周五 08:30 → IDE 推送
+  - `github-trending-weekend` — 周六、周日 09:30 → IDE 推送(周末版加"慢读"区)
+- **报告结构**: Top 6 表(项目/今日★/总★/类别/价值) + 2-3 概念 + 3 可练能力
+- **首次落档**: `00-Inbox/2026-06-18-github-trending.md` (2.3 KB,带 frontmatter, type=summary, status=inbox)
+- **记忆同步**:
+  - 删除 user profile 里旧的"AI 产出物放 research/"条目(2026-06-14 写入,vault 接管后失效)
+  - 新增 user profile 条目指向 vault:进 Inbox/调研/概念/工具用法按 SCHEMA 分类
+  - 两个 cron prompt 同步改:落地路径 vault Inbox,不再写 research/
+- **坑**: 首次写报告时还是按 06-14 老习惯落 `E:\rhProject\research\`,主人纠正后才修正;说明"AI 产出物归属"这条 memory 没同步到位 —— 已通过 profile 写入固化
+- **来源**: 主人拍板(2026-06-18)
+
+## [2026-06-18] fix-plan | web_extract 4 家后端切换脚本 + vault 笔记
+
+- **触发**: 主人报 `web_extract` 报 "ddgs is search-only cannot extract URL content"
+- **根因**: `~/.hermes/config.yaml` 的 `web.extract_backend: ''`,默认 fallback 到 `web.backend=ddgs`,搜索能用、extract 失败
+- **修复**: 写 `E:\rhProject\scripts\check-extract-backend.py`,按 tavily > firecrawl > exa > parallel 优先级自动 ping + 切;全失败退回 ddgs + 弹申请页
+- **实测**: 3 种状态全过(无 key / 假 key / 强制 set);Tavily max_results=0 返 400 的坑已修(max_results=1)
+- **vault 笔记**: `HermesVault/23-Tools-工具用法/hermes-web-extract-后端切换.md`(4 后端对比 + 用法 + 故障排查 + 经验沉淀)
+- **index 更新**: Total pages 42 → 43,新增 Tools 区段
+- **scripts/ 目录**: 检查后确认无零碎残留(34 文件,全是命名清晰的实工具),无需整理
+- **来源**: 主人拍板(2026-06-18)
+
+## [2026-06-18] follow-up | check-extract-backend.py 加 --show-env / --open-env
+
+- **触发**: 主人问"`~` 路径在 Windows 下放哪",说明 git-bash 之外对 `~/.hermes/` 不熟
+- **判断**: 主人用的是 git-bash(我跑 terminal 的环境),`~` 实际工作;但脚本和文档示例应该**不依赖 shell 展开** —— 改成两个新子命令解决
+- **加 `--show-env`**: 打绝对路径(Windows 风格 `C:\Users\RUHAI\AppData\Local\hermes\.env`),不动配置不联网
+- **加 `--open-env`**: Windows 走 `os.startfile` 用系统默认编辑器打开 .env;POSIX 走 open/xdg-open
+- **vault 笔记同步**: 用法表 +3 行、key 放哪加 Windows 警告框、故障排查 +2 行
+- **坑**: 改 .env 例子时自己造的 Firecrawl 行被 patch 误删 → 重新写 4 家完整(Tavily 启用 + 其他注释)
+- **来源**: 主人问"放哪"后,自选推荐 B + C 一起做
+
+## [2026-06-18] validate | 主人填 TAVILY_API_KEY + 验证 extract 真能用
+
+- **触发**: 主人报"已经填进去了 TAVILY_API_KEY"(实际是真 key,58 字符 `tvly-...` 前缀)
+- **检测**:
+  - 跑 `check-extract-backend.py` → tavily 返 HTTP 200 ✓
+  - 自动写 `~/.hermes/config.yaml` 第 99 行 `extract_backend: tavily` ✓
+- **验证**: 实跑 `web_extract(urls=["https://github.com/trending"])` —— 从先前 "ddgs is search-only" 变成返回 20 条 repo 完整 markdown(mattpocock/skills #1 / obra/superpowers #3 ...)
+- **顺带发现**: trending #3 的 `obra/superpowers` 跟咱们 `.claude/settings.json` 里 `superpowers@claude-plugins-official` 是**同一个项目**(Anthropic 官方 plugin);咱们 `~/.ai-skills-store/superpowers-zh/` 是**另一个独立汉化容器**,名字撞但互不干扰
+- **不需要立即动作**: obra v5.1.0(2026-05-04)做了大重构,但 superpowers-zh 是独立项目,不会被 obra 升级波及
+- **vault 笔记**: confidence 降回 medium(长期稳定性待验证);加 "当前状态" 段落记录实证结果
+- **来源**: 主人告知已填 key → 我主动跑完整验证
+
+## [2026-06-18] validate | 加 Firecrawl + 脚本加 --check-all
+
+- **触发**: 主人申请并填了 `FIRECRAWL_API_KEY`(35 字符 fc- 前缀),加上原有的 Tavily 共 2 家可用
+- **需求**: 默认 `--check` 模式只测第一个 OK 的就停,看不出 Firecrawl 到底通不通 → 加 `--check-all` 模式完整测
+- **脚本改动**: `pick_backend()` 加 `check_all` 参数;argparse 加 `--check-all` 标志;逻辑:`check_all=False` 短路(快),`check_all=True` 走完所有(全测)
+- **实测**: `--check-all` 跑出来 tavily=HTTP 200、firecrawl=HTTP 200,两家都健康 ✓
+- **自动模式**: 仍选 tavily(优先级在前),不动
+- **vault 笔记**: 用法表加 2b 行(--check-all),经验沉淀更新"当前状态"段落记录双后端
+- **来源**: 主人报"t 和 f 配好了" → 我主动加 check-all 验证两家都通

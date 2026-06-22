@@ -23,12 +23,74 @@
   "maxBackups": 2,
   "dialogState": {
     "iconMode": true,
-    "emojiMode": false,
+    "emojiMode": true,
     "rulePage": "file"
   },
   "appIcons": {},
   "tabIcons": {},
-  "fileIcons": {},
+  "fileIcons": {
+    "00-Inbox": {
+      "icon": "lucide-inbox"
+    },
+    "10-raw-原始材料": {
+      "icon": "lucide-file-edit"
+    },
+    "20-concepts-已消化笔记": {
+      "icon": "lucide-lightbulb"
+    },
+    "21-fix-plans-修复经验": {
+      "icon": "lucide-wrench"
+    },
+    "22-entities-实体档案": {
+      "icon": "lucide-boxes"
+    },
+    "23-Tools-工具用法": {
+      "icon": "lucide-tool-case"
+    },
+    "30-comparisons-对比": {
+      "icon": "lucide-scale"
+    },
+    "31-queries-查询归档": {
+      "icon": "lucide-search"
+    },
+    "40-_meta-归档索引": {
+      "icon": "lucide-dock"
+    },
+    "Inbox": {
+      "icon": "lucide-folders"
+    },
+    "Tags": {
+      "icon": "lucide-tag"
+    },
+    "Tools": {
+      "icon": "lucide-tool-case"
+    },
+    "_meta": {
+      "icon": "lucide-settings"
+    },
+    "comparisons": {
+      "icon": "lucide-scale"
+    },
+    "concepts": {
+      "icon": "lucide-lightbulb"
+    },
+    "entities": {
+      "icon": "lucide-box"
+    },
+    "fix-plans": {
+      "icon": "lucide-wrench"
+    },
+    "logs": {
+      "icon": "lucide-calendar"
+    },
+    "queries": {
+      "icon": "lucide-search",
+      "color": "gray"
+    },
+    "raw": {
+      "icon": "lucide-file-type"
+    }
+  },
   "bookmarkIcons": {},
   "tagIcons": {},
   "propertyIcons": {},
