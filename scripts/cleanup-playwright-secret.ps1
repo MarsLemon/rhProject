@@ -9,7 +9,7 @@
 $ErrorActionPreference = "Stop"
 Set-Location "e:/rhProject"
 
-$SECRET = "__oiP3l_token_redacted__"
+$SECRET = "__oiP3l_token_redacted_in_script__"
 $REPLACEMENT = "__PLAYWRIGHT_MCP_EXTENSION_TOKEN_REMOVED__"
 $BACKUP_FILE = "C:\Users\RUHAI\tag-refs-backup.txt"
 
