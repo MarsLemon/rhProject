@@ -5,11 +5,11 @@
       "command": "python",
       "args": ["e:/rhProject/scripts/mysql_mcp_safe_wrapper.py"],
       "env": {
-        "MYSQL_HOST": "47.105.122.150",
-        "MYSQL_PORT": "31101",
-        "MYSQL_USER": "dev_root",
-        "MYSQL_PASSWORD": "123456",
-        "MYSQL_DATABASE": "wk_train_center"
+        "MYSQL_HOST": "${MYSQL_HOST}",
+        "MYSQL_PORT": "${MYSQL_PORT}",
+        "MYSQL_USER": "${MYSQL_USER}",
+        "MYSQL_PASSWORD": "${MYSQL_PASSWORD}",
+        "MYSQL_DATABASE": "${MYSQL_DATABASE}"
       }
     },
     "fetch": {
