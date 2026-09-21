@@ -1176,3 +1176,7 @@ wk-vesselkeeper-master/types/config.d.ts
 wk-vesselkeeper-master/types/env.d.ts
 wk-vesselkeeper-master/types/vue-router.d.ts
 wk-vesselkeeper-master/types/vue.d.ts
+
+# MCP 客户端配置(本地密钥,不入仓) - 2026-09-21
+/.mcp.json
+/.mcp.json.local
