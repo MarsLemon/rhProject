@@ -1,9 +1,0 @@
-ResourceUnavailable: C:\Program Files\nodejs\npx.ps1:13:1
-Line |
-  13 |  $NPM_PREFIX=(& $NODE_EXE $NPM_PREFIX_JS)
-     |  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     | Program 'node.exe' failed to run: StandardOutputEncoding is only supported when
-     | standard output is redirected.At C:\Program Files\nodejs\npx.ps1:13 char:14 +
-     | $NPM_PREFIX=(& $NODE_EXE $NPM_PREFIX_JS) +             
-     | ~~~~~~~~~~~~~~~~~~~~~~~~~~.
-

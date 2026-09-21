@@ -1,0 +1,79 @@
+{
+  "_comment": "项目版本号登记表 - 替代老 documents/versions.json(已废弃)",
+  "_spec": {
+    "owner": "Wiki 维护 agent",
+    "authority": "git 现状分支名 = 版本号(local/{X.X}/dev 模式,X.X 即版本号;mobile 仓用 local/mobile-v{X.X}/dev 独立节奏)",
+    "currentVersionSource": "git branch --show-current(子仓 wk-train-center-service 独立 origin)",
+    "aiUseProtocol": "Agent 接需求第一步:`cd wk-train-center-service && git branch --show-current` → grep DEPRECATED-FEATURES.md 任务关键词"
+  },
+  "current": {
+    "branch": "local/mobile1.2/fix",
+    "version": "mobile1.2",
+    "gitStatus": "当前本地检出分支,正在开发中(2026-07-22 实测,2026-07-14 原写 mobile-v1.1 已过期)",
+    "releasedAt": null,
+    "nextPlanned": "mobile1.2 发版(自建 AI 网关统一计划收官后)"
+  },
+  "history": [
+    {
+      "version": "mobile-v1.0",
+      "branch": "local/mobile-v1.0/dev",
+      "status": "已发布",
+      "releasedAt": "2026-XX-XX",
+      "tag": null,
+      "deprecatedFeatures": []
+    },
+    {
+      "version": "mobile-v1.1",
+      "branch": "local/mobile-v1.1/dev",
+      "status": "已发布",
+      "releasedAt": "2026-07-XX(约 7-15)",
+      "tag": null,
+      "deprecatedFeatures": []
+    },
+    {
+      "version": "mobile1.2",
+      "branch": "local/mobile1.2/dev → local/mobile1.2/fix",
+      "status": "开发中",
+      "releasedAt": null,
+      "tag": null,
+      "deprecatedFeatures": []
+    }
+  ],
+  "allKnownBranches": {
+    "local/X.X/dev 模式(PC/web 端)": [
+      "local/1.2/dev", "local/1.3/dev", "local/1.4/dev", "local/pre-1.1/dev"
+    ],
+    "local/mobile-vX.X/dev 模式(移动端)": [
+      "local/mobile-v1.0/dev", "local/mobile-v1.1/dev", "local/mobile1.2/dev", "local/mobile1.2/fix"
+    ],
+    "release 模式": [
+      "release/dev", "release/fat", "release/pro", "release/release", "release/uat"
+    ],
+    "主干": ["master", "develop"],
+    "环境分支": ["stage", "uat"]
+  },
+  "versionNaming": {
+    "pattern": "^local/(mobile-)?v?(\\d+\\.\\d+)/dev$",
+    "description": "PC/web 端用 local/{X.X}/dev;mobile 端用 local/mobile-v{X.X}/dev 独立节奏(1.2 起改 local/mobile1.X/ 模式)",
+    "example": "local/mobile1.2/dev → mobile1.2(目录命名无连字符)"
+  },
+  "migration": {
+    "from": "Thinkpad/_archive/2026-07-documents-snapshot/versions.json(已彻底废弃,2026-07-14)",
+    "to": "本文件",
+    "reason": "老 versions.json 写的是 v1.x 多分支 local/X.X/dev,但子仓 mobile 端有独立的 mobile-vX.X 节奏,且存在 release/dev|fat|pro|release|uat 多套预发布分支,老 JSON 漏全",
+    "diff": [
+      "补全 mobile-vX.X 节奏(local/mobile-v1.0/dev + local/mobile-v1.1/dev + local/mobile1.2/dev + local/mobile1.2/fix)",
+      "补全 release/ 多个环境分支(dev/fat/pro/release/uat)",
+      "移除老 JSON 写的 'local/1.3/dev'='开发中'(实际 1.3 早已发布,当前在途分支是 mobile1.2)",
+      "移除 'develop'(与 master 合并,实际仓库 develop 是历史归档)",
+      "2026-07-22 修正 current 字段为 mobile1.2(原 mobile-v1.1 已过期,实测 wk-train-center-service 当前 local/mobile1.2/fix)"
+    ]
+  },
+  "_links": {
+    "deprecatedFeatures": ".products/projects/wk-train-center-service/docs/DEPRECATED-FEATURES.md",
+    "frontendPRD": ".products/projects/wk-train-center-service/docs/PRD.md",
+    "productPRD": ".products/projects/wk-train-center/docs/PRD.md",
+    "uiRegistry": ".products/projects/wk-train-center-ui/docs/version-registry.json",
+    "uiV3Registry": ".products/projects/wk-train-center-ui-v3/docs/version-registry.json"
+  }
+}

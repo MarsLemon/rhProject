@@ -1,0 +1,1 @@
+alter table el_qu_gen modify ai_prompt longtext not null comment '提示词';

@@ -1,0 +1,394 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "meta": {
+    "specType": "tech-debt",
+    "version": "1.0.0",
+    "date": "2026-07-09",
+    "status": "draft",
+    "severity": "P2",
+    "owners": [
+      "主人"
+    ],
+    "project": "wk-train-center",
+    "scope": "wk-train-center-ui (Vue 2.7 + Element UI 2.15.14 + Vuex 3)",
+    "codeRepoPath": "E:/rhProject/wk-train-center-ui/",
+    "relatedScan": "2026-07-09 vue3-expert 全仓扫描报告 (类 C-1 + 类 D-5 合并)",
+    "markdownPath": "2026-07-09-tech-debt-data-table-api-func.md"
+  },
+  "problem": {
+    "coreIssue": "DataTable 组件通过 options.delete.url / listUrl / stateUrl / multiActions[].url 字符串字段消费 API 路径,但 src/api/ 下每个业务域其实都已经定义好了具名函数。25 个 .vue 文件、38+ 处 url: '/api/...' 字面量硬编码,完全绕过 src/api/ 封装。",
+    "affected": "wk-train-center-ui 全栈前端开发者(主人 + 后端协作者)",
+    "costOfInaction": [
+      "单次后端路径重构需前端 1-2 小时全仓 grep + 测试回归",
+      "新人理解'DataTable 为何不直接 import api 函数'需 30-60 分钟",
+      "未来引入 TypeScript / OpenAPI 自动生成时,这套 url 字符串生态将是最大迁移阻力"
+    ]
+  },
+  "goals": [
+    {
+      "id": "G1",
+      "title": "零内联 URL",
+      "measurable": "git grep -nE \"url:\\s*'/api\" src/views/ 返回 0 条"
+    },
+    {
+      "id": "G2",
+      "title": "DataTable 函数化",
+      "measurable": "DataTable 支持 deleteApi / listApi / multiActionApis 函数 prop,1 个 PR 完成迁移,25 处调用点全部可使用函数"
+    },
+    {
+      "id": "G3",
+      "title": "API 工厂落地",
+      "measurable": "抽 src/api/_factory/crud.js,暴露 createCrudApi(prefix) 工厂,user/plan/course 3 个模块优先迁移"
+    },
+    {
+      "id": "G4",
+      "title": "下游消费方零侵入",
+      "measurable": "验证:把 /api/sys/user/delete 改成 /api/sys/user/v2/delete,DataTable 调用点零改动"
+    }
+  ],
+  "nonGoals": [
+    {
+      "id": "NG1",
+      "title": "强制迁移所有 18 个 api 文件到 factory 模式",
+      "reason": "scope 过大,现有具名函数签名已稳定;owner 自愿迁"
+    },
+    {
+      "id": "NG2",
+      "title": "TypeScript 化或 OpenAPI 自动生成",
+      "reason": "引入类型系统是另一个独立 spec"
+    },
+    {
+      "id": "NG3",
+      "title": "DataTable UI 行为变更",
+      "reason": "本次只动 props API,不重构 template/script 行为"
+    },
+    {
+      "id": "NG4",
+      "title": "后端路由变更",
+      "reason": "后端按需自行调整,本 spec 只保证前端改一处即生效"
+    },
+    {
+      "id": "NG5",
+      "title": "Vue 3 / v3 仓同步",
+      "reason": "v3 仓是 Element Plus + script-setup,问题不同;另起 spec"
+    }
+  ],
+  "userStories": [
+    {
+      "id": "US-1",
+      "priority": "P0",
+      "asA": "主人(项目 owner)",
+      "iWant": "后端路径变更时,前端只改 src/api/ 一个文件",
+      "soThat": "不用 git grep 全仓找 url 字符串,也避免漏改导致线上 404"
+    },
+    {
+      "id": "US-2",
+      "priority": "P0",
+      "asA": "前端开发者",
+      "iWant": "DataTable 接收 deleteApi: () => apiDeleteUser 这种函数 prop",
+      "soThat": "IDE 能跳转、重命名友好、新人能看懂调用关系"
+    },
+    {
+      "id": "US-3",
+      "priority": "P1",
+      "asA": "架构师 / 项目 owner",
+      "iWant": "抽 createCrudApi(prefix) 工厂,默认提供 CRUD 5 个方法",
+      "soThat": "新建业务模块不必再 copy-paste 5 遍 post + url"
+    },
+    {
+      "id": "US-4",
+      "priority": "P1",
+      "asA": "测试 / QA",
+      "iWant": "src/api/_factory/crud.js 有单元测试,确保 5 个方法签名/错误处理一致",
+      "soThat": "未来重构工厂不会静默破坏业务调用"
+    },
+    {
+      "id": "US-5",
+      "priority": "P2",
+      "asA": "还在用 url: '/api/...' 字符串的页面",
+      "iWant": "DataTable v1 字符串 prop 仍能工作(deprecated 但不报错)",
+      "soThat": "本次迁移期间老的页面不强制同步改,避免一次性 PR 过大"
+    }
+  ],
+  "requirements": {
+    "P0": [
+      {
+        "id": "REQ-P0-1",
+        "title": "DataTable 新增函数 prop",
+        "currentState": "options.delete.url / listUrl / stateUrl / multiActions[].url 接收字符串",
+        "target": [
+          "options.delete.api?: (data: object) => Promise (优先于 url)",
+          "options.listApi?: (data: object) => Promise (优先于 listUrl)",
+          "options.stateApi?: (data: object) => Promise (优先于 stateUrl)",
+          "options.multiActions[].api?: (data: object) => Promise (优先于 url)"
+        ],
+        "behavior": "函数存在 → 调函数;函数不存在 → fallback 到旧 url 字段",
+        "location": "src/components/ComponentsBase/ComponentsTable/DataTable/useTableActions.js"
+      },
+      {
+        "id": "REQ-P0-2",
+        "title": "抽样迁移 3 个业务模块",
+        "modules": [
+          "user",
+          "plan",
+          "course"
+        ],
+        "files": [
+          {
+            "path": "src/views/admin/sys/user/index.vue",
+            "lines": [
+              195,
+              199,
+              205,
+              211,
+              218,
+              225
+            ],
+            "urlCount": 7
+          },
+          {
+            "path": "src/views/admin/plan/plan/index.vue",
+            "lines": [
+              191,
+              202,
+              209
+            ],
+            "urlCount": 3
+          },
+          {
+            "path": "src/views/admin/course/index.vue",
+            "lines": [
+              127,
+              137,
+              143
+            ],
+            "urlCount": 3
+          }
+        ],
+        "exitCriteria": "git grep -nE \"url:\\s*'/api\" src/views/admin/sys/user/ src/views/admin/plan/ src/views/admin/course/ 在迁移完成后返回 0 条"
+      },
+      {
+        "id": "REQ-P0-3",
+        "title": "CRUD 工厂落地",
+        "newFile": "src/api/_factory/crud.js",
+        "signature": "createCrudApi(prefix: string, options?: { method?: string, deleteMethod?: string }) => { fetchDetail, fetchPaging, saveData, deleteData, updateState }",
+        "example": "createCrudApi('/api/sys/foo') 等价于 5 个 post 函数 (detail/paging/save/delete/state)"
+      }
+    ],
+    "P1": [
+      {
+        "id": "REQ-P1-1",
+        "title": "DataTable 字符串 url prop 标记 deprecated",
+        "target": "DataTable.vue 文件头 JSDoc 加 @deprecated 注释(自 v1.0.0 起,计划 v2.0.0 移除)",
+        "behavior": "现有 38 处调用方不强制立即迁移,不引入 console.warn(避免刷屏)"
+      },
+      {
+        "id": "REQ-P1-2",
+        "title": "CRUD 工厂单元测试",
+        "newFile": "tests/unit/api/crud-factory.spec.js",
+        "framework": "Jest",
+        "coverage": "5 个方法签名、传参透传、错误处理(网络错误 → reject)",
+        "mockStrategy": "jest.mock('@/utils/request')"
+      },
+      {
+        "id": "REQ-P1-3",
+        "title": "其它 22 个 .vue 文件全量迁移",
+        "scope": "P0 完成后,其余 22 个文件分散在后续迭代",
+        "cadence": "每个迭代迁移 5-8 个文件,跟踪记录到 spec Changelog 章节"
+      }
+    ],
+    "P2": [
+      {
+        "id": "REQ-P2-1",
+        "title": "ESLint 自定义规则 no-inline-api-url",
+        "note": "本次不实现,只在本 spec 设计时考虑 factory 函数 prop 形状与 lint 规则兼容"
+      },
+      {
+        "id": "REQ-P2-2",
+        "title": "DataTable 字符串 url prop 完全移除",
+        "target": "v2.0.0 删除 url / listUrl / stateUrl,只留 api / listApi / stateApi",
+        "trigger": "P0 + P1 全量迁移完成后,单独发 deprecation 公告"
+      },
+      {
+        "id": "REQ-P2-3",
+        "title": "TypeScript / OpenAPI 自动生成",
+        "note": "v3 仓已经用 TS,可参考;v2 仓技术债另立 spec"
+      }
+    ]
+  },
+  "acceptanceCriteria": {
+    "givenWhenThen": [
+      {
+        "given": "后端路径 /api/sys/user/delete 重命名为 /api/sys/user/v2/delete,前端 src/api/sys/user/user.js 的 deleteData 函数已改为 post('/api/sys/user/v2/delete', data)",
+        "when": "我 grep \"url: '/api/sys/user\" src/views/admin/sys/user/index.vue",
+        "then": "应该返回 0 条匹配(DataTable 走函数 prop,不依赖字面量)"
+      },
+      {
+        "given": "主人新建业务模块 src/api/sys/foo/foo.js",
+        "when": "我用 createCrudApi('/api/sys/foo') 创建 5 个 CRUD 方法",
+        "then": "这 5 个方法应能直接 import 给 DataTable 用,无需手写"
+      }
+    ],
+    "p0Checklist": [
+      "src/api/_factory/crud.js 文件存在,导出 createCrudApi",
+      "tests/unit/api/crud-factory.spec.js 文件存在并通过",
+      "src/views/admin/sys/user/index.vue 0 处 url 字面量",
+      "src/views/admin/plan/plan/index.vue 0 处 url 字面量",
+      "src/views/admin/course/index.vue 0 处 url 字面量",
+      "src/components/ComponentsBase/ComponentsTable/DataTable/DataTable.vue 支持 api / listApi / stateApi 函数 prop",
+      "useTableActions.js 优先用函数 prop,fallback 到字符串 url"
+    ],
+    "p1Checklist": [
+      "DataTable.vue 文件头 JSDoc 标注 @deprecated url / listUrl / stateUrl",
+      "3 个抽样模块的 .vue 文件能在浏览器跑通(主人手动验证)"
+    ],
+    "negative": [
+      "DataTable 调用方改用函数 prop 后,不能出现新的 console error",
+      "字符串 url prop 不能被悄悄移除(还在 v1 兼容期)",
+      "不能影响非 DataTable 系列页面(如 search 表单、直调 api 函数的地方)"
+    ]
+  },
+  "successMetrics": {
+    "leading": [
+      {
+        "indicator": "git grep -nE \"url:\\s*'/api\" src/views/ 命中数",
+        "target": "从 38 处降至 ≤ 13 处(P0 3 模块归零后)"
+      },
+      {
+        "indicator": "CRUD 工厂新建业务模块平均时间",
+        "target": "≤ 5 分钟(对比 copy-paste 5 个 post 函数 ~20 分钟)"
+      },
+      {
+        "indicator": "新人 PR review 中'url 字符串'反馈次数",
+        "target": "≤ 1 次/迭代"
+      }
+    ],
+    "lagging": [
+      {
+        "indicator": "后端路径变更 → 前端全量同步耗时",
+        "target": "从 ~2 小时降至 ≤ 15 分钟"
+      },
+      {
+        "indicator": "DataTable 系列页面 bug 数",
+        "target": "比上一迭代下降 20%(函数化后行为更可预测)"
+      }
+    ],
+    "measurementMethod": [
+      "git grep + scripts/check-inline-api-url.sh 加到 CI",
+      "PR review 用 code-review skill 跑 git diff 检查",
+      "季度统计看 git log --diff-filter=M -- src/api/_factory/ 采纳速度"
+    ]
+  },
+  "openQuestions": [
+    {
+      "id": "Q1",
+      "question": "useTableActions.js 里 url 字段是直接 post(url, data) 还是有统一 http({ url, method, data }) 包装?",
+      "needsAnswerFrom": "frontend-expert",
+      "blocking": false,
+      "note": "spec 时 Read 验证即可"
+    },
+    {
+      "id": "Q2",
+      "question": "CRUD 工厂的 method 默认值是 post 还是按 RESTful 分(delete 用 delete、put 用 put)?",
+      "needsAnswerFrom": "主人 + frontend-expert",
+      "blocking": true,
+      "note": "设计核心问题,启动实施前必须确认"
+    },
+    {
+      "id": "Q3",
+      "question": "抽样选 user/plan/course 这 3 个模块,是不是过度了?要不要先只迁 1 个做 pilot?",
+      "needsAnswerFrom": "主人",
+      "blocking": false,
+      "note": "影响 PR size"
+    },
+    {
+      "id": "Q4",
+      "question": "DataTable 文件头 @deprecated 注释是否需要同步在 console.warn 里提示?",
+      "needsAnswerFrom": "frontend-expert",
+      "blocking": false,
+      "note": "本 spec 倾向不,改用 lint"
+    },
+    {
+      "id": "Q5",
+      "question": "src/api/_factory/ 路径名带 _ 前缀,符合仓库 src/api/ 现有命名吗?",
+      "needsAnswerFrom": "主人",
+      "blocking": false,
+      "note": "现有是 ability/ai/course/... 都不带下划线,只是目录位置决策"
+    }
+  ],
+  "timeline": {
+    "phase0_validation_and_decision": {
+      "duration": "T+0 ~ T+1 天",
+      "deliverable": "主人答 Q2/Q3;frontend-expert 答 Q1/Q4/Q5;文档 v1.1.0"
+    },
+    "phase1_crud_factory": {
+      "duration": "T+2 ~ T+3 天",
+      "deliverable": "src/api/_factory/crud.js + tests/unit/api/crud-factory.spec.js"
+    },
+    "phase2_datatable_function_props": {
+      "duration": "T+4 ~ T+5 天",
+      "deliverable": "DataTable.vue 支持 api/listApi/stateApi;旧 url 字段保留兼容"
+    },
+    "phase3_pilot_migration_3_modules": {
+      "duration": "T+6 ~ T+8 天",
+      "deliverable": "user/plan/course 模块 .vue 改函数 prop,git grep 命中数 -13"
+    },
+    "phase4_regression_and_browser_verify": {
+      "duration": "T+9 ~ T+10 天",
+      "deliverable": "主人手动验证 admin 后台相关页面,无新 console error"
+    },
+    "phase5_docs_and_changelog": {
+      "duration": "T+11 天",
+      "deliverable": "本 spec Changelog 写 v1.0.0 → v1.1.0;.products/projects/wk-train-center/changelog.md 加一条"
+    },
+    "totalEstimate": "11 天 (~2 周 1 人)",
+    "hardDeadline": "无 — P2 技术债,可与 R2 / 其它需求并行"
+  },
+  "risks": [
+    {
+      "risk": "DataTable 是 10+ 页面共依赖,改 prop API 影响面广",
+      "level": "high",
+      "mitigation": "保留旧 url 字段 fallback;3 模块抽样验证后才全面推广"
+    },
+    {
+      "risk": "字符串 url prop 保留期太长导致 deprecation 失效",
+      "level": "medium",
+      "mitigation": "P1-3 在 changelog 写明 v2.0.0 移除时间,CI 加 lint rule 倒逼"
+    },
+    {
+      "risk": "CRUD 工厂错误处理与现有不一致(如错误弹窗样式)",
+      "level": "medium",
+      "mitigation": "factory 不强制统一错误处理,业务文件可包一层 try-catch"
+    },
+    {
+      "risk": "后端临时改路径不通知前端",
+      "level": "low",
+      "mitigation": "文档化约定;CI 加 API path 校验脚本(独立 spec)"
+    },
+    {
+      "risk": "v2 仓(vue3)有类似问题,本次不处理成长期债务",
+      "level": "low",
+      "mitigation": "v3 仓新立 spec;v2 spec 中留交叉引用"
+    }
+  ],
+  "changelog": [
+    {
+      "version": "1.0.0",
+      "date": "2026-07-09",
+      "change": "初稿;基于 2026-07-09 vue3-expert 扫描报告 (类 C-1 + 类 D-5 合并);owner = 主人;status = draft"
+    }
+  ],
+  "references": {
+    "scanReport": "2026-07-09 全仓 vue3-expert 报告 (类 C-1 + 类 D-5)",
+    "keyFiles": {
+      "改造主体": "E:/rhProject/wk-train-center-ui/src/components/ComponentsBase/ComponentsTable/DataTable/DataTable.vue (L168-203 props 定义)",
+      "抽样 user": "E:/rhProject/wk-train-center-ui/src/views/admin/sys/user/index.vue (L195/199/205/211/218/225)",
+      "抽样 plan": "E:/rhProject/wk-train-center-ui/src/views/admin/plan/plan/index.vue (L191/202/209)",
+      "抽样 course": "E:/rhProject/wk-train-center-ui/src/views/admin/course/index.vue (L127/137/143)",
+      "已存具名函数": "E:/rhProject/wk-train-center-ui/src/api/sys/user/user.js",
+      "新建待办": "E:/rhProject/wk-train-center-ui/src/api/_factory/crud.js"
+    },
+    "prd": ".products/projects/wk-train-center/docs/PRD.md (产品层 PRD 不受影响)",
+    "architectureDecisions": ".products/projects/wk-train-center/docs/decisions/"
+  }
+}

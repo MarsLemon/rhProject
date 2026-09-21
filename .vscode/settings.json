@@ -5,5 +5,12 @@
   "files.autoGuessEncoding": false,
   "java.configuration.updateBuildConfiguration": "automatic",
   "java.jdt.ls.vmargs": "-XX:ErrorFile=logs/jvm/jdtls_hs_err_%p.log -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=logs/jvm",
-  "editorjumper.selectedIDE": "IDEA"
+  "editorjumper.selectedIDE": "IDEA",
+  "vue3snippets.enable-compile-vue-file-on-did-save-code": false,
+  "postman.settings.dotenv-detection-notification-visibility": false,
+  "chat.mcp.serverSampling": {
+    "rhProject/.vscode/mcp.json: mysql-prod": {
+      "allowedModels": ["customendpoint/minimax/minimax"]
+    }
+  }
 }

@@ -1,0 +1,183 @@
+{
+  "schemaVersion": "1.0",
+  "createdAt": "2026-06-25",
+  "owner": "Claude Code",
+  "purpose": "v3 admin 端完整迁移进度跟踪 + 新会话断点续跑",
+  "ruleWaivers": {
+    "diffConfirmPerChange": "2026-06-25 主人豁免（一个一个来但不需要我确认，直接动键盘）",
+    "stayInSession": "bug 不中断，写进 plans/v3-admin-bugs.md"
+  },
+  "readFirstWhenResuming": [
+    ".claude/plans/v3-migration-audit-2026-06-25.md",
+    ".claude/plans/v3-admin-progress.json",
+    ".claude/plans/v3-admin-bugs.md"
+  ],
+  "resumePrompt": "继续 v3 admin 端迁移。当前已完成的子阶段看 v3-admin-progress.json 的 completed 子阶段，未完成的在 pending。从 pending 第一个开始，按 '1. 列 v2 vs v3 差异表 → 2. 改代码 → 3. typecheck → 4. vite dev curl → 5. v3 commit → 6. 主仓同步指针 commit → 7. 更新 progress.json' 节奏推。每个子阶段一个 commit。bug 写进 v3-admin-bugs.md 不中断流程。",
+  "subStages": [
+    {
+      "id": "sys",
+      "label": "admin/sys",
+      "scope": "用户/角色/部门/菜单/字典/讲师/横幅/日志/通知/积分/认证",
+      "estimatedFiles": 30,
+      "status": "completed",
+      "startedAt": "2026-06-25",
+      "completedAt": "2026-06-25",
+      "v3Commit": "fe15365",
+      "mainCommit": "b320c85",
+      "notes": "14 文件 1:1 v2/v3, 大小相近, 主体已迁 (script setup 改写). 路由挂载在 admin.ts 走."
+    },
+    {
+      "id": "course",
+      "label": "admin/course",
+      "scope": "课程/课件/直播/统计/AI PPT",
+      "estimatedFiles": 30,
+      "status": "completed",
+      "startedAt": "2026-06-25",
+      "completedAt": "2026-06-25",
+      "v3Commit": "c14a22c",
+      "mainCommit": "14aaaaa",
+      "notes": "7 文件 1:1 v2/v3 完成迁移. index.vue(3 个弹窗占位), form.vue(课件列表占位), file.vue(修复 import bug + 4 个组件占位), qa/stat/statfull/result.vue 从空壳补成完整实现. stat/result.vue 详情图等 ComponentsBusiness 补 CourseStatInfoDetail/CourseAssignLearnDetail."
+    },
+    {
+      "id": "exam",
+      "label": "admin/exam",
+      "scope": "考试/试卷/监考/阅卷/统计",
+      "estimatedFiles": 30,
+      "status": "completed",
+      "startedAt": "2026-06-25",
+      "completedAt": "2026-06-25",
+      "v3Commit": "64fa09c",
+      "mainCommit": "261a6f8",
+      "notes": "42 文件 1:1 v2/v3, 全部字节一致(本次仅迁移 ExamRecord 组件 + 修 API bug). 新增 ExamRecord.vue 考试记录组件. 修 5 个 API 签名错(markAs/deletePaper/watchStat/updateState/copy). review/index.vue 3 个 el-empty 占位替换为真实组件. publishExam/pauseExam/doFinish/handleCopy 从占位换成真实 API 调用. route: 14 路由全部 200 OK."
+    },
+    {
+      "id": "repo",
+      "label": "admin/repo",
+      "scope": "题库/题目/AI 出题/统计",
+      "estimatedFiles": 25,
+      "status": "completed",
+      "startedAt": "2026-06-25",
+      "completedAt": "2026-06-25",
+      "v3Commit": "f7bc99c",
+      "mainCommit": "a337c59",
+      "notes": "router name 不匹配修复(RepoAdd→AdminRepoForm等) + form.vue save/cancel 接入真实 repoApi。16 个 el-empty 空壳按策略保留"
+    },
+    {
+      "id": "plan",
+      "label": "admin/plan",
+      "scope": "培训计划/节点（plan/废弃不管）",
+      "estimatedFiles": 12,
+      "status": "pending",
+      "startedAt": null,
+      "completedAt": null,
+      "v3Commit": null,
+      "mainCommit": "14aaaaa",
+      "notes": "CLAUDE.md §7 硬约束: training-plan 废弃不管"
+    },
+    {
+      "id": "notify",
+      "label": "admin/notify",
+      "scope": "站内信/模板/邮件/短信",
+      "estimatedFiles": 10,
+      "status": "completed",
+      "startedAt": "2026-06-25",
+      "completedAt": "2026-06-25",
+      "v3Commit": "cff0b71",
+      "mainCommit": "6619b22",
+      "notes": "im.vue 修 listUrl API 路径错 (/api/sys/user/im/paging → /api/sys/user/msg/paging) + 加 delete config. index.vue 为 el-empty 占位 (v2 没这页). config/tmpl/msg 路由 fallback 到 sys/notice."
+    },
+    {
+      "id": "tmpl",
+      "label": "admin/tmpl",
+      "scope": "试卷模板/组卷规则",
+      "estimatedFiles": 10,
+      "status": "completed",
+      "startedAt": "2026-06-25",
+      "completedAt": "2026-06-26",
+      "v3Commit": "23afc1b",
+      "mainCommit": "3d48f78",
+      "notes": "骨架补全 (主人豁免第二轮). 11 个文件全部从 el-empty 占位补成完整组件. index.vue 接 DataTable + DicTree + DicListSelect + 复制/引用/创建考试按钮, 真实 apiCopyTmpl + apiRefExams. form.vue 用 el-form + 大题卡片占位, fetchData 拉详情. 9 个子组件全部写骨架: PaperPreview/TmplPreCreate/TmplRefDialog/QuTypeSelector/QuestionBankSelector/RandomStrategy/ScoreRule/SectionSelector/TimeLimit/Tinymce. admin.ts router preview 路由指向真实 PaperPreview. 缺漏: Join1Form/JoinQuList/JoinRuleList/QuItemShow/DicCatalogTree v3 ComponentsBusiness 缺失, 等后续 PR."
+    },
+    {
+      "id": "paper-signin",
+      "label": "admin/paper + admin/training-sign-in",
+      "scope": "试卷管理 + 培训签到",
+      "estimatedFiles": 7,
+      "status": "completed",
+      "startedAt": "2026-06-25",
+      "completedAt": "2026-06-25",
+      "v3Commit": "dfb871e",
+      "mainCommit": "14aaaaa",
+      "notes": "paper/index.vue + 6 training-sign-in 文件全部 el-empty 占位 (按 CLAUDE.md 'v3 空壳只标记不修复' + 'training-sign-in 暂不迁'). paper/detail 路由 fallback. training-sign-in 路由不挂. 无代码改动."
+    },
+    {
+      "id": "ai",
+      "label": "admin/ai",
+      "scope": "AI 助手管理 + 对练配置",
+      "estimatedFiles": 5,
+      "status": "completed",
+      "startedAt": "2026-06-25",
+      "completedAt": "2026-06-25",
+      "v3Commit": "c86786a",
+      "mainCommit": "3798437",
+      "notes": "3 文件全部 el-empty → 完整迁移. sparring/index.vue: DataTable 列表 + 筛选 + 表单对话框. AiRoleConfig: 角色配置表单(名称/语气/背景/陪练要求/评估标准 + 一键优化). AiChatPanel: 流式调试面板. API TrainingRoleInfo 接口字段修正. handleOptimizeField 用后端 API 替代空 URL SSE."
+    },
+    {
+      "id": "ai-stream",
+      "label": "AI 流式响应真实接入",
+      "scope": "AiChatPanel 流式调试面板 + ai-store fetchSseOrFallback",
+      "estimatedFiles": 2,
+      "status": "completed",
+      "startedAt": "2026-06-25",
+      "completedAt": "2026-06-25",
+      "v3Commit": "777e133",
+      "mainCommit": "8ff7ae3",
+      "notes": "AiChatPanel.vue 修 sseStream('',...) 空 URL bug,接 /api/wk/training/role/student/stream 真实端点. 移除 mockReply fallback (setTimeout 假回复), 错误时显示明确错误提示. streamingContent 用 renderMarkdown(marked + sanitizeHtml)替代原 convertMarkdownToText 文本剥离. 历史 AI 消息同样走 renderMarkdown. stores/modules/ai.ts: fetchSseOrFallback 默认走真实后端 SSE(原 VITE_AI_STREAM_ENABLED env gate 改为 VITE_AI_STREAM_MOCK 显式开启), 注入 buildAgentHeaders(X-Agent-Id/token 来自 utils/ai/bailian.ts), body 增加 askId 字段. 流被中止时返回空内容, 不抛错."
+    },
+    {
+      "id": "paper-detail-skel",
+      "label": "admin/paper 骨架补全",
+      "scope": "paper/index.vue (从 el-empty 占位到 DataTable 列表)",
+      "estimatedFiles": 1,
+      "status": "completed",
+      "startedAt": "2026-06-25",
+      "completedAt": "2026-06-25",
+      "v3Commit": "ffd18e2",
+      "mainCommit": "75b4ecf",
+      "notes": "paper/index.vue 从 242B 占位补成完整列表. DataTable + listPaper API(/api/paper/paper/paging) + DicListSelect(状态) + DetailLink(详情). 过滤: 学员姓名/考试名称/试卷状态. 列: 姓名/考试名/创建时间/提交时间/用时/总分/得分(>=60% 绿色 else 红色)/状态/阅卷状态/操作. 操作: 查看详情(DetailLink 跳 AdminPaperDetail,目前 fallback 到本组件)+ 标记阅卷(markAs API 需 hasSaq && handState!==2). 缺漏: paper/detail 组件 v3 暂无(v2 也只有 detail.vue), 走 router fallback. ComponentsBusiness PaperListDialog/ReviewPaper v3 暂无, 留 TODO. 导出按钮未实现, 等权限定义."
+    },
+    {
+      "id": "dashboard",
+      "label": "admin/dashboard",
+      "scope": "管理端首页",
+      "estimatedFiles": 1,
+      "status": "completed",
+      "startedAt": "2026-06-25",
+      "completedAt": "2026-06-25",
+      "v3Commit": "0e9e02e",
+      "mainCommit": "8daa649",
+      "notes": "补全 CardExamList / CardCourseList 引用 (v2 同期有, v3 index.vue 漏引). LineChart* 组件保持 placeholder 状态 (echarts 未装, 按设计)."
+    },
+    {
+      "id": "router",
+      "label": "admin 路由挂载",
+      "scope": "新建 router/modules/admin.ts 挂所有 admin 子路由",
+      "estimatedFiles": 1,
+      "status": "completed",
+      "startedAt": "2026-06-25",
+      "completedAt": "2026-06-25",
+      "v3Commit": "fe15365",
+      "mainCommit": "b320c85",
+      "notes": "11 子模块, 52 路由. v3 notify/tmpl.vue + config.vue 缺走 sys/notice fallback; paper/detail 走 paper/index fallback; tmpl/preview 走 tmpl/index fallback. 培训计划/签到 按硬约束不挂."
+    }
+  ],
+  "stats": {
+    "total": 13,
+    "completed": 13,
+    "inProgress": 0,
+    "pending": 0,
+    "bugsFound": 8
+  },
+  "completed": ["sys", "router", "repo", "notify", "tmpl", "paper-signin", "dashboard", "course", "exam", "ai", "ai-stream", "paper-detail-skel"],
+  "inProgress": null
+}

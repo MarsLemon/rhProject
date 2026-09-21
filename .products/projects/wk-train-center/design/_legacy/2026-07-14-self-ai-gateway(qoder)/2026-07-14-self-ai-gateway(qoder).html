@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>AI 业务网关 — 流程演示 (qoder & claude 联合出品)</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #f5f6fa;
+    color: #2c3e50;
+  }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .subtitle { color: #7f8c8d; font-size: 13px; margin-bottom: 24px; }
+  .layout { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .panel {
+    background: #fff;
+    border-radius: 10px;
+    padding: 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  }
+  .panel h2 {
+    font-size: 14px;
+    margin: 0 0 12px;
+    color: #34495e;
+    border-left: 3px solid #3498db;
+    padding-left: 8px;
+  }
+  .node {
+    border: 1px solid #e1e4e8;
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    background: #fafbfc;
+  }
+  .node strong { color: #2c3e50; }
+  .node small { color: #7f8c8d; display: block; margin-top: 4px; font-size: 11px; }
+  .arrow {
+    text-align: center;
+    color: #95a5a6;
+    font-size: 18px;
+    margin: -2px 0;
+  }
+  .controls {
+    margin-top: 16px;
+    padding: 12px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  }
+  .controls button {
+    background: #3498db;
+    color: #fff;
+    border: 0;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 8px;
+    font-size: 13px;
+  }
+  .controls button:hover { background: #2980b9; }
+  .controls button.alt { background: #e74c3c; }
+  .controls button.alt:hover { background: #c0392b; }
+  .controls label { margin-right: 12px; font-size: 13px; }
+  .event-log {
+    background: #1e272e;
+    color: #dcdde1;
+    border-radius: 6px;
+    padding: 12px;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 12px;
+    height: 420px;
+    overflow-y: auto;
+    line-height: 1.6;
+  }
+  .event-log .ts { color: #95a5a6; }
+  .event-log .tag { display: inline-block; min-width: 60px; padding: 1px 6px; border-radius: 3px; font-size: 11px; margin-right: 6px; }
+  .event-log .tag-content { background: #27ae60; color: #fff; }
+  .event-log .tag-thoughts { background: #8e44ad; color: #fff; }
+  .event-log .tag-tool_call { background: #f39c12; color: #fff; }
+  .event-log .tag-tool_result { background: #16a085; color: #fff; }
+  .event-log .tag-citations { background: #2980b9; color: #fff; }
+  .event-log .tag-error { background: #c0392b; color: #fff; }
+  .event-log .tag-done { background: #7f8c8d; color: #fff; }
+  .react-step {
+    display: inline-block;
+    padding: 2px 8px;
+    margin: 2px;
+    border-radius: 10px;
+    font-size: 11px;
+  }
+  .react-step.active { background: #3498db; color: #fff; }
+  .react-step.done { background: #27ae60; color: #fff; }
+  .react-step.pending { background: #ecf0f1; color: #95a5a6; }
+  .gray-toggle {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: #fef9e7;
+    border-radius: 6px;
+    font-size: 12px;
+    color: #7d6608;
+    border: 1px solid #f9e79f;
+  }
+  .gray-toggle strong { color: #6e2c00; }
+</style>
+</head>
+<body>
+
+<h1>AI 业务网关 — 流程演示</h1>
+<div class="subtitle">统一计划 v1.0 · qoder & claude 联合出品 · 2026-07-14</div>
+
+<!-- 控制区 -->
+<div class="controls">
+  <button onclick="runNormalFlow()">▶ 正常运行流程</button>
+  <button onclick="runReactFlow()">▶ ReAct 流程(带工具调用)</button>
+  <button class="alt" onclick="runErrorFlow()">▶ 异常流程(401)</button>
+  <button onclick="runFallbackFlow()" style="background:#95a5a6">▶ 灰度回退流程</button>
+  <button onclick="clearLog()" style="background:#bdc3c7">清空日志</button>
+  <hr style="margin:12px 0;border:0;border-top:1px solid #eee">
+  <label><input type="checkbox" id="enableKb" checked> 启用知识库</label>
+  <label><input type="checkbox" id="enableWeb" checked> 启用网络搜索</label>
+  <label><input type="checkbox" id="enableThink" checked> 启用深度思考</label>
+  <div class="gray-toggle">
+    <strong>灰度开关语义(主人决策 §13.8):</strong>
+    服务端优先 · 前端开关仅作本地调试辅助 · 前端覆盖逻辑:服务端表态用新则用新,客户端仅在服务端未表态时可覆盖
+  </div>
+</div>
+
+<!-- 主流程区 -->
+<div class="layout">
+
+  <!-- 左:架构流程图 -->
+  <div class="panel">
+    <h2>架构流程</h2>
+    <div class="node"><strong>① 用户</strong><small>v2 / H5 端发起提问</small></div>
+    <div class="arrow">↓</div>
+    <div class="node"><strong>② 前端 chatAgentStream</strong><small>解析 8 类 SSE 事件 · 调用各回调</small></div>
+    <div class="arrow">↓ POST /api/wk/ai/agent/chat-stream</div>
+    <div class="node"><strong>③ Controller</strong><small>SseEmitter · Redis 限流 · 异常 envelope</small></div>
+    <div class="arrow">↓</div>
+    <div class="node"><strong>④ AgentConfigService</strong><small>yml 读取 promptKey → system prompt · model · tools</small></div>
+    <div class="arrow">↓</div>
+    <div class="node"><strong>⑤ AgentReActExecutor</strong><small>ReAct 主循环 · tool_calls 累积 · 工具路由</small></div>
+    <div class="arrow">↓</div>
+    <div class="node"><strong>⑥ MessageChunkClassifier</strong><small>分流 content / reasoning_content → 8 类事件</small></div>
+    <div class="arrow">↓</div>
+    <div class="node"><strong>⑦ 百炼纯模型 API</strong><small>/compatible-mode/v1/chat/completions · OpenAI 兼容</small></div>
+    <div class="arrow">↓</div>
+    <div class="node"><strong>⑧ ToolExecutor</strong><small>KB 检索 / WebSearch / Tavily</small></div>
+  </div>
+
+  <!-- 右:SSE 事件流 -->
+  <div class="panel">
+    <h2>SSE 事件流</h2>
+    <div class="event-log" id="log"></div>
+  </div>
+
+</div>
+
+<!-- ReAct 时序图 -->
+<div class="panel" style="margin-top:16px;">
+  <h2>ReAct 循环时序(运行 ReAct 流程时点亮)</h2>
+  <div id="reactFlow">
+    <span class="react-step pending">1. 调模型拿首轮响应</span> →
+    <span class="react-step pending">2. 解析 tool_calls</span> →
+    <span class="react-step pending">3. 路由工具 → KB / WebSearch</span> →
+    <span class="react-step pending">4. 工具结果拼回 messages</span> →
+    <span class="react-step pending">5. 再次调模型</span> →
+    <span class="react-step pending">6. 累积至最终回答</span>
+  </div>
+</div>
+
+<script>
+  const log = document.getElementById('log');
+  let ts = () => new Date().toLocaleTimeString('zh-CN', { hour12: false });
+
+  function append(tag, type, payload) {
+    const html = `<div><span class="ts">[${ts()}]</span><span class="tag tag-${type}">${tag}</span>${JSON.stringify(payload)}</div>`;
+    log.innerHTML += html;
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function clearLog() { log.innerHTML = ''; }
+
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  function isEnabled(id) { return document.getElementById(id).checked; }
+
+  // ReAct 时序更新
+  function setReactStep(idx, state) {
+    const steps = document.querySelectorAll('#reactFlow .react-step');
+    steps.forEach((s, i) => {
+      s.className = 'react-step';
+      if (i < idx) s.classList.add('done');
+      else if (i === idx) s.classList.add('active');
+      else s.classList.add('pending');
+    });
+  }
+  function resetReactSteps() {
+    document.querySelectorAll('#reactFlow .react-step').forEach(s => {
+      s.className = 'react-step pending';
+    });
+  }
+
+  // ============== 流程 1:正常 ==============
+  async function runNormalFlow() {
+    clearLog();
+    resetReactSteps();
+    append('client', 'content', { step: '用户输入:船舶主机日常维护要点' });
+
+    await sleep(400);
+    append('frontend', 'tag-content', { event: 'POST /api/wk/ai/agent/chat-stream', promptKey: 'answer_assistant' });
+
+    await sleep(400);
+    append('controller', 'tag-content', { event: '限流检查通过', rateKey: 'ai:agent:chat:' + 'u001', sseTimeout: '120s' });
+
+    await sleep(400);
+    append('config', 'tag-content', { event: '加载 system prompt', promptKey: 'answer_assistant', model: 'qwen3-max' });
+
+    await sleep(600);
+    setReactStep(0);
+    append('react', 'tag-content', { event: '第 1 轮调模型', iter: 1 });
+
+    await sleep(600);
+    append('classifier', 'tag-thoughts', { delta: '用户问船舶主机维护...' });
+    append('classifier', 'tag-content', { delta: '船舶主机日常维护要点如下:' });
+
+    if (isEnabled('enableKb')) {
+      await sleep(500);
+      setReactStep(1);
+      append('react', 'tag-tool_call', { name: 'knowledge_base_search', args: { query: '船舶主机日常维护' } });
+      await sleep(700);
+      setReactStep(2);
+      append('react', 'tag-tool_result', { name: 'knowledge_base_search', results: [{ title: 'SOLAS 公约', score: 0.92 }, { title: '船级社规范', score: 0.88 }] });
+      await sleep(400);
+      append('classifier', 'tag-citations', { items: [{ title: 'SOLAS 公约', url: '#', snippet: '主机维护...' }] });
+    }
+
+    await sleep(400);
+    setReactStep(5);
+    append('classifier', 'tag-content', { delta: '① 每日检查...② 每周保养...' });
+    append('classifier', 'tag-content', { delta: '更多要点详见引用资料。' });
+
+    await sleep(300);
+    append('controller', 'tag-done', {});
+  }
+
+  // ============== 流程 2:ReAct 完整 ==============
+  async function runReactFlow() {
+    clearLog();
+    resetReactSteps();
+    append('client', 'content', { step: '用户输入:2026 年最新 IMO 排放标准是什么?' });
+
+    await sleep(400);
+    append('frontend', 'tag-content', { event: 'POST /api/wk/ai/agent/chat-stream', promptKey: 'answer_assistant' });
+
+    await sleep(400);
+    append('config', 'tag-content', { event: 'tools 解析', kb: isEnabled('enableKb'), web: isEnabled('enableWeb'), think: isEnabled('enableThink') });
+
+    // 循环 1
+    setReactStep(0);
+    append('react', 'tag-content', { iter: 1, event: '调模型' });
+    await sleep(500);
+    append('classifier', 'tag-thoughts', { delta: '问题涉及最新法规,需联网搜索' });
+    append('react', 'tag-tool_call', { name: 'web_search', args: { query: 'IMO 2026 排放标准' } });
+
+    setReactStep(2);
+    await sleep(800);
+    append('react', 'tag-tool_result', { name: 'web_search', results: [{ title: 'IMO 官网公告', url: 'https://imo.org/...' }] });
+
+    setReactStep(3);
+    await sleep(300);
+    append('react', 'tag-content', { event: '工具结果拼回 messages' });
+
+    // 循环 2
+    setReactStep(4);
+    append('react', 'tag-content', { iter: 2, event: '再次调模型' });
+    await sleep(600);
+    append('classifier', 'tag-content', { delta: 'IMO Tier IV 标准自 2026 年 1 月起...' });
+    append('classifier', 'tag-citations', { items: [{ title: 'IMO 官方公告', snippet: 'Tier IV 排放限值...' }] });
+
+    setReactStep(5);
+    await sleep(300);
+    append('controller', 'tag-done', {});
+  }
+
+  // ============== 流程 3:异常 ==============
+  async function runErrorFlow() {
+    clearLog();
+    resetReactSteps();
+    append('client', 'content', { step: '用户输入:测试鉴权失败' });
+
+    await sleep(400);
+    append('frontend', 'tag-content', { event: 'POST /api/wk/ai/agent/chat-stream' });
+
+    await sleep(400);
+    append('config', 'tag-content', { event: '加载 yml 配置' });
+    await sleep(300);
+    append('config', 'tag-error', { errorCode: 'AI_AUTH_FAIL', content: 'API Key 已过期,请联系管理员', fallback: false });
+
+    await sleep(300);
+    append('controller', 'tag-error', { event: '异常 envelope 返回前端' });
+
+    await sleep(300);
+    append('frontend', 'tag-error', { event: 'classifyStreamError → AUTH_FAILED', toast: 'AI 服务鉴权失败,请联系管理员' });
+  }
+
+  // ============== 流程 4:灰度回退 ==============
+  async function runFallbackFlow() {
+    clearLog();
+    resetReactSteps();
+    append('client', 'content', { step: '用户输入:白名单用户 u001 调用' });
+
+    await sleep(400);
+    append('frontend', 'tag-content', { event: '前端 localStorage 检查', key: 'ai:useAgentGateway', value: 'use-new' });
+
+    await sleep(400);
+    append('controller', 'tag-content', { event: '服务端灰度判', userId: 'u001', fallbackEnabled: true, inUserIds: true });
+    await sleep(300);
+    append('controller', 'tag-content', { event: '命中白名单,转发到老入口 /api/wk/ai/legacy/...' });
+
+    await sleep(400);
+    append('legacy', 'tag-content', { event: '老 chatAppStream 直连百炼应用(App 模式)' });
+    await sleep(400);
+    append('legacy', 'tag-content', { delta: '这是通过老链路返回的回答...' });
+    append('controller', 'tag-done', {});
+  }
+</script>
+
+</body>
+</html>

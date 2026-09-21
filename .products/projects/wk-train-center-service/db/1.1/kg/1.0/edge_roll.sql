@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS el_sys_key_point_edge;

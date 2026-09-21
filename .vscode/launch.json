@@ -1,8 +1,15 @@
 {
     "configurations": [
         {
+            "command": "npm start",
+            "name": "前端",
+            "request": "launch",
+            "type": "node-terminal",
+            "cwd": "${workspaceFolder}/wk-train-center-ui"
+        },
+        {
             "type": "java",
-            "name": "Spring Boot-WebApplication<yf-web>",
+            "name": "后端(调试)",
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "mainClass": "com.yf.web.WebApplication",

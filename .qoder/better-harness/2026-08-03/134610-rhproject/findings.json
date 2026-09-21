@@ -1,0 +1,198 @@
+{
+  "summary": {
+    "projectName": "rhProject",
+    "locale": "zh-CN",
+    "modelId": "agent-work-loop-v4",
+    "reportContractVersion": 25,
+    "overview": "项目配置了 40 条规则和 10 个 MCP 服务器，但工作区根缺乏统一指引导致跨子项目上下文路由薄弱；AI 对话核心路径零测试保护且 MCP 密钥明文暴露于版本控制中。",
+    "aiAgentPractice": {
+      "inspectedSurfaces": [
+        "Rules",
+        "MCP",
+        "Workflows"
+      ],
+      "coverageRows": [
+        {
+          "surface": "Rules",
+          "scopes": [
+            "Project"
+          ],
+          "count": 40,
+          "paths": [
+            ".qoder/rules/principles/AI_Coding_Principles.md",
+            ".qoder/rules/architecture/alibaba-cloud-ai-spec.zh-CN.md",
+            ".qoder/rules/architecture/api-design-spec.zh-CN.md",
+            ".qoder/rules/sdlc/prompts/architect.md",
+            ".qoder/rules/sdlc/prompts/backend-developer.md",
+            ".qoder/rules/sdlc/prompts/backend-lead.md",
+            ".qoder/rules/operations/deployment-spec.zh-CN.md",
+            ".qoder/rules/sdlc/prompts/designer.md",
+            ".qoder/rules/sdlc/prompts/devops-engineer.md",
+            ".qoder/rules/quality/error-handling-spec.zh-CN.md",
+            ".qoder/rules/sdlc/prompts/frontend-developer.md",
+            ".qoder/rules/sdlc/prompts/frontend-lead.md"
+          ]
+        },
+        {
+          "surface": "MCP",
+          "scopes": [
+            "Project"
+          ],
+          "count": 10,
+          "paths": [
+            ".mcp.json"
+          ]
+        },
+        {
+          "surface": "Workflows",
+          "scopes": [
+            "Project"
+          ],
+          "count": 1,
+          "paths": [
+            ".github/workflows/playwright.yml"
+          ]
+        },
+        {
+          "surface": "Hooks",
+          "scopes": [
+            "Global"
+          ],
+          "count": 2
+        },
+        {
+          "surface": "Custom Agents",
+          "scopes": [
+            "Project"
+          ],
+          "count": 0
+        }
+      ]
+    },
+    "assignmentSummaries": [],
+    "dimensions": [
+      {
+        "id": "task-understanding",
+        "label": "任务理解",
+        "score": 62,
+        "summary": "40 条规则和子项目级 AGENTS.md 提供了部分上下文，但工作区根无统一指引，跨 5 个子项目的任务路由依赖 agent 自主推断。",
+        "findingRefs": [
+          "no-workspace-root-guidance",
+          "rules-manual-trigger-no-routing"
+        ]
+      },
+      {
+        "id": "controlled-execution",
+        "label": "可控执行",
+        "score": 55,
+        "summary": "start.ps1 提供了一键启动能力，但 10 个 MCP 服务器无工作流所有者，且两个服务器以明文写入密钥值。",
+        "findingRefs": [
+          "mcp-secret-env-plaintext",
+          "mcp-no-workflow-owner",
+          "rules-manual-trigger-no-routing"
+        ]
+      },
+      {
+        "id": "change-validation",
+        "label": "改动验证",
+        "score": 45,
+        "summary": "AI 对话核心路径（chat-service.service.ts 等）零测试保护，pre-commit hook 被禁用，Playwright workflow 与子项目结构可能脱节。",
+        "findingRefs": [
+          "core-ai-chat-zero-test-protection"
+        ]
+      },
+      {
+        "id": "reliable-delivery",
+        "label": "可靠交付",
+        "score": 45,
+        "summary": "无绑定交付证据；CI workflow 存在但覆盖范围和子项目对齐情况未观测。",
+        "findingRefs": []
+      },
+      {
+        "id": "learning-capture",
+        "label": "经验沉淀",
+        "score": 38,
+        "summary": "0 条项目 Memory 标题，0 条项目 Skill；会话中重复的代码审核和平台能力确认需求未被编码为可复用资产。",
+        "findingRefs": []
+      }
+    ]
+  },
+  "findings": [
+    {
+      "id": "mcp-secret-env-plaintext",
+      "title": "两个 MCP 服务器以明文写入 API 密钥",
+      "severity": "Medium",
+      "reason": ".mcp.json 中 firecrawl 和 mysql 服务器直接将密钥值写入 env 字段（FIRECRAWL_API_KEY、MYSQL_PASSWORD），而同文件中 tavily 使用了 ${TAVILY_API_KEY} 变量引用模式。该文件位于版本控制根目录，存在提交到仓库的风险。lint 信封已将其标记为 error。",
+      "expectedOutput": [
+        "密钥不再以明文出现在版本控制文件中",
+        "与同文件 tavily 的引用模式保持一致"
+      ],
+      "expectedArtifact": ".mcp.json",
+      "aiFixPrompt": "/better-harness fix this issue\n\n将 .mcp.json 中 firecrawl 和 mysql 的明文密钥替换为环境变量引用。\n\n## 验证\n\n- 确认 FIRECRAWL_API_KEY 和 MYSQL_PASSWORD 使用 ${VAR} 引用模式\n- 确认 .gitignore 已排除 .mcp.json 或等效的本地配置文件",
+      "dimensionRefs": [
+        "controlled-execution"
+      ]
+    },
+    {
+      "id": "no-workspace-root-guidance",
+      "title": "工作区根缺乏统一项目指引，跨子项目上下文路由依赖自主推断",
+      "severity": "Medium",
+      "reason": "rhProject 包含 5 个子项目（wk-mhc-ui 370 文件、wk-mhc-mobile 213 文件、wk-train-center-service 176 文件、wk-PPTist-ui 101 文件、wk-generic 等），总计 1051 个跟踪文件，涵盖 TypeScript、Vue、Java、Python 五种语言。仅 wk-train-center-service 有 AGENTS.md，工作区根无 AGENTS.md、CLAUDE.md 或等效指引文件。40 条 Rules 全部为 trigger: manual，无自动路由机制。agent 在跨子项目任务中无法通过统一入口获取正确的上下文边界和风险。",
+      "expectedOutput": [
+        "agent 可通过根级指引快速定位正确的子项目上下文",
+        "减少跨子项目任务中的上下文猜测"
+      ],
+      "expectedArtifact": "AGENTS.md",
+      "aiFixPrompt": "/better-harness fix this issue\n\n在工作区根创建 AGENTS.md，提供跨子项目的统一路由指引。\n\n## 验证\n\n- AGENTS.md 列出每个子项目的技术栈、入口文件和构建/测试命令\n- 指引包含跨子项目任务的上下文加载顺序",
+      "dimensionRefs": [
+        "task-understanding"
+      ]
+    },
+    {
+      "id": "core-ai-chat-zero-test-protection",
+      "title": "AI 对话核心路径零测试保护",
+      "severity": "Medium",
+      "reason": "最高频变更文件集中在 AI 对话服务层：chat-service.service.ts（score 53）、chat-input.component.ts（score 47）、AiProviderGatewayImpl.java（score 45）、MessageList.vue（score 43）。这些文件在 30 天内有 147 次提交和 312 个变更文件，但项目级 testFiles 为 0。pre-commit hook（lint-staged）在 wk-mhc-ui 中被注释禁用。无自动化验证覆盖 AI 对话的核心 ReAct 循环路径。",
+      "expectedOutput": [
+        "核心 AI 对话路径有自动化测试覆盖",
+        "变更后可通过测试快速验证行为未被破坏"
+      ],
+      "expectedArtifact": "测试文件",
+      "aiFixPrompt": "/better-harness fix this issue\n\n为 AI 对话核心路径添加最小可行的测试保护。\n\n## 验证\n\n- 至少为 AiProviderGatewayImpl 和 chat-service.service.ts 的关键方法添加单元测试\n- 运行测试确认通过",
+      "dimensionRefs": [
+        "change-validation"
+      ]
+    },
+    {
+      "id": "mcp-no-workflow-owner",
+      "title": "10 个 MCP 服务器无项目级 Skill 或 Command 定义调用时机",
+      "severity": "Low",
+      "reason": "10 个 MCP 服务器覆盖搜索（fetch, context7, tavily, firecrawl）、数据库（mysql）、浏览器（chrome-devtools, playwright）、文档（markitdown）、推理（sequential-thinking）和 AI（MiniMax）等能力面，但没有任何 Skill 或 Command 定义何时、为何、以何种顺序调用它们。lint 信封已将其标记为 warning。能力发现完全依赖 agent 运行时自主推断，可能导致重复调用或遗漏关键工具。",
+      "expectedOutput": [
+        "agent 可通过 Skill 路由发现正确的 MCP 组合",
+        "减少重复调用和工具遗漏"
+      ],
+      "expectedArtifact": "项目级 Skill 文件",
+      "aiFixPrompt": "/better-harness fix this issue\n\n为最常用的 MCP 服务器组合创建项目级 Skill，定义调用时机和输入输出。\n\n## 验证\n\n- Skill 覆盖至少一个常见工作流（如：联网检索 + 知识库查询）\n- Skill 包含输入、输出、失败处理和清理语义",
+      "dimensionRefs": [
+        "controlled-execution"
+      ]
+    },
+    {
+      "id": "rules-manual-trigger-no-routing",
+      "title": "40 条 Rules 全部手动触发，无自动路由或任务匹配机制",
+      "severity": "Low",
+      "reason": "Rules README.md 声明使用 trigger: manual frontmatter。40 条规则覆盖编码原则、架构规范（阿里云 AI、API 设计）、SDLC 角色提示词（17 个角色）、部署规范等，但没有 AGENTS.md 或自动触发规则指导 agent 在何种任务场景下加载哪些规则。CTO 画布（8 个 HTML 文件）和 demo 目录是否为活跃规则或历史存档也无法从清单判定。规则发现完全依赖用户在对话中手动引用。",
+      "expectedOutput": [
+        "agent 可根据任务类型自动加载相关规则",
+        "减少手动引用规则的认知负担"
+      ],
+      "expectedArtifact": "规则路由配置或 AGENTS.md 路由表",
+      "aiFixPrompt": "/better-harness fix this issue\n\n为高频使用的 Rules 添加 trigger 配置或在工作区根 AGENTS.md 中建立任务-规则路由表。\n\n## 验证\n\n- 至少将核心编码原则和架构规范设为 always 触发或在 AGENTS.md 中列出路由\n- 确认 CTO 画布和 demo 目录的活跃/存档状态",
+      "dimensionRefs": [
+        "task-understanding",
+        "controlled-execution"
+      ]
+    }
+  ]
+}

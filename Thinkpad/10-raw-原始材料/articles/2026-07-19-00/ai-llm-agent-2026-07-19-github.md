@@ -1,0 +1,96 @@
+---
+title: "ai-llm-agent"
+created: 2026-07-19
+updated: 2026-07-19
+type: summary
+tags: [ai, tool, github]
+owner: 沈超
+agent: 小马(架构师)
+confidence: medium
+cron-batch: "2026-07-19-400987"
+cron-counter: 475
+source-platform: github
+source-url: "https://github.com/luchx/ai-llm-agent"
+---
+
+agent: 小马(架构师)
+owner: 沈超
+
+# ai-llm-agent
+
+## 来源元数据
+
+- 平台: github
+- URL: https://github.com/luchx/ai-llm-agent
+- 查询: AI LLM agent
+- Stars: 1
+- Language: Python
+- Topics: (无)
+
+## 仓库简介
+
+从零到能独立实现一个 Agent 平台，适合：前端扎实、Python 入门水平的同学。
+
+## README 摘录(前 1500 字符)
+
+AI Agent 开发学习手册
+
+> 从零到能独立实现一个 Agent 平台。
+> 适合：前端扎实、Python 入门水平的同学。
+
+学习路线总览
+
+[code]
+
+每个文件夹里有什么
+
+| 文件夹 | 学什么 |
+|---|---|
+| `01_LLM基础调用/` | 调通大模型 API、结构化输出 |
+| `02_Agent核心/` | BaseAgent、具体 Agent、工厂模式 |
+| `03_工具调用/` | Function Calling、AI 决定调哪个函数 |
+| `04_异步任务平台/` | FastAPI + 队列 + Worker 完整链路 |
+| `05_LangGraph编排/` | 多步流程图、状态流转 |
+| `06_进阶优化/` | LLM 抽象层、内存回收、Token 追踪 |
+
+运行前准备（阶段 0）
+
+1. 安装 Python
+
+[code]
+
+2. 创建虚拟环境 + 安装依赖
+
+[code]
+
+3. 配置 API Key
+
+打开根目录的 **`config.py`**，把 `API_KEY` / `BASE_URL` / `MODEL` 替换成你自己的。
+所有文件共用这一个配置，只需填一次。
+
+> 没有 Key 可以去火山引擎控制台申请豆包的，或用 OpenAI 的。
+
+4. 运行方式
+
+[code]
+
+学习方法
+
+1. **先跑通，再读代码**。每个文件开头都有"运行方式"。
+2. **看注释里的"前端类比"**。每个核心概念都用了前端知识做类比。
+3. **跑通后改一改**。改 prompt、改参数、加个新工具——改坏了再修回来。
+4. **每完成一个阶段，在下面打勾**。
+
+进度自检
+
+- [ ] 阶段 0：Python 环境装好，`pip install openai` 不报错
+- [ ] 阶段 1：能调通大模型，拿到 JSON 格式的返回
+- [ ] 阶段 2：能自己写一个继承 BaseAgent 的 Agent
+- [ ] 阶段 3：能让 AI 自己决定调用哪个工具
+- [ ] 阶段 4：有一个能通过 HTTP 提交任务、异步执行、查询结果的最小平台
+- [ ] 阶段 5：能用 LangGraph 串一个多步流程
+- [ ] 阶段 6：理解运行时回收和 LLM 抽象层的设计
+
+> Agent 没那么玄，本质就是"调模型 + 解析返回 + 按规则处理"。
+> 你前端天天做的"调接口 + 解析响应 + 渲染页面"，换个皮就是 Agent。
+

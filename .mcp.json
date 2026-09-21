@@ -1,0 +1,68 @@
+{
+  "mcpServers": {
+    "mysql": {
+      "type": "stdio",
+      "command": "python",
+      "args": ["e:/rhProject/scripts/mysql_mcp_safe_wrapper.py"],
+      "env": {
+        "MYSQL_HOST": "47.105.122.150",
+        "MYSQL_PORT": "31101",
+        "MYSQL_USER": "dev_root",
+        "MYSQL_PASSWORD": "123456",
+        "MYSQL_DATABASE": "wk_train_center"
+      }
+    },
+    "fetch": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["mcp-server-fetch"]
+    },
+    "sequential-thinking": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+    },
+    "chrome-devtools": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["--registry", "https://registry.npmjs.org", "chrome-devtools-mcp@1.2.0"]
+    },
+    "markitdown": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["markitdown-mcp@0.0.1a4"]
+    },
+    "context7": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"]
+    },
+    "playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"]
+    },
+    "firecrawl": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "firecrawl-mcp@latest"],
+      "env": {
+        "FIRECRAWL_API_KEY": "__FIRECRAWL_KEY_REMOVED__"
+      }
+    },
+    "tavily": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["tavily-mcp@0.2.15"],
+      "env": {
+        "TAVILY_API_KEY": "${TAVILY_API_KEY}",
+        "DEFAULT_PARAMETERS": "${DEFAULT_PARAMETERS}"
+      }
+    },
+    "MiniMax": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "MiniMax-mcp"]
+    }
+  }
+}

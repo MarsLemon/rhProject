@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Backend/customer-pricing" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Backend/wk-train-center-service" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Frontend/angular/marinsmart-msite-ui.git" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Frontend/angular/marinsmart-v2.0-ui.git" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Frontend/angular/marketing-ui" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Frontend/angular/mhc-ui" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Frontend/vue/PPTist-ui" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Frontend/vue/mhc-mobile" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Frontend/vue/wk-train-center-ui" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Frontend/vue/wk-train-center-ui-v3" vcs="Git" />
+  </component>
+</project>

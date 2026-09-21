@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>自建 AI 网关 — ReAct 流程 Demo</title>
+<style>
+  :root {
+    --bg: #0f1419;
+    --panel: #1a1f2e;
+    --panel-2: #232938;
+    --border: #2d3548;
+    --text: #e1e7f0;
+    --text-dim: #8b95a8;
+    --accent: #4f9eff;
+    --accent-2: #00d4aa;
+    --warn: #ffa940;
+    --error: #ff5252;
+    --thought: #b87fff;
+    --citation: #ffd54f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+    background: var(--bg); color: var(--text); font-size: 13px;
+  }
+  .layout { display: grid; grid-template-columns: 280px 1fr 360px; height: 100vh; }
+  /* 左侧 */
+  .sidebar { background: var(--panel); border-right: 1px solid var(--border); padding: 16px; overflow-y: auto; }
+  .sidebar h3 { margin: 0 0 12px; font-size: 14px; color: var(--accent); }
+  .prompt-item {
+    padding: 10px; margin-bottom: 8px; background: var(--panel-2);
+    border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .prompt-item:hover { border-color: var(--accent); }
+  .prompt-item .label { color: var(--accent-2); font-weight: 600; font-size: 12px; }
+  .prompt-item .text { color: var(--text-dim); margin-top: 4px; font-size: 11px; line-height: 1.5; }
+  /* 中间 */
+  .center { display: flex; flex-direction: column; }
+  .chat-header {
+    padding: 14px 20px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--panel);
+  }
+  .chat-header .title { font-size: 15px; font-weight: 600; }
+  .chat-header .status { display: flex; gap: 12px; font-size: 11px; color: var(--text-dim); }
+  .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
+  .status-dot.green { background: var(--accent-2); }
+  .status-dot.gray { background: var(--text-dim); }
+  .chat-body { flex: 1; overflow-y: auto; padding: 20px; }
+  .msg { margin-bottom: 16px; max-width: 80%; }
+  .msg.user { margin-left: auto; }
+  .msg-bubble {
+    padding: 10px 14px; border-radius: 12px; line-height: 1.6;
+  }
+  .msg.user .msg-bubble { background: var(--accent); color: #fff; }
+  .msg.ai .msg-bubble { background: var(--panel-2); border: 1px solid var(--border); }
+  .msg-meta { font-size: 11px; color: var(--text-dim); margin-top: 4px; padding: 0 4px; }
+  .thoughts-panel {
+    margin-top: 8px; padding: 8px 12px; background: rgba(184,127,255,0.08);
+    border-left: 3px solid var(--thought); border-radius: 4px; font-size: 11px;
+    color: var(--text-dim); line-height: 1.6;
+  }
+  .thoughts-panel .step { margin: 2px 0; }
+  .tool-call-card {
+    margin-top: 8px; padding: 8px 12px; background: rgba(79,158,255,0.08);
+    border-left: 3px solid var(--accent); border-radius: 4px; font-size: 11px;
+  }
+  .tool-call-card .name { color: var(--accent); font-weight: 600; }
+  .tool-call-card .args { color: var(--text-dim); font-family: 'Consolas', monospace; margin-top: 4px; }
+  .tool-result {
+    margin-top: 4px; padding: 6px 10px; background: rgba(0,212,170,0.08);
+    border-left: 3px solid var(--accent-2); border-radius: 4px; font-size: 11px;
+  }
+  .tool-result .item { margin: 2px 0; color: var(--text-dim); }
+  .tool-result .item b { color: var(--accent-2); }
+  .citations {
+    margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;
+  }
+  .citation-tag {
+    padding: 2px 8px; background: rgba(255,213,79,0.15); color: var(--citation);
+    border-radius: 10px; font-size: 10px; cursor: pointer;
+  }
+  .citation-tag:hover { background: rgba(255,213,79,0.3); }
+  .chat-input {
+    border-top: 1px solid var(--border); padding: 14px 20px;
+    display: flex; gap: 8px; background: var(--panel);
+  }
+  .chat-input input {
+    flex: 1; padding: 10px 14px; background: var(--panel-2);
+    border: 1px solid var(--border); border-radius: 20px; color: var(--text);
+    font-size: 13px; outline: none;
+  }
+  .chat-input input:focus { border-color: var(--accent); }
+  .chat-input button {
+    padding: 10px 20px; background: var(--accent); color: #fff;
+    border: none; border-radius: 20px; cursor: pointer; font-size: 13px;
+  }
+  .chat-input button:disabled { background: var(--panel-2); color: var(--text-dim); cursor: not-allowed; }
+  .chat-input .stop {
+    padding: 10px 16px; background: var(--error); color: #fff;
+    border: none; border-radius: 20px; cursor: pointer; font-size: 13px;
+  }
+  /* 右侧事件流 */
+  .events-panel { background: var(--panel); border-left: 1px solid var(--border); display: flex; flex-direction: column; }
+  .events-header {
+    padding: 12px 16px; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .events-header h3 { margin: 0; font-size: 13px; color: var(--accent); }
+  .events-header .controls { display: flex; gap: 8px; }
+  .events-header .controls button {
+    padding: 4px 10px; background: var(--panel-2); color: var(--text-dim);
+    border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 11px;
+  }
+  .events-header .controls button.active { color: var(--accent-2); border-color: var(--accent-2); }
+  .events-list { flex: 1; overflow-y: auto; padding: 8px; font-family: 'Consolas', monospace; font-size: 11px; }
+  .event-row {
+    padding: 6px 8px; margin-bottom: 4px; border-radius: 4px;
+    background: var(--panel-2); border-left: 3px solid var(--border);
+    animation: slideIn 0.2s;
+  }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(-4px); } to { opacity: 1; transform: none; } }
+  .event-row .ts { color: var(--text-dim); font-size: 10px; }
+  .event-row .type { font-weight: 600; margin: 2px 0; }
+  .event-row .payload { color: var(--text-dim); white-space: pre-wrap; word-break: break-all; }
+  .event-row.t-content { border-left-color: var(--accent); }
+  .event-row.t-content .type { color: var(--accent); }
+  .event-row.t-thoughts { border-left-color: var(--thought); }
+  .event-row.t-thoughts .type { color: var(--thought); }
+  .event-row.t-tool_call { border-left-color: var(--accent); }
+  .event-row.t-tool_call .type { color: var(--accent); }
+  .event-row.t-tool_result { border-left-color: var(--accent-2); }
+  .event-row.t-tool_result .type { color: var(--accent-2); }
+  .event-row.t-citations { border-left-color: var(--citation); }
+  .event-row.t-citations .type { color: var(--citation); }
+  .event-row.t-error { border-left-color: var(--error); }
+  .event-row.t-error .type { color: var(--error); }
+  .event-row.t-done { border-left-color: var(--accent-2); background: rgba(0,212,170,0.1); }
+  .event-row.t-done .type { color: var(--accent-2); }
+  .legend { padding: 8px 16px; border-top: 1px solid var(--border); font-size: 10px; color: var(--text-dim); }
+  .legend .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin: 0 4px 0 12px; vertical-align: middle; }
+</style>
+</head>
+<body>
+<div class="layout">
+  <!-- 左侧：测试样例 + 配置 -->
+  <div class="sidebar">
+    <h3>📝 测试样例</h3>
+    <div id="prompts"></div>
+
+    <h3 style="margin-top: 20px;">⚙️ 工具开关</h3>
+    <div style="font-size: 11px; line-height: 2;">
+      <label><input type="checkbox" id="opt-kb" checked /> 启用 KB 检索</label><br/>
+      <label><input type="checkbox" id="opt-web" /> 启用 WebSearch</label><br/>
+      <label><input type="checkbox" id="opt-think" checked /> 启用深度思考</label>
+    </div>
+
+    <h3 style="margin-top: 20px;">🎯 灰度开关</h3>
+    <div style="font-size: 11px; line-height: 1.8; color: var(--text-dim);">
+      <div>后端 yml 白名单: <span style="color: var(--accent-2);">空(全量)</span></div>
+      <div>前端 localStorage: <span id="ls-status" style="color: var(--accent-2);">ai:useAgentGateway=1(走新)</span></div>
+      <button id="toggle-ls" style="margin-top: 8px; padding: 4px 10px; background: var(--panel-2); color: var(--text); border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 11px;">切换切流</button>
+    </div>
+  </div>
+
+  <!-- 中间：聊天 -->
+  <div class="center">
+    <div class="chat-header">
+      <div>
+        <div class="title">🚢 船舶设备答疑助手</div>
+        <div style="font-size: 11px; color: var(--text-dim); margin-top: 2px;">promptKey: answer_assistant · model: qwen3-max</div>
+      </div>
+      <div class="status">
+        <div><span class="status-dot gray" id="dot-stream"></span>流式</div>
+        <div><span class="status-dot gray" id="dot-react"></span>ReAct</div>
+        <div><span class="status-dot gray" id="dot-cb"></span>回路</div>
+      </div>
+    </div>
+    <div class="chat-body" id="chat-body">
+      <div style="text-align: center; color: var(--text-dim); padding: 40px; font-size: 12px;">
+        ← 选择左侧样例提问,或直接输入问题<br/>
+        右侧实时显示后端发来的 8 类型 SSE 事件
+      </div>
+    </div>
+    <div class="chat-input">
+      <input type="text" id="user-input" placeholder="输入问题,Enter 发送..." />
+      <button id="btn-send">发送</button>
+      <button class="stop" id="btn-stop" style="display: none;">停止</button>
+    </div>
+  </div>
+
+  <!-- 右侧：SSE 事件流 -->
+  <div class="events-panel">
+    <div class="events-header">
+      <h3>📡 SSE 事件流(8 类型)</h3>
+      <div class="controls">
+        <button id="btn-pause">暂停</button>
+        <button id="btn-clear">清空</button>
+      </div>
+    </div>
+    <div class="events-list" id="events-list"></div>
+    <div class="legend">
+      <span>图例:</span>
+      <span class="dot" style="background: var(--accent);"></span>content/tool_call
+      <span class="dot" style="background: var(--thought);"></span>thoughts
+      <span class="dot" style="background: var(--accent-2);"></span>tool_result/done
+      <span class="dot" style="background: var(--citation);"></span>citations
+      <span class="dot" style="background: var(--error);"></span>error
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+ * 自建 AI 网关 — ReAct 流程 Demo
+ * 实现:模拟后端 ReAct 编排器,前端 fetch 走 8 类型 SSE
+ * ============================================================ */
+
+const SAMPLE_PROMPTS = [
+  { label: '基础问答(无工具)', text: '什么是船舶主机？' },
+  { label: 'KB 检索场景', text: 'MAN B&W 6S60MC-C 主机缸套油温度高的常见原因？' },
+  { label: 'WebSearch 场景', text: '2026 年 IMO 最新船舶碳排放法规是什么？' },
+  { label: 'KB + WebSearch 组合', text: 'MARPOL 附则 VI 对硫氧化物排放的限制,以及国内船厂怎么应对' },
+  { label: '搜索超限(searchCnt 满)', text: '帮我找 10 篇关于船舶柴油机故障诊断的论文,要求近 3 年发表,每篇说方法 + 案例' }
+];
+
+const SYSTEM_PROMPT = `你是船舶设备与部件领域的资深答疑导师。
+工作流程:
+1. 收到问题后,先调用工具搜索,再回答。
+2. 涉及法规、标准、检修流程时,必须调用 knowledge_base_search。
+3. 涉及最新动态、行业新闻时,必须调用 web_search。
+引用标注:回答中涉及具体事实、法规、设备参数,紧随其后用角标 [1] [2] 标注来源。`;
+
+/* 模拟后端 ReAct 编排器(任务 7 AgentReActExecutor) */
+class MockReActServer {
+  constructor(emitter) {
+    this.emitter = emitter;
+    this.searchCnt = 0;
+    this.maxSearch = 5;
+  }
+
+  async run(userPrompt, tools) {
+    // 1. 拼 messages
+    const messages = [
+      { role: 'system', content: SYSTEM_PROMPT },
+      ...this.history.slice(-6),
+      { role: 'user', content: userPrompt }
+    ];
+
+    // 2. 模拟第一轮 LLM 决定
+    let iter = 0;
+    while (iter++ < 10) {
+      this.emitter.emit('thoughts', {
+        step: iter,
+        content: `第 ${iter} 轮:分析问题"${userPrompt.slice(0, 20)}..."...`
+      });
+      await this.sleep(200);
+
+      // 判断是否需要工具
+      const needTool = this.decideTool(userPrompt, tools, iter);
+      if (!needTool) {
+        // 触发最终回答流式输出
+        await this.streamFinalAnswer(userPrompt);
+        this.emitter.emit('done', { iter, searchCount: this.searchCnt });
+        return;
+      }
+
+      if (this.searchCnt >= this.maxSearch) {
+        this.emitter.emit('thoughts', { step: iter, content: '【系统】搜索次数达上限,强制 tool_choice=none' });
+        await this.streamFinalAnswer(userPrompt, true);
+        this.emitter.emit('done', { iter, searchCount: this.searchCnt });
+        return;
+      }
+
+      // 触发工具调用
+      for (const tool of needTool) {
+        this.emitter.emit('tool_call', { id: 'tc_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6), name: tool.name, args: tool.args });
+        await this.sleep(150);
+        const result = await this.mockTool(tool.name, tool.args);
+        this.emitter.emit('tool_result', { id: tool.id, name: tool.name, results: result.results });
+        if (tool.name === 'knowledge_base_search' || tool.name === 'web_search') this.searchCnt++;
+        await this.sleep(100);
+      }
+    }
+  }
+
+  decideTool(prompt, tools, iter) {
+    const p = prompt.toLowerCase();
+    const calls = [];
+    if (tools.enableKbSearch && (p.includes('man') || p.includes('主机') || p.includes('缸套') || p.includes('marpol') || p.includes('柴油机'))) {
+      calls.push({ id: 'kb_' + iter, name: 'knowledge_base_search', args: { query: prompt } });
+    }
+    if (tools.enableWebSearch && (p.includes('2026') || p.includes('imo') || p.includes('最新') || p.includes('marpol'))) {
+      calls.push({ id: 'web_' + iter, name: 'web_search', args: { query: prompt } });
+    }
+    if (iter === 1 && p.includes('10 篇') && p.includes('论文')) {
+      // 模拟搜索超限
+      for (let i = 0; i < 5; i++) {
+        calls.push({ id: 'sim_' + i, name: 'web_search', args: { query: prompt + ' (' + (i+1) + ')' } });
+      }
+    }
+    return calls.length ? calls : null;
+  }
+
+  async mockTool(name, args) {
+    await this.sleep(300);
+    if (name === 'knowledge_base_search') {
+      return {
+        results: [
+          { title: 'MAN B&W 6S60MC-C 主机操作手册 第 8 章', url: 'kb://manuals/6s60mc-c/ch08', snippet: '缸套油温度正常范围 60-75°C,超过 80°C 需检查冷却器...', type: 'kb' },
+          { title: '船舶柴油机检修规程 GB/T 34710-2017', url: 'kb://standards/gb34710', snippet: '缸套油温度异常处理流程:查冷却水→查油质→查活塞环...', type: 'kb' },
+          { title: '案例:某 VLCC 主机缸套油温度高故障分析', url: 'kb://cases/2024/vlcc-001', snippet: '主要原因为活塞冷却油路堵塞...', type: 'kb' }
+        ]
+      };
+    }
+    if (name === 'web_search') {
+      return {
+        results: [
+          { title: 'IMO MEPC 82 通过 2026 年航运脱碳新规', url: 'https://imo.org/news/2026/mepc-82', content: 'IMO MEPC 82 会议通过航运业净零排放新框架...', type: 'web' },
+          { title: 'MARPOL 附则 VI 第 4.0 版即将生效', url: 'https://imo.org/marpol/annex-vi-v4', content: '硫氧化物排放限制 0.10% m/m...', type: 'web' }
+        ]
+      };
+    }
+    return { results: [] };
+  }
+
+  async streamFinalAnswer(prompt, force = false) {
+    // 模拟 LLM 流式输出 content + citations + suggest
+    let answer = '';
+    if (prompt.includes('MAN B&W')) {
+      answer = 'MAN B&W 6S60MC-C 主机缸套油温度高的常见原因有以下几点[1][2]:\n\n1. **冷却器效率下降**:缸套油冷却器堵塞或结垢,导致换热效果差[1]。\n2. **活塞冷却油路堵塞**:活塞头内部油路被杂质或沉积物堵塞,局部过热[3]。\n3. **油品劣化**:缸套油在使用过程中粘度下降,润滑和散热性能降低[2]。\n4. **系统超负荷**:主机长期超负荷运转,产热高于设计值[1]。\n\n建议按以下顺序排查:冷却水→油质→活塞环→负荷[2]。\n\n<<<suggest>>>\n- 查看 MAN B&W 6S60MC-C 操作手册\n- 复习 GB/T 34710 检修规程\n- 了解活塞冷却油路结构';
+    } else if (prompt.includes('2026') || prompt.includes('IMO')) {
+      answer = '2026 年 IMO 最新船舶碳排放法规主要包括以下内容[1]:\n\n1. **MEPC 82 通过的净零框架**:要求到 2050 年前后实现航运业净零排放,中期里程碑 2030 年减排 20%(vs 2008)[1]。\n2. **MARPOL 附则 VI 第 4.0 版**:硫氧化物排放限制 0.10% m/m,EEDI 第 4 阶段收紧 20%[2]。\n3. **燃油标准**:2026 年起新建船舶强制使用零碳或低碳燃料就绪设计[1]。\n\n<<<suggest>>>\n- 阅读 MEPC 82 决议全文\n- 评估船队 EEDI 影响\n- 关注替代燃料路径';
+    } else if (prompt.includes('MARPOL') && prompt.includes('国内')) {
+      answer = 'MARPOL 附则 VI 对硫氧化物(SOx)排放的限制,核心要求包括[2]:\n\n1. **全球硫含量上限**:0.10% m/m(自 2020 年起,原 3.5%)[2]。\n2. **排放控制区(ECA)**:0.10% m/m,部分加严至 0.10%。\n3. **替代措施**:可使用脱硫塔(EGCS)或 LNG 等替代燃料。\n\n**国内船厂应对策略**[1]:\n1. 新建船舶直接采用 LNG 双燃料或甲醇预留设计[1]\n2. 现有船队加装脱硫塔,平均投资 200-500 万美元/船[2]\n3. 配套 EEDI 第 4 阶段能效优化(船体型线 + 主机选型)[1]';
+    } else if (prompt.includes('10 篇') || force) {
+      answer = '【系统提示】已尽力搜索 5 次,达上限无法再调用工具。基于已有信息,关于船舶柴油机故障诊断的论文,我找到以下方向的资源:\n\n1. **振动诊断方向**:基于高频振动信号的早期故障识别...\n2. **油液分析方向**:光谱分析与铁谱技术结合...\n3. **热成像方向**:红外热像仪在柴油机缸盖监测...\n4. **AI 诊断方向**:深度学习在故障分类中的应用...\n5. **多源融合方向**:振动+温度+油液联合诊断...\n\n[知识库检索结果 5 篇(去重)]\n\n<<<suggest>>>\n- 检索具体作者/期刊\n- 申请机构权限\n- 联系导师获取';
+    } else {
+      answer = '船舶主机(Marine Main Engine)是船舶推进系统的核心,通常指低速二冲程柴油机,功率范围数千至数万 kW[1]。\n\n主要特点:\n- 低转速(60-200 RPM),直接驱动螺旋桨\n- 超长冲程,效率高\n- 燃用重油(HFO),经济性好\n- 主要厂家:MAN B&W、Wärtsilä[1]\n\n<<<suggest>>>\n- 学习低速机工作原理\n- 了解 MAN B&W 6S 系列\n- 复习主机操作规程';
+    }
+    // 流式输出
+    const chunks = answer.match(/[\s\S]{1,4}/g) || [];
+    for (let i = 0; i < chunks.length; i++) {
+      this.emitter.emit('content', { delta: chunks[i] });
+      await this.sleep(20);
+    }
+    // 模拟返回引用
+    if (answer.includes('[1]')) {
+      this.emitter.emit('citations', {
+        items: [
+          { title: 'MAN B&W Project Guide', url: 'kb://man-bw/project-guide', snippet: '主机选型与运行参数...' },
+          { title: 'GB/T 34710 检修规程', url: 'kb://standards/gb34710', snippet: '船舶柴油机检修...' },
+          { title: 'IMO MEPC 82 决议', url: 'https://imo.org/mepc/82', snippet: '航运脱碳框架...' }
+        ]
+      });
+    }
+  }
+
+  sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+}
+
+/* ============================================================
+ * 前端 chatAgentStream(任务 9):消费 8 类型 SSE
+ * 这里用 MockReActServer 代替后端 fetch
+ * ============================================================ */
+
+class EventBus {
+  constructor(listEl) { this.listEl = listEl; this.paused = false; }
+  emit(type, payload) {
+    if (this.paused) return;
+    const ts = new Date().toTimeString().slice(0, 8);
+    const row = document.createElement('div');
+    row.className = 'event-row t-' + type;
+    const pretty = JSON.stringify(payload, null, 2);
+    row.innerHTML = `<div class="ts">${ts}</div><div class="type">${type}</div><div class="payload">${this.escape(pretty)}</div>`;
+    this.listEl.appendChild(row);
+    this.listEl.scrollTop = this.listEl.scrollHeight;
+    onSse(type, payload);
+  }
+  escape(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+}
+
+const bus = new EventBus(document.getElementById('events-list'));
+let currentServer = null;
+let abortController = null;
+
+/* 渲染到聊天区 */
+const chatBody = document.getElementById('chat-body');
+function clearWelcome() { chatBody.innerHTML = ''; }
+
+function appendUserMsg(text) {
+  clearWelcome();
+  const div = document.createElement('div');
+  div.className = 'msg user';
+  div.innerHTML = `<div class="msg-bubble">${escapeHtml(text)}</div>`;
+  chatBody.appendChild(div);
+  chatBody.scrollTop = chatBody.scrollHeight;
+}
+
+let currentAiMsg = null;
+let currentAiBubble = null;
+let currentMeta = { thoughts: '', toolCalls: [], toolResults: [], citations: null, fullText: '' };
+
+function ensureAiMsg() {
+  if (!currentAiMsg) {
+    currentAiMsg = document.createElement('div');
+    currentAiMsg.className = 'msg ai';
+    currentAiMsg.innerHTML = `<div class="msg-bubble"></div><div class="msg-meta"></div>`;
+    currentAiBubble = currentAiMsg.querySelector('.msg-bubble');
+    const metaEl = currentAiMsg.querySelector('.msg-meta');
+    currentAiMsg._metaEl = metaEl;
+    chatBody.appendChild(currentAiMsg);
+    currentMeta = { thoughts: '', toolCalls: [], toolResults: [], citations: null, fullText: '' };
+  }
+}
+
+function onSse(type, payload) {
+  // 状态指示
+  if (type === 'content' || type === 'thoughts') {
+    document.getElementById('dot-stream').className = 'status-dot green';
+  }
+  if (type === 'tool_call') {
+    document.getElementById('dot-react').className = 'status-dot green';
+  }
+  if (type === 'done') {
+    document.getElementById('dot-stream').className = 'status-dot green';
+    document.getElementById('dot-react').className = 'status-dot green';
+    document.getElementById('dot-cb').className = 'status-dot green';
+  }
+  if (type === 'error') {
+    document.getElementById('dot-stream').className = 'status-dot gray';
+  }
+
+  ensureAiMsg();
+
+  if (type === 'content') {
+    currentMeta.fullText += payload.delta;
+    // 处理 <<<suggest>>> 块剥离
+    let display = currentMeta.fullText;
+    let suggestBlock = '';
+    const m = display.match(/<<<suggest>>>([\s\S]*)/);
+    if (m) {
+      display = display.slice(0, m.index).trim();
+      suggestBlock = m[1].trim();
+    }
+    // 渲染 markdown 简化
+    let html = escapeHtml(display);
+    html = html.replace(/\n/g, '<br/>');
+    html = html.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+    currentAiBubble.innerHTML = html;
+    if (suggestBlock) {
+      const suggestEl = currentAiMsg._metaEl.querySelector('.suggest-block');
+      if (!suggestEl) {
+        const sd = document.createElement('div');
+        sd.className = 'suggest-block';
+        sd.style.cssText = 'margin-top: 10px; padding: 8px 12px; background: rgba(79,158,255,0.1); border-left: 3px solid var(--accent); border-radius: 4px; font-size: 12px; color: var(--text);';
+        currentAiMsg._metaEl.appendChild(sd);
+      }
+      currentAiMsg._metaEl.querySelector('.suggest-block').innerHTML =
+        '<div style="color: var(--accent); font-weight: 600; margin-bottom: 4px;">💡 拓展学习建议</div>' +
+        suggestBlock.split('\n').filter(l => l.trim()).map(l => '• ' + l.replace(/^-\s*/, '')).join('<br/>');
+    }
+  } else if (type === 'thoughts') {
+    // 累积到 thoughtsPanel
+    let panel = currentAiMsg._metaEl.querySelector('.thoughts-panel');
+    if (!panel) {
+      panel = document.createElement('div');
+      panel.className = 'thoughts-panel';
+      currentAiMsg._metaEl.appendChild(panel);
+    }
+    panel.innerHTML += `<div class="step">🤔 ${escapeHtml(payload.content || JSON.stringify(payload))}</div>`;
+  } else if (type === 'tool_call') {
+    currentMeta.toolCalls.push(payload);
+    const card = document.createElement('div');
+    card.className = 'tool-call-card';
+    card.innerHTML = `<span class="name">🔧 ${escapeHtml(payload.name)}</span> <span style="color: var(--text-dim);">[${payload.id}]</span><div class="args">${escapeHtml(JSON.stringify(payload.args))}</div>`;
+    currentAiMsg._metaEl.appendChild(card);
+  } else if (type === 'tool_result') {
+    currentMeta.toolResults.push(payload);
+    const result = document.createElement('div');
+    result.className = 'tool-result';
+    result.innerHTML = payload.results.map(r =>
+      `<div class="item">📄 <b>${escapeHtml(r.title || r.url)}</b>: ${escapeHtml((r.snippet || r.content || '').slice(0, 60))}...</div>`
+    ).join('');
+    currentAiMsg._metaEl.appendChild(result);
+  } else if (type === 'citations') {
+    currentMeta.citations = payload.items;
+    const ctns = document.createElement('div');
+    ctns.className = 'citations';
+    ctns.innerHTML = payload.items.map((c, i) => `<span class="citation-tag" title="${escapeHtml(c.title)}">[${i+1}]</span>`).join('');
+    currentAiMsg._metaEl.appendChild(ctns);
+  } else if (type === 'error') {
+    currentAiBubble.innerHTML = `<span style="color: var(--error);">⚠ ${escapeHtml(payload.content || JSON.stringify(payload))}</span>`;
+  } else if (type === 'done') {
+    // 最终化
+  }
+
+  chatBody.scrollTop = chatBody.scrollHeight;
+}
+
+function escapeHtml(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+/* 交互 */
+document.getElementById('btn-send').addEventListener('click', send);
+document.getElementById('btn-stop').addEventListener('click', () => {
+  if (abortController) abortController.abort();
+  if (currentServer) currentServer = null;
+  resetUI();
+});
+document.getElementById('user-input').addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
+document.getElementById('btn-pause').addEventListener('click', e => {
+  bus.paused = !bus.paused;
+  e.target.classList.toggle('active', bus.paused);
+  e.target.textContent = bus.paused ? '继续' : '暂停';
+});
+document.getElementById('btn-clear').addEventListener('click', () => {
+  document.getElementById('events-list').innerHTML = '';
+  chatBody.innerHTML = '<div style="text-align: center; color: var(--text-dim); padding: 40px; font-size: 12px;">← 选择左侧样例提问,或直接输入问题<br/>右侧实时显示后端发来的 8 类型 SSE 事件</div>';
+  currentAiMsg = null;
+});
+document.getElementById('toggle-ls').addEventListener('click', () => {
+  const cur = localStorage.getItem('ai:useAgentGateway') || '1';
+  const next = cur === '1' ? '0' : '1';
+  localStorage.setItem('ai:useAgentGateway', next);
+  updateLsStatus();
+});
+function updateLsStatus() {
+  const v = localStorage.getItem('ai:useAgentGateway') || '1';
+  document.getElementById('ls-status').textContent = v === '1' ? 'ai:useAgentGateway=1(走新)' : 'ai:useAgentGateway=0(走老)';
+  document.getElementById('ls-status').style.color = v === '1' ? 'var(--accent-2)' : 'var(--warn)';
+}
+updateLsStatus();
+
+async function send() {
+  const input = document.getElementById('user-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+
+  // 检查灰度
+  const ls = localStorage.getItem('ai:useAgentGateway') || '1';
+  if (ls === '0') {
+    bus.emit('error', { errorCode: 'FALLBACK', content: '前端灰度开关=0,走老 chatAppStream 直连百炼(本 demo 未实现老逻辑)' });
+    return;
+  }
+
+  const tools = {
+    enableKbSearch: document.getElementById('opt-kb').checked,
+    enableWebSearch: document.getElementById('opt-web').checked,
+    enableThinking: document.getElementById('opt-think').checked
+  };
+
+  appendUserMsg(text);
+  document.getElementById('btn-send').disabled = true;
+  document.getElementById('btn-stop').style.display = 'inline-block';
+  currentAiMsg = null;
+  // 重置状态
+  ['dot-stream', 'dot-react', 'dot-cb'].forEach(id => {
+    document.getElementById(id).className = 'status-dot green';
+  });
+  // 模拟 AbortController
+  abortController = new AbortController();
+
+  // 模拟 fetch SSE
+  bus.emit('thoughts', { step: 0, content: '→ 发送请求 POST /api/wk/ai/agent/chat-stream' });
+  bus.emit('thoughts', { step: 0, content: '→ 后端 AgentReActExecutor.execute(dto, emitter) 启动' });
+
+  const server = new MockReActServer({ emit: (t, p) => bus.emit(t, p) });
+  currentServer = server;
+  server.history = window._history = window._history || [];
+  server.history.push({ role: 'user', content: text });
+  try {
+    await server.run(text, tools);
+    server.history.push({ role: 'assistant', content: currentMeta.fullText });
+  } catch (e) {
+    bus.emit('error', { errorCode: 'CLIENT_ABORT', content: e.message });
+  } finally {
+    resetUI();
+  }
+}
+
+function resetUI() {
+  document.getElementById('btn-send').disabled = false;
+  document.getElementById('btn-stop').style.display = 'none';
+  currentServer = null;
+}
+
+/* 初始化样例 */
+const promptsEl = document.getElementById('prompts');
+SAMPLE_PROMPTS.forEach(p => {
+  const div = document.createElement('div');
+  div.className = 'prompt-item';
+  div.innerHTML = `<div class="label">${p.label}</div><div class="text">${p.text}</div>`;
+  div.addEventListener('click', () => {
+    document.getElementById('user-input').value = p.text;
+    document.getElementById('user-input').focus();
+  });
+  promptsEl.appendChild(div);
+});
+
+</script>
+</body>
+</html>

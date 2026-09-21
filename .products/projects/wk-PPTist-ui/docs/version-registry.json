@@ -1,0 +1,59 @@
+{
+  "_comment": "项目版本号登记表 - 替代老 documents/versions.json(已废弃)",
+  "_spec": {
+    "owner": "Wiki 维护 agent",
+    "authority": "git 现状分支名 = 版本号(local/{X.X}/dev 模式,X.X 即版本号;mobile 端用 local/mobile-v{X.X}/dev 独立节奏)",
+    "currentVersionSource": "git branch --show-current(子仓 wk-PPTist-ui 独立 origin)",
+    "aiUseProtocol": "Agent 接需求第一步:`cd wk-PPTist-ui && git branch --show-current` → grep DEPRECATED-FEATURES.md 任务关键词"
+  },
+  "current": {
+    "branch": "local/mobile-v1.0/dev",
+    "version": "mobile-v1.0",
+    "gitStatus": "当前本地检出分支,正在开发中(mobile 节奏)",
+    "releasedAt": null,
+    "nextPlanned": "mobile-v1.1(待规划)"
+  },
+  "history": [
+    {
+      "version": "mobile-v1.0",
+      "branch": "local/mobile-v1.0/dev",
+      "status": "开发中",
+      "releasedAt": null,
+      "tag": null,
+      "deprecatedFeatures": []
+    }
+  ],
+  "allKnownBranches": {
+    "local/X.X/dev 模式(PC/web 端)": [
+      "local/1.0/dev", "local/1.1/dev", "local/1.2/dev", "local/1.3/dev", "local/1.4/dev"
+    ],
+    "local/mobile-vX.X/dev 模式(移动端)": [
+      "local/mobile-v1.0/dev"
+    ],
+    "release 模式": [
+      "release/dev", "local/release-pro"
+    ],
+    "主干": ["master"]
+  },
+  "versionNaming": {
+    "pattern": "^local/(mobile-)?(\\d+\\.\\d+)/dev$",
+    "description": "PC/web 端用 local/{X.X}/dev;mobile 端用 local/mobile-v{X.X}/dev 独立节奏",
+    "example": "local/mobile-v1.0/dev → mobile-v1.0"
+  },
+  "migration": {
+    "from": "Thinkpad/_archive/2026-07-documents-snapshot/VERSION_GUIDE.md(已废弃,2026-07-14)",
+    "to": "本文件",
+    "reason": "原 VERSION_GUIDE.md 是后端仓通用模板,前端仓同步废弃,改用本仓独立 registry",
+    "diff": [
+      "修正当前版本号为 mobile-v1.0(原误写 v0.1.0)",
+      "补全 mobile-vX.X 节奏分支",
+      "补全 PC 端历史分支(local/1.0~1.4)",
+      "补全 release/ 多个环境分支"
+    ]
+  },
+  "_links": {
+    "deprecatedFeatures": ".products/projects/wk-PPTist-ui/docs/DEPRECATED-FEATURES.md",
+    "frontendPRD": ".products/projects/wk-PPTist-ui/docs/PRD.md",
+    "productPRD": ".products/projects/wk-train-center/docs/PRD.md"
+  }
+}

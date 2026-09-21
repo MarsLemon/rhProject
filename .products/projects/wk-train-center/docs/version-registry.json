@@ -1,0 +1,84 @@
+{
+  "_comment": "wk-train-center(产品层)版本登记表 - 不直接映射子仓 git,只追踪产品发布节奏",
+  "_spec": {
+    "owner": "产品经理 agent",
+    "authority": "产品发布节奏,跟子仓 git branch --show-current 解耦(产品层是抽象,子仓是实现)",
+    "currentVersionSource": "子仓 .products/projects/{技术层}/docs/version-registry.json(权威)",
+    "aiUseProtocol": "Agent 接需求第一步:查本文件 current.version → 关联子仓 version-registry.json → grep DEPRECATED-FEATURES.md 任务关键词",
+    "namingConvention": {
+      "docDir": "mobile1.x/ ←注意:无连字符(2026-07-22 主人口径统一,跟 db/ 旧命名 mobile-1.x 区分)",
+      "gitBranch": "local/mobile-v1.x/dev 或 local/{X.X}/dev(子仓用,产品层目录不用)"
+    }
+  },
+  "current": {
+    "productVersion": "mobile1.2(开发中,2026-07-22 摸底)",
+    "releasedProductVersion": "mobile1.1(已发布,2026-07 中旬)",
+    "productLineage": "mobile1.0 → mobile1.1 → mobile1.2",
+    "linkedSubrepos": {
+      "wk-train-center-service": {
+        "branch": "local/mobile1.2/fix",
+        "version": "mobile1.2",
+        "registry": ".products/projects/wk-train-center-service/docs/version-registry.json"
+      },
+      "wk-train-center-ui": {
+        "branch": "local/mobile1.2/fix",
+        "version": "mobile1.2",
+        "registry": ".products/projects/wk-train-center-ui/docs/version-registry.json"
+      },
+      "wk-train-center-ui-v3": {
+        "branch": "master",
+        "version": "master-tracked(Vue3 迁移目标仓,无版本节奏)",
+        "registry": ".products/projects/wk-train-center-ui-v3/docs/version-registry.json"
+      },
+      "wk-mhc-mobile": {
+        "branch": "train/mobile-v1.1/dev",
+        "version": "mobile-v1.1 ⚠️",
+        "registry": ".products/projects/wk-mhc-mobile/docs/(待补,2026-07-22 摸底时未检)",
+        "note": "主人说 current 是 mobile1.2,但 wk-mhc-mobile 实际在 mobile-v1.1,后续切换需主人单独确认"
+      }
+    }
+  },
+  "history": [
+    {
+      "productVersion": "mobile1.0",
+      "releasedAt": "2026-05-XX(估计)",
+      "linkedSubrepoBranches": {
+        "wk-train-center-service": "local/mobile-v1.0/dev",
+        "wk-train-center-ui": "local/mobile-v1.0/dev"
+      }
+    },
+    {
+      "productVersion": "mobile1.1",
+      "releasedAt": "2026-07-中旬(估计)",
+      "linkedSubrepoBranches": {
+        "wk-train-center-service": "local/mobile-v1.1/dev",
+        "wk-train-center-ui": "local/mobile-v1.1/dev"
+      }
+    },
+    {
+      "productVersion": "mobile1.2",
+      "status": "开发中",
+      "releasedAt": null,
+      "linkedSubrepoBranches": {
+        "wk-train-center-service": "local/mobile1.2/fix",
+        "wk-train-center-ui": "local/mobile1.2/fix"
+      }
+    }
+  ],
+  "namingConventionForProductDocs": {
+    "短期产物": "design/{mobile1.x}/ + reviews/{mobile1.x}/ + tasks/{mobile1.x}/ + iterations/{mobile1.x}/",
+    "长期产物": "docs/(留根,跨版本)",
+    "禁用": [
+      "mobile-1.x/(老命名,db/ 2026-07-22 改完)",
+      "mobile-v1.x/(只用于 Git 分支描述)",
+      "v1.x/(VERSION_GUIDE 老规范,已废)"
+    ]
+  },
+  "_links": {
+    "productPRD": ".products/projects/wk-train-center/docs/PRD.md",
+    "serviceRegistry": ".products/projects/wk-train-center-service/docs/version-registry.json",
+    "uiRegistry": ".products/projects/wk-train-center-ui/docs/version-registry.json",
+    "uiV3Registry": ".products/projects/wk-train-center-ui-v3/docs/version-registry.json",
+    "spec": ".products/specs/2026-07-22-products-projects-version-aggregation-design.md"
+  }
+}

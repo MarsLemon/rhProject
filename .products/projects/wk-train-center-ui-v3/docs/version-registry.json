@@ -1,0 +1,42 @@
+{
+  "_comment": "项目版本号登记表 - 替代老 documents/versions.json(已废弃)",
+  "_spec": {
+    "owner": "Wiki 维护 agent",
+    "authority": "git 现状分支名 = 版本号",
+    "currentVersionSource": "git branch --show-current(子仓 wk-train-center-ui-v3 独立 remote: wk-train-center-v3)",
+    "aiUseProtocol": "Agent 接需求第一步:`cd wk-train-center-ui-v3 && git branch --show-current` → grep DEPRECATED-FEATURES.md 任务关键词"
+  },
+  "current": {
+    "branch": "master",
+    "version": "master-tracked",
+    "gitStatus": "当前本地检出 master;Vue3 迁移目标仓,迭代缓慢,尚未启用 local/X.X/dev 多分支",
+    "releasedAt": null,
+    "nextPlanned": "首个 Vue3 脚手架稳定版本(待规划)"
+  },
+  "history": [],
+  "allKnownBranches": {
+    "主干": ["master"],
+    "remote": ["wk-train-center-v3/master"]
+  },
+  "versionNaming": {
+    "pattern": "^local/(\\d+\\.\\d+)/dev$",
+    "description": "未来启用 local/{X.X}/dev 模式,与 v2 仓保持命名一致",
+    "example": "local/0.2/dev → 0.2",
+    "currentState": "尚未创建任何 local/X.X/dev 分支,所有开发在 master 上累积"
+  },
+  "migration": {
+    "from": "Thinkpad/_archive/2026-07-documents-snapshot/VERSION_GUIDE.md(已废弃,2026-07-14)",
+    "to": "本文件",
+    "reason": "原 VERSION_GUIDE.md 是后端仓通用模板,前端仓同步废弃,改用本仓独立 registry",
+    "diff": [
+      "修正当前版本号为 master(原误写 v0.1.0)",
+      "Vue3 仓历史为空,首个版本未起"
+    ]
+  },
+  "_links": {
+    "deprecatedFeatures": ".products/projects/wk-train-center-ui-v3/docs/DEPRECATED-FEATURES.md",
+    "frontendPRD": ".products/projects/wk-train-center-ui-v3/docs/PRD.md",
+    "productPRD": ".products/projects/wk-train-center/docs/PRD.md",
+    "v2Registry": ".products/projects/wk-train-center-ui/docs/version-registry.json"
+  }
+}

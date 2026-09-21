@@ -1,0 +1,349 @@
+# SQL 校验报告
+
+> 由 `scripts/sql/build-index.py` 自动生成。
+> 扫描目录: `.products\projects\wk-train-center-service\db`
+
+## 错误（必须修复）
+
+- ❌ `1.1\kg\1.0\edge_roll.sql` — 头部缺字段: version
+- ❌ `1.1\kg\1.0\edge_roll.sql` — 头部缺字段: module
+- ❌ `1.1\kg\1.0\edge_roll.sql` — 头部缺字段: affected_tables
+- ❌ `1.1\kg\1.0\edge_roll.sql` — 存在 DDL 但未找到 `库名`.`表名` 限定
+- ❌ `1.1\kg\1.0\update_knowledge_point.sql` — 头部缺字段: version
+- ❌ `1.1\kg\1.0\update_knowledge_point.sql` — 头部缺字段: module
+- ❌ `1.1\kg\1.0\update_knowledge_point.sql` — 头部缺字段: affected_tables
+- ❌ `1.1\kg\1.0\update_knowledge_point.sql` — 存在 DDL 但未找到 `库名`.`表名` 限定
+- ❌ `1.1\kg\1.0\update_knowledge_point_edge.sql` — 头部缺字段: version
+- ❌ `1.1\kg\1.0\update_knowledge_point_edge.sql` — 头部缺字段: module
+- ❌ `1.1\kg\1.0\update_knowledge_point_edge.sql` — 头部缺字段: affected_tables
+- ❌ `1.1\kg\1.0\update_knowledge_point_edge.sql` — 存在 DDL 但未找到 `库名`.`表名` 限定
+- ❌ `1.1\kg\1.0\update_qu_gen~ai_prompt.sql` — 头部缺字段: version
+- ❌ `1.1\kg\1.0\update_qu_gen~ai_prompt.sql` — 头部缺字段: module
+- ❌ `1.1\kg\1.0\update_qu_gen~ai_prompt.sql` — 头部缺字段: affected_tables
+- ❌ `1.1\kg\1.0\update_qu_gen~ai_prompt.sql` — 存在 DDL 但未找到 `库名`.`表名` 限定
+- ❌ `1.1\train-ai\update_train.sql` — 头部缺字段: version
+- ❌ `1.1\train-ai\update_train.sql` — 头部缺字段: module
+- ❌ `1.1\train-ai\update_train.sql` — 头部缺字段: affected_tables
+- ❌ `1.1\update_course_file_bailian.sql` — 头部缺字段: version
+- ❌ `1.1\update_course_file_bailian.sql` — 头部缺字段: module
+- ❌ `1.1\update_course_file_bailian.sql` — 头部缺字段: affected_tables
+- ❌ `1.1\update_course_file_bailian.sql` — 存在 DDL 但未找到 `库名`.`表名` 限定
+- ❌ `1.1\update_role_data_scope.sql` — 头部缺字段: version
+- ❌ `1.1\update_role_data_scope.sql` — 头部缺字段: module
+- ❌ `1.1\update_role_data_scope.sql` — 头部缺字段: affected_tables
+- ❌ `1.1\update_role_data_scope.sql` — 存在 DDL 但未找到 `库名`.`表名` 限定
+- ❌ `1.2\course\alter_all_tables_add_deleted.sql` — 头部缺字段: version
+- ❌ `1.2\course\alter_all_tables_add_deleted.sql` — 头部缺字段: module
+- ❌ `1.2\course\alter_all_tables_add_deleted.sql` — 头部缺字段: affected_tables
+- ❌ `1.2\course\alter_course_missing_tables_add_deleted.sql` — 头部缺字段: version
+- ❌ `1.2\course\alter_course_missing_tables_add_deleted.sql` — 头部缺字段: module
+- ❌ `1.2\course\alter_course_missing_tables_add_deleted.sql` — 头部缺字段: affected_tables
+- ❌ `1.2\course\alter_qu_missing_tables_add_deleted.sql` — 头部缺字段: version
+- ❌ `1.2\course\alter_qu_missing_tables_add_deleted.sql` — 头部缺字段: module
+- ❌ `1.2\course\alter_qu_missing_tables_add_deleted.sql` — 头部缺字段: affected_tables
+- ❌ `1.2\course\diagnose_course_file_cat_id.sql` — 头部缺字段: version
+- ❌ `1.2\course\diagnose_course_file_cat_id.sql` — 头部缺字段: module
+- ❌ `1.2\course\diagnose_course_file_cat_id.sql` — 头部缺字段: affected_tables
+- ❌ `1.2\course\diagnose_exam_tmpl_cat_id.sql` — 头部缺字段: version
+- ❌ `1.2\course\diagnose_exam_tmpl_cat_id.sql` — 头部缺字段: module
+- ❌ `1.2\course\diagnose_exam_tmpl_cat_id.sql` — 头部缺字段: affected_tables
+- ❌ `1.2\course\upgrade_course_learn_plan_id.sql` — 头部缺字段: version
+- ❌ `1.2\course\upgrade_course_learn_plan_id.sql` — 头部缺字段: module
+- ❌ `1.2\course\upgrade_course_learn_plan_id.sql` — 头部缺字段: affected_tables
+- ❌ `1.2\course_qa\add_lecturer_id_to_course_qa.sql` — 头部缺字段: version
+- ❌ `1.2\course_qa\add_lecturer_id_to_course_qa.sql` — 头部缺字段: module
+- ❌ `1.2\course_qa\add_lecturer_id_to_course_qa.sql` — 头部缺字段: affected_tables
+- ❌ `1.2\course_qa\diagnose_duplicate_bailian_files.sql` — 头部缺字段: version
+- ❌ `1.2\course_qa\diagnose_duplicate_bailian_files.sql` — 头部缺字段: module
+- ❌ `1.2\course_qa\diagnose_duplicate_bailian_files.sql` — 头部缺字段: affected_tables
+- ❌ `1.2\depart\depart.sql` — 头部缺字段: version
+- ❌ `1.2\depart\depart.sql` — 头部缺字段: module
+- ❌ `1.2\depart\depart.sql` — 头部缺字段: affected_tables
+- ❌ `1.2\lecturer\new_lecturer.sql` — 头部缺字段: version
+- ❌ `1.2\lecturer\new_lecturer.sql` — 头部缺字段: module
+- ❌ `1.2\lecturer\new_lecturer.sql` — 头部缺字段: affected_tables
+- ❌ `1.2\sys\add_user_function_and_job_number.sql` — 头部缺字段: version
+- ❌ `1.2\sys\add_user_function_and_job_number.sql` — 头部缺字段: module
+- ❌ `1.2\sys\add_user_function_and_job_number.sql` — 头部缺字段: affected_tables
+- ❌ `1.2\sys\icon.sql` — 头部缺字段: version
+- ❌ `1.2\sys\icon.sql` — 头部缺字段: module
+- ❌ `1.2\sys\icon.sql` — 头部缺字段: affected_tables
+- ❌ `1.2\training-plan\alter_el_training_plan_annual_collections_v2.sql` — 头部缺字段: version
+- ❌ `1.2\training-plan\alter_el_training_plan_annual_collections_v2.sql` — 头部缺字段: module
+- ❌ `1.2\training-plan\alter_el_training_plan_annual_collections_v2.sql` — 头部缺字段: affected_tables
+- ❌ `1.2\training-plan\alter_el_training_plan_annual_collections_v2.sql` — 存在 DDL 但未找到 `库名`.`表名` 限定
+- ❌ `1.2\training-plan\alter_el_training_record_add_plan_fields.sql` — 头部缺字段: version
+- ❌ `1.2\training-plan\alter_el_training_record_add_plan_fields.sql` — 头部缺字段: module
+- ❌ `1.2\training-plan\alter_el_training_record_add_plan_fields.sql` — 头部缺字段: affected_tables
+- ❌ `1.2\training-plan\create_el_training_plan_annual_collections.sql` — 头部缺字段: version
+- ❌ `1.2\training-plan\create_el_training_plan_annual_collections.sql` — 头部缺字段: module
+- ❌ `1.2\training-plan\create_el_training_plan_annual_collections.sql` — 头部缺字段: affected_tables
+- ❌ `1.2\training-plan\create_el_training_plan_annual_collections.sql` — 存在 DDL 但未找到 `库名`.`表名` 限定
+- ❌ `1.2\training-plan\create_el_training_plan_collection_relations.sql` — 头部缺字段: version
+- ❌ `1.2\training-plan\create_el_training_plan_collection_relations.sql` — 头部缺字段: module
+- ❌ `1.2\training-plan\create_el_training_plan_collection_relations.sql` — 头部缺字段: affected_tables
+- ❌ `1.2\training-plan\create_el_training_plan_collection_relations.sql` — 存在 DDL 但未找到 `库名`.`表名` 限定
+- ❌ `1.2\training-plan\create_el_training_plan_course_relations.sql` — 头部缺字段: version
+- ❌ `1.2\training-plan\create_el_training_plan_course_relations.sql` — 头部缺字段: module
+- ❌ `1.2\training-plan\create_el_training_plan_course_relations.sql` — 头部缺字段: affected_tables
+- ❌ `1.2\training-plan\create_el_training_plan_course_relations.sql` — 存在 DDL 但未找到 `库名`.`表名` 限定
+- ❌ `1.2\training-plan\create_el_training_plan_courses.sql` — 头部缺字段: version
+- ❌ `1.2\training-plan\create_el_training_plan_courses.sql` — 头部缺字段: module
+- ❌ `1.2\training-plan\create_el_training_plan_courses.sql` — 头部缺字段: affected_tables
+- ❌ `1.2\training-plan\create_el_training_plan_courses.sql` — 存在 DDL 但未找到 `库名`.`表名` 限定
+- ❌ `1.2\training-plan\create_el_training_plans.sql` — 头部缺字段: version
+- ❌ `1.2\training-plan\create_el_training_plans.sql` — 头部缺字段: module
+- ❌ `1.2\training-plan\create_el_training_plans.sql` — 头部缺字段: affected_tables
+- ❌ `1.2\training-plan\create_el_training_plans.sql` — 存在 DDL 但未找到 `库名`.`表名` 限定
+- ❌ `1.2\upgrade_v1.2_all.sql` — 头部缺字段: affected_tables
+- ❌ `1.3\update_course_file_learn_and_plan_node.sql` — 头部缺字段: version
+- ❌ `1.3\update_course_file_learn_and_plan_node.sql` — 头部缺字段: module
+- ❌ `1.3\update_course_file_learn_and_plan_node.sql` — 头部缺字段: affected_tables
+- ❌ `1.3\updateTmplUpdate.sql` — 头部缺字段: version
+- ❌ `1.3\updateTmplUpdate.sql` — 头部缺字段: module
+- ❌ `1.3\updateTmplUpdate.sql` — 头部缺字段: affected_tables
+- ❌ `1.4\fix_plan_user_node_migration.sql` — 头部缺字段: version
+- ❌ `1.4\fix_plan_user_node_migration.sql` — 头部缺字段: module
+- ❌ `1.4\fix_plan_user_node_migration.sql` — 头部缺字段: affected_tables
+- ❌ `1.5\plan\drop_plan_node_required_column.sql` — 头部缺字段: version
+- ❌ `1.5\plan\drop_plan_node_required_column.sql` — 头部缺字段: module
+- ❌ `1.5\plan\drop_plan_node_required_column.sql` — 头部缺字段: affected_tables
+- ❌ `1.5\plan\fix_plan_user_duplicate.sql` — 头部缺字段: version
+- ❌ `1.5\plan\fix_plan_user_duplicate.sql` — 头部缺字段: module
+- ❌ `1.5\plan\fix_plan_user_duplicate.sql` — 头部缺字段: affected_tables
+- ❌ `1.5\sys\bailian_config_migration.sql` — 头部缺字段: version
+- ❌ `1.5\sys\bailian_config_migration.sql` — 头部缺字段: module
+- ❌ `1.5\sys\bailian_config_migration.sql` — 头部缺字段: affected_tables
+- ❌ `1.5\train-sign-in\sql\training-sign-in.sql` — 头部缺字段: version
+- ❌ `1.5\train-sign-in\sql\training-sign-in.sql` — 头部缺字段: module
+- ❌ `1.5\train-sign-in\sql\training-sign-in.sql` — 头部缺字段: affected_tables
+- ❌ `mobile1.1\plan\plan_node_check_rules.sql` — 头部缺字段: version
+- ❌ `mobile1.1\plan\plan_node_check_rules.sql` — 头部缺字段: module
+- ❌ `mobile1.1\plan\plan_node_check_rules.sql` — 头部缺字段: affected_tables
+- ❌ `mobile1.1\sys\fix-double-role-data-scope-snapshot.sql` — 头部缺字段: version
+- ❌ `mobile1.1\sys\fix-double-role-data-scope-snapshot.sql` — 头部缺字段: module
+- ❌ `mobile1.1\sys\fix-double-role-data-scope-snapshot.sql` — 头部缺字段: affected_tables
+
+## 警告（建议修复）
+
+- ⚠️ `1.1\kg\1.0\edge_roll.sql` — 头部缺字段: purpose
+- ⚠️ `1.1\kg\1.0\edge_roll.sql` — 头部缺字段: created_date
+- ⚠️ `1.1\kg\1.0\edge_roll.sql` — 头部缺字段: author
+- ⚠️ `1.1\kg\1.0\edge_roll.sql` — 头部缺字段: reviewer
+- ⚠️ `1.1\kg\1.0\edge_roll.sql` — 头部缺字段: review_date
+- ⚠️ `1.1\kg\1.0\edge_roll.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `1.1\kg\1.0\update_knowledge_point.sql` — 头部缺字段: purpose
+- ⚠️ `1.1\kg\1.0\update_knowledge_point.sql` — 头部缺字段: created_date
+- ⚠️ `1.1\kg\1.0\update_knowledge_point.sql` — 头部缺字段: author
+- ⚠️ `1.1\kg\1.0\update_knowledge_point.sql` — 头部缺字段: reviewer
+- ⚠️ `1.1\kg\1.0\update_knowledge_point.sql` — 头部缺字段: review_date
+- ⚠️ `1.1\kg\1.0\update_knowledge_point.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `1.1\kg\1.0\update_knowledge_point_edge.sql` — 头部缺字段: purpose
+- ⚠️ `1.1\kg\1.0\update_knowledge_point_edge.sql` — 头部缺字段: created_date
+- ⚠️ `1.1\kg\1.0\update_knowledge_point_edge.sql` — 头部缺字段: author
+- ⚠️ `1.1\kg\1.0\update_knowledge_point_edge.sql` — 头部缺字段: reviewer
+- ⚠️ `1.1\kg\1.0\update_knowledge_point_edge.sql` — 头部缺字段: review_date
+- ⚠️ `1.1\kg\1.0\update_knowledge_point_edge.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `1.1\kg\1.0\update_qu_gen~ai_prompt.sql` — 头部缺字段: purpose
+- ⚠️ `1.1\kg\1.0\update_qu_gen~ai_prompt.sql` — 头部缺字段: created_date
+- ⚠️ `1.1\kg\1.0\update_qu_gen~ai_prompt.sql` — 头部缺字段: author
+- ⚠️ `1.1\kg\1.0\update_qu_gen~ai_prompt.sql` — 头部缺字段: reviewer
+- ⚠️ `1.1\kg\1.0\update_qu_gen~ai_prompt.sql` — 头部缺字段: review_date
+- ⚠️ `1.1\kg\1.0\update_qu_gen~ai_prompt.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `1.1\train-ai\update_train.sql` — 头部缺字段: purpose
+- ⚠️ `1.1\train-ai\update_train.sql` — 头部缺字段: created_date
+- ⚠️ `1.1\train-ai\update_train.sql` — 头部缺字段: author
+- ⚠️ `1.1\train-ai\update_train.sql` — 头部缺字段: reviewer
+- ⚠️ `1.1\train-ai\update_train.sql` — 头部缺字段: review_date
+- ⚠️ `1.1\train-ai\update_train.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `1.1\update_course_file_bailian.sql` — 头部缺字段: purpose
+- ⚠️ `1.1\update_course_file_bailian.sql` — 头部缺字段: created_date
+- ⚠️ `1.1\update_course_file_bailian.sql` — 头部缺字段: author
+- ⚠️ `1.1\update_course_file_bailian.sql` — 头部缺字段: reviewer
+- ⚠️ `1.1\update_course_file_bailian.sql` — 头部缺字段: review_date
+- ⚠️ `1.1\update_course_file_bailian.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `1.1\update_role_data_scope.sql` — 头部缺字段: purpose
+- ⚠️ `1.1\update_role_data_scope.sql` — 头部缺字段: created_date
+- ⚠️ `1.1\update_role_data_scope.sql` — 头部缺字段: author
+- ⚠️ `1.1\update_role_data_scope.sql` — 头部缺字段: reviewer
+- ⚠️ `1.1\update_role_data_scope.sql` — 头部缺字段: review_date
+- ⚠️ `1.1\update_role_data_scope.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `1.2\course\alter_all_tables_add_deleted.sql` — 头部缺字段: purpose
+- ⚠️ `1.2\course\alter_all_tables_add_deleted.sql` — 头部缺字段: created_date
+- ⚠️ `1.2\course\alter_all_tables_add_deleted.sql` — 头部缺字段: author
+- ⚠️ `1.2\course\alter_all_tables_add_deleted.sql` — 头部缺字段: reviewer
+- ⚠️ `1.2\course\alter_all_tables_add_deleted.sql` — 头部缺字段: review_date
+- ⚠️ `1.2\course\alter_all_tables_add_deleted.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `1.2\course\alter_course_missing_tables_add_deleted.sql` — 头部缺字段: purpose
+- ⚠️ `1.2\course\alter_course_missing_tables_add_deleted.sql` — 头部缺字段: created_date
+- ⚠️ `1.2\course\alter_course_missing_tables_add_deleted.sql` — 头部缺字段: author
+- ⚠️ `1.2\course\alter_course_missing_tables_add_deleted.sql` — 头部缺字段: reviewer
+- ⚠️ `1.2\course\alter_course_missing_tables_add_deleted.sql` — 头部缺字段: review_date
+- ⚠️ `1.2\course\alter_course_missing_tables_add_deleted.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `1.2\course\alter_qu_missing_tables_add_deleted.sql` — 头部缺字段: purpose
+- ⚠️ `1.2\course\alter_qu_missing_tables_add_deleted.sql` — 头部缺字段: created_date
+- ⚠️ `1.2\course\alter_qu_missing_tables_add_deleted.sql` — 头部缺字段: author
+- ⚠️ `1.2\course\alter_qu_missing_tables_add_deleted.sql` — 头部缺字段: reviewer
+- ⚠️ `1.2\course\alter_qu_missing_tables_add_deleted.sql` — 头部缺字段: review_date
+- ⚠️ `1.2\course\alter_qu_missing_tables_add_deleted.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `1.2\course\diagnose_course_file_cat_id.sql` — 头部缺字段: purpose
+- ⚠️ `1.2\course\diagnose_course_file_cat_id.sql` — 头部缺字段: created_date
+- ⚠️ `1.2\course\diagnose_course_file_cat_id.sql` — 头部缺字段: author
+- ⚠️ `1.2\course\diagnose_course_file_cat_id.sql` — 头部缺字段: reviewer
+- ⚠️ `1.2\course\diagnose_course_file_cat_id.sql` — 头部缺字段: review_date
+- ⚠️ `1.2\course\diagnose_course_file_cat_id.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `1.2\course\diagnose_exam_tmpl_cat_id.sql` — 头部缺字段: purpose
+- ⚠️ `1.2\course\diagnose_exam_tmpl_cat_id.sql` — 头部缺字段: created_date
+- ⚠️ `1.2\course\diagnose_exam_tmpl_cat_id.sql` — 头部缺字段: author
+- ⚠️ `1.2\course\diagnose_exam_tmpl_cat_id.sql` — 头部缺字段: reviewer
+- ⚠️ `1.2\course\diagnose_exam_tmpl_cat_id.sql` — 头部缺字段: review_date
+- ⚠️ `1.2\course\diagnose_exam_tmpl_cat_id.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `1.2\course\upgrade_course_learn_plan_id.sql` — 头部缺字段: purpose
+- ⚠️ `1.2\course\upgrade_course_learn_plan_id.sql` — 头部缺字段: created_date
+- ⚠️ `1.2\course\upgrade_course_learn_plan_id.sql` — 头部缺字段: author
+- ⚠️ `1.2\course\upgrade_course_learn_plan_id.sql` — 头部缺字段: reviewer
+- ⚠️ `1.2\course\upgrade_course_learn_plan_id.sql` — 头部缺字段: review_date
+- ⚠️ `1.2\course\upgrade_course_learn_plan_id.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `1.2\course_qa\add_lecturer_id_to_course_qa.sql` — 头部缺字段: purpose
+- ⚠️ `1.2\course_qa\add_lecturer_id_to_course_qa.sql` — 头部缺字段: created_date
+- ⚠️ `1.2\course_qa\add_lecturer_id_to_course_qa.sql` — 头部缺字段: author
+- ⚠️ `1.2\course_qa\add_lecturer_id_to_course_qa.sql` — 头部缺字段: reviewer
+- ⚠️ `1.2\course_qa\add_lecturer_id_to_course_qa.sql` — 头部缺字段: review_date
+- ⚠️ `1.2\course_qa\add_lecturer_id_to_course_qa.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `1.2\course_qa\diagnose_duplicate_bailian_files.sql` — 头部缺字段: purpose
+- ⚠️ `1.2\course_qa\diagnose_duplicate_bailian_files.sql` — 头部缺字段: created_date
+- ⚠️ `1.2\course_qa\diagnose_duplicate_bailian_files.sql` — 头部缺字段: author
+- ⚠️ `1.2\course_qa\diagnose_duplicate_bailian_files.sql` — 头部缺字段: reviewer
+- ⚠️ `1.2\course_qa\diagnose_duplicate_bailian_files.sql` — 头部缺字段: review_date
+- ⚠️ `1.2\course_qa\diagnose_duplicate_bailian_files.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `1.2\depart\depart.sql` — 头部缺字段: purpose
+- ⚠️ `1.2\depart\depart.sql` — 头部缺字段: created_date
+- ⚠️ `1.2\depart\depart.sql` — 头部缺字段: author
+- ⚠️ `1.2\depart\depart.sql` — 头部缺字段: reviewer
+- ⚠️ `1.2\depart\depart.sql` — 头部缺字段: review_date
+- ⚠️ `1.2\depart\depart.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `1.2\lecturer\new_lecturer.sql` — 头部缺字段: purpose
+- ⚠️ `1.2\lecturer\new_lecturer.sql` — 头部缺字段: created_date
+- ⚠️ `1.2\lecturer\new_lecturer.sql` — 头部缺字段: author
+- ⚠️ `1.2\lecturer\new_lecturer.sql` — 头部缺字段: reviewer
+- ⚠️ `1.2\lecturer\new_lecturer.sql` — 头部缺字段: review_date
+- ⚠️ `1.2\lecturer\new_lecturer.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `1.2\sys\add_user_function_and_job_number.sql` — 头部缺字段: purpose
+- ⚠️ `1.2\sys\add_user_function_and_job_number.sql` — 头部缺字段: created_date
+- ⚠️ `1.2\sys\add_user_function_and_job_number.sql` — 头部缺字段: author
+- ⚠️ `1.2\sys\add_user_function_and_job_number.sql` — 头部缺字段: reviewer
+- ⚠️ `1.2\sys\add_user_function_and_job_number.sql` — 头部缺字段: review_date
+- ⚠️ `1.2\sys\add_user_function_and_job_number.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `1.2\sys\icon.sql` — 头部缺字段: purpose
+- ⚠️ `1.2\sys\icon.sql` — 头部缺字段: created_date
+- ⚠️ `1.2\sys\icon.sql` — 头部缺字段: author
+- ⚠️ `1.2\sys\icon.sql` — 头部缺字段: reviewer
+- ⚠️ `1.2\sys\icon.sql` — 头部缺字段: review_date
+- ⚠️ `1.2\sys\icon.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `1.2\training-plan\alter_el_training_plan_annual_collections_v2.sql` — 头部缺字段: purpose
+- ⚠️ `1.2\training-plan\alter_el_training_plan_annual_collections_v2.sql` — 头部缺字段: created_date
+- ⚠️ `1.2\training-plan\alter_el_training_plan_annual_collections_v2.sql` — 头部缺字段: author
+- ⚠️ `1.2\training-plan\alter_el_training_plan_annual_collections_v2.sql` — 头部缺字段: reviewer
+- ⚠️ `1.2\training-plan\alter_el_training_plan_annual_collections_v2.sql` — 头部缺字段: review_date
+- ⚠️ `1.2\training-plan\alter_el_training_plan_annual_collections_v2.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `1.2\training-plan\alter_el_training_record_add_plan_fields.sql` — 头部缺字段: purpose
+- ⚠️ `1.2\training-plan\alter_el_training_record_add_plan_fields.sql` — 头部缺字段: created_date
+- ⚠️ `1.2\training-plan\alter_el_training_record_add_plan_fields.sql` — 头部缺字段: author
+- ⚠️ `1.2\training-plan\alter_el_training_record_add_plan_fields.sql` — 头部缺字段: reviewer
+- ⚠️ `1.2\training-plan\alter_el_training_record_add_plan_fields.sql` — 头部缺字段: review_date
+- ⚠️ `1.2\training-plan\alter_el_training_record_add_plan_fields.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `1.2\training-plan\create_el_training_plan_annual_collections.sql` — 头部缺字段: purpose
+- ⚠️ `1.2\training-plan\create_el_training_plan_annual_collections.sql` — 头部缺字段: created_date
+- ⚠️ `1.2\training-plan\create_el_training_plan_annual_collections.sql` — 头部缺字段: author
+- ⚠️ `1.2\training-plan\create_el_training_plan_annual_collections.sql` — 头部缺字段: reviewer
+- ⚠️ `1.2\training-plan\create_el_training_plan_annual_collections.sql` — 头部缺字段: review_date
+- ⚠️ `1.2\training-plan\create_el_training_plan_annual_collections.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `1.2\training-plan\create_el_training_plan_collection_relations.sql` — 头部缺字段: purpose
+- ⚠️ `1.2\training-plan\create_el_training_plan_collection_relations.sql` — 头部缺字段: created_date
+- ⚠️ `1.2\training-plan\create_el_training_plan_collection_relations.sql` — 头部缺字段: author
+- ⚠️ `1.2\training-plan\create_el_training_plan_collection_relations.sql` — 头部缺字段: reviewer
+- ⚠️ `1.2\training-plan\create_el_training_plan_collection_relations.sql` — 头部缺字段: review_date
+- ⚠️ `1.2\training-plan\create_el_training_plan_collection_relations.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `1.2\training-plan\create_el_training_plan_course_relations.sql` — 头部缺字段: purpose
+- ⚠️ `1.2\training-plan\create_el_training_plan_course_relations.sql` — 头部缺字段: created_date
+- ⚠️ `1.2\training-plan\create_el_training_plan_course_relations.sql` — 头部缺字段: author
+- ⚠️ `1.2\training-plan\create_el_training_plan_course_relations.sql` — 头部缺字段: reviewer
+- ⚠️ `1.2\training-plan\create_el_training_plan_course_relations.sql` — 头部缺字段: review_date
+- ⚠️ `1.2\training-plan\create_el_training_plan_course_relations.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `1.2\training-plan\create_el_training_plan_courses.sql` — 头部缺字段: purpose
+- ⚠️ `1.2\training-plan\create_el_training_plan_courses.sql` — 头部缺字段: created_date
+- ⚠️ `1.2\training-plan\create_el_training_plan_courses.sql` — 头部缺字段: author
+- ⚠️ `1.2\training-plan\create_el_training_plan_courses.sql` — 头部缺字段: reviewer
+- ⚠️ `1.2\training-plan\create_el_training_plan_courses.sql` — 头部缺字段: review_date
+- ⚠️ `1.2\training-plan\create_el_training_plan_courses.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `1.2\training-plan\create_el_training_plans.sql` — 头部缺字段: purpose
+- ⚠️ `1.2\training-plan\create_el_training_plans.sql` — 头部缺字段: created_date
+- ⚠️ `1.2\training-plan\create_el_training_plans.sql` — 头部缺字段: author
+- ⚠️ `1.2\training-plan\create_el_training_plans.sql` — 头部缺字段: reviewer
+- ⚠️ `1.2\training-plan\create_el_training_plans.sql` — 头部缺字段: review_date
+- ⚠️ `1.2\training-plan\create_el_training_plans.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `1.2\upgrade_v1.2_all.sql` — 头部缺字段: purpose
+- ⚠️ `1.2\upgrade_v1.2_all.sql` — 头部缺字段: created_date
+- ⚠️ `1.2\upgrade_v1.2_all.sql` — 头部缺字段: author
+- ⚠️ `1.2\upgrade_v1.2_all.sql` — 头部缺字段: reviewer
+- ⚠️ `1.2\upgrade_v1.2_all.sql` — 头部缺字段: review_date
+- ⚠️ `1.2\upgrade_v1.2_all.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `1.3\update_course_file_learn_and_plan_node.sql` — 头部缺字段: purpose
+- ⚠️ `1.3\update_course_file_learn_and_plan_node.sql` — 头部缺字段: created_date
+- ⚠️ `1.3\update_course_file_learn_and_plan_node.sql` — 头部缺字段: author
+- ⚠️ `1.3\update_course_file_learn_and_plan_node.sql` — 头部缺字段: reviewer
+- ⚠️ `1.3\update_course_file_learn_and_plan_node.sql` — 头部缺字段: review_date
+- ⚠️ `1.3\update_course_file_learn_and_plan_node.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `1.3\updateTmplUpdate.sql` — 头部缺字段: purpose
+- ⚠️ `1.3\updateTmplUpdate.sql` — 头部缺字段: created_date
+- ⚠️ `1.3\updateTmplUpdate.sql` — 头部缺字段: author
+- ⚠️ `1.3\updateTmplUpdate.sql` — 头部缺字段: reviewer
+- ⚠️ `1.3\updateTmplUpdate.sql` — 头部缺字段: review_date
+- ⚠️ `1.3\updateTmplUpdate.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `1.4\fix_plan_user_node_migration.sql` — 头部缺字段: purpose
+- ⚠️ `1.4\fix_plan_user_node_migration.sql` — 头部缺字段: created_date
+- ⚠️ `1.4\fix_plan_user_node_migration.sql` — 头部缺字段: author
+- ⚠️ `1.4\fix_plan_user_node_migration.sql` — 头部缺字段: reviewer
+- ⚠️ `1.4\fix_plan_user_node_migration.sql` — 头部缺字段: review_date
+- ⚠️ `1.4\fix_plan_user_node_migration.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `1.5\plan\drop_plan_node_required_column.sql` — 头部缺字段: purpose
+- ⚠️ `1.5\plan\drop_plan_node_required_column.sql` — 头部缺字段: created_date
+- ⚠️ `1.5\plan\drop_plan_node_required_column.sql` — 头部缺字段: author
+- ⚠️ `1.5\plan\drop_plan_node_required_column.sql` — 头部缺字段: reviewer
+- ⚠️ `1.5\plan\drop_plan_node_required_column.sql` — 头部缺字段: review_date
+- ⚠️ `1.5\plan\drop_plan_node_required_column.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `1.5\plan\fix_plan_user_duplicate.sql` — 头部缺字段: purpose
+- ⚠️ `1.5\plan\fix_plan_user_duplicate.sql` — 头部缺字段: created_date
+- ⚠️ `1.5\plan\fix_plan_user_duplicate.sql` — 头部缺字段: author
+- ⚠️ `1.5\plan\fix_plan_user_duplicate.sql` — 头部缺字段: reviewer
+- ⚠️ `1.5\plan\fix_plan_user_duplicate.sql` — 头部缺字段: review_date
+- ⚠️ `1.5\plan\fix_plan_user_duplicate.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `1.5\sys\bailian_config_migration.sql` — 头部缺字段: purpose
+- ⚠️ `1.5\sys\bailian_config_migration.sql` — 头部缺字段: created_date
+- ⚠️ `1.5\sys\bailian_config_migration.sql` — 头部缺字段: author
+- ⚠️ `1.5\sys\bailian_config_migration.sql` — 头部缺字段: reviewer
+- ⚠️ `1.5\sys\bailian_config_migration.sql` — 头部缺字段: review_date
+- ⚠️ `1.5\sys\bailian_config_migration.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `1.5\train-sign-in\sql\training-sign-in.sql` — 头部缺字段: purpose
+- ⚠️ `1.5\train-sign-in\sql\training-sign-in.sql` — 头部缺字段: created_date
+- ⚠️ `1.5\train-sign-in\sql\training-sign-in.sql` — 头部缺字段: author
+- ⚠️ `1.5\train-sign-in\sql\training-sign-in.sql` — 头部缺字段: reviewer
+- ⚠️ `1.5\train-sign-in\sql\training-sign-in.sql` — 头部缺字段: review_date
+- ⚠️ `1.5\train-sign-in\sql\training-sign-in.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `mobile1.1\plan\plan_node_check_rules.sql` — 头部缺字段: purpose
+- ⚠️ `mobile1.1\plan\plan_node_check_rules.sql` — 头部缺字段: created_date
+- ⚠️ `mobile1.1\plan\plan_node_check_rules.sql` — 头部缺字段: author
+- ⚠️ `mobile1.1\plan\plan_node_check_rules.sql` — 头部缺字段: reviewer
+- ⚠️ `mobile1.1\plan\plan_node_check_rules.sql` — 头部缺字段: review_date
+- ⚠️ `mobile1.1\plan\plan_node_check_rules.sql` — 未审核（缺审核人/审核日期）
+- ⚠️ `mobile1.1\sys\fix-double-role-data-scope-snapshot.sql` — 头部缺字段: purpose
+- ⚠️ `mobile1.1\sys\fix-double-role-data-scope-snapshot.sql` — 头部缺字段: created_date
+- ⚠️ `mobile1.1\sys\fix-double-role-data-scope-snapshot.sql` — 头部缺字段: reviewer
+- ⚠️ `mobile1.1\sys\fix-double-role-data-scope-snapshot.sql` — 头部缺字段: review_date
+- ⚠️ `mobile1.1\sys\fix-double-role-data-scope-snapshot.sql` — 未审核（缺审核人/审核日期）
+
+## 统计
+
+- 总 SQL 文件数: 36
+- 错误数: 118
+- 警告数: 215

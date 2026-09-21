@@ -1,0 +1,45 @@
+{
+    "folders": [
+        {
+            "name": "rhProject (root)",
+            "path": "."
+        },
+        {
+            "name": "wk-train-center-service (Backend)",
+            "path": "Backend/wk-train-center-service"
+        },
+        {
+            "name": "mhc-ui (Angular)",
+            "path": "Frontend/angular/mhc-ui"
+        },
+        {
+            "name": "mhc-mobile (Vue3)",
+            "path": "Frontend/vue/mhc-mobile"
+        },
+        {
+            "name": "PPTist-ui (Vue3)",
+            "path": "Frontend/vue/PPTist-ui"
+        },
+        {
+            "name": "wk-train-center-ui (Vue)",
+            "path": "Frontend/vue/wk-train-center-ui"
+        },
+        {
+            "name": "wk-train-center-ui-v3 (Vue3)",
+            "path": "Frontend/vue/wk-train-center-ui-v3"
+        }
+    ],
+    "settings": {
+        "git.detectNestedSubmodules": true,
+        "git.openRepositoryInParentFolders": "always",
+        "git.autoRepositoryDetection": true,
+        "scm.alwaysShowRepositories": true
+    },
+    "extensions": {
+        "recommendations": [
+            "mhisl.git-workflow",
+            "eamodio.gitlens",
+            "marlon360.git-workspace"
+        ]
+    }
+}
