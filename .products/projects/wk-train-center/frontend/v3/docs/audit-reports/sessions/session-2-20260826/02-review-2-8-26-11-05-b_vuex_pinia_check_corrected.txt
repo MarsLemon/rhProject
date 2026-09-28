@@ -1,0 +1,101 @@
+# B-2 Vuex→Pinia 修正版审核
+
+**对话时间**: 2026-8-26 11:05
+**会话序号**: 2 第 2 轮交互
+**审核方**: Claude
+**审核对象**: 02-plan-2-8-26-11-00-b_vuex_pinia_check_corrected.txt
+
+---
+
+## 审核结论
+
+⚠️ **需修正 1 处 + 1 项优化**
+
+---
+
+## 详细审查
+
+### ✅ 接受部分
+
+1. **数量已实测** — 27 文件 / 44 actions / 7 stores(数量对)
+2. **工作量 1-1.5h 合理** — 砍半估算准确
+3. **4 步骤流程合理** — grep → store 检查 → 逐文件 → 清单
+4. **响应了第一轮 Review 反馈** — 主动接受改进建议
+
+### ❌ 必须修正
+
+**Plan 第 38 行 v3 Pinia store 列表全错**
+
+| 项 | Plan 声称 | 实测 |
+|---|---|---|
+| 数量 | 7 个 ✅ | 7 个 ✅ |
+| **名字** | user, course, exam, repo, plan, sys, ai ❌ | **ai, app, knowledge, permission, settings, tagsView, user** |
+
+**影响**: Step 2/3 按错误 store 名检查会全 miss。
+
+实测 v2/v3 store 对应关系:
+
+| v2 Vuex | v3 Pinia |
+|---|---|
+| `app.js` | `app.ts` |
+| `knowledge.js` | `knowledge.ts` |
+| `permission.js` | `permission.ts` |
+| `settings.js` | `settings.ts` |
+| `tagsView.js` | `tagsView.ts` |
+| `user.js` | `user.ts` |
+| (无) | `ai.ts` (v3 新增) |
+
+### 💡 优化建议
+
+**Step 3 时间估算偏乐观**
+
+27 文件 × 1.5 分钟 = 40.5 分钟,但实际每个文件要看:
+- v2 的 dispatch 调用上下文(created / mounted / method)
+- v3 对应 onMounted / function 内的 store 调用
+- 判定等价 vs 缺失
+
+**修正**: 27 文件 × 3 分钟 = **80 分钟**,加上意外(发现真缺失要补) ≈ **1.5-2 小时**
+
+**Step 1 加 grep 验证**
+
+```bash
+# 实测 v3 Pinia store action 列表
+for store in app knowledge permission settings tagsView user ai; do
+  echo "=== $store ==="
+  grep -E "^\s+(async\s+)?[a-zA-Z]+" wk-train-center-ui-v3/src/stores/modules/$store.ts | head -10
+done
+```
+
+预期产出: 7 个 store 的 action 列表,可与 44 个 Vuex actions 直接 diff。
+
+---
+
+## 证据材料
+
+实测 ls 命令(2026-8-26 11:05):
+
+```
+v3 Pinia stores/modules/:
+  ai.ts / app.ts / knowledge.ts / permission.ts / settings.ts / tagsView.ts / user.ts
+
+v2 Vuex modules/:
+  app.js / knowledge.js / permission.js / settings.js / tagsView.js / user.js
+```
+
+**v3 比 v2 多了 ai.ts**(AI 助理模块,v2 没有独立 Vuex module)。
+
+---
+
+## 后续行动
+
+1. **本次:plan 需修正 store 列表**(第 38 行)— 用实测名字替换
+2. **建议:在 Step 1 加 grep 7 个 store 的 action 列表**(能立刻看迁移率)
+3. **Step 3 时间改为 80 分钟**(避免低估)
+4. **审核方下一步**: 看完 Step 1 实际 grep 结果,确认 44 actions 中多少已迁
+
+---
+
+**提交时间**: 2026-8-26 11:05
+**审核耗时**: ~3 分钟
+**下次动作**: 实行方按修正 store 名 + grep 验证
+**责任人**: 实行方修 store 名 + 跑 grep,审核方跟进

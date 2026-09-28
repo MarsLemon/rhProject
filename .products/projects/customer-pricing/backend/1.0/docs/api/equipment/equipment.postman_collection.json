@@ -1,0 +1,724 @@
+{
+  "info": {
+    "_postman_id": "equipment-equipment-extended-2026-09-23",
+    "name": "设备字典接口（wk-customer-pricing）· 等价类扩展版",
+    "description": "设备字典 8 个接口的 Postman 集合 v2.1（**等价类扩展版**）。\n\n**与原版差异**：原版每个接口 1 条 happy path；本版每个写接口扩展为 6-10 条等价类用例（覆盖正向/负向/边界/异常），与 [Apifox-AI提示词模板.md](./Apifox-AI提示词模板.md)「模块 3 设备字典维护」配套，作为用户在 Apifox Web 中点「🤖 AI 生成用例」的参照模板。\n\n**使用说明**\n\n1. 先在集合 Variables 中按环境修改 `baseUrl`（默认 `http://localhost:8031`）和 `token`（裸 JWT，无 Bearer 前缀）；\n2. 鉴权已统一预置：集合级 Authorization 头直接携带裸 token（取变量 `{{token}}`），全部请求自动继承；\n3. 每条用例已内置测试脚本：断言 HTTP 200 + body.code 断言；\n4. 变量提取：写操作响应中提取的 id/code 通过 `pm.collectionVariables.set` 写入，后续链式用例通过 `{{equipmentId}}` / `{{equipmentCode}}` 等占位符引用；\n5. 建议顺序：1.新增 → 2-4.列表/详情 → 5-7.改/停/删 → 8-10.前台只读。\n\n**业务规则速记**：code 系统生成（父分类code.3位序号）不可传参；中文名同分类下精确唯一；停用只影响前台可见性；删除为逻辑删除（型号关联校验见型号模块 BR-EQ-05）；R-01 设备不参与定价；IN-EQ-02 父分类不存在拒绝；IN-EQ-03 父分类已停用拒绝；IN-EQ-04 状态仅 0/1；BR-EQ-10 同分类下 name 唯一。",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      { "key": "key", "value": "Authorization", "type": "string" },
+      { "key": "value", "value": "{{token}}", "type": "string" },
+      { "key": "in", "value": "header", "type": "string" }
+    ]
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8031" },
+    { "key": "token", "value": "" },
+    { "key": "categoryId", "value": "10" },
+    { "key": "categoryIdDisabled", "value": "99999" },
+    { "key": "equipmentId", "value": "" },
+    { "key": "equipmentCode", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. 新增设备 · 正向用例集",
+      "item": [
+        {
+          "name": "1.1 正向 · 新增典型（英文名）",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"categoryId\":{{categoryId}},\"name\":\"主机柴油机-正向\",\"nameEn\":\"Main Diesel Engine - Positive\"}"
+            },
+            "url": { "raw": "{{baseUrl}}/web/equipment/add", "host": ["{{baseUrl}}"], "path": ["web", "equipment", "add"] },
+            "description": "正向：categoryId 指向启用分类 + 中文名合法 + 英文名可选 → 期望 200 + code=00000000 + 返回新 id+code"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                "var body = pm.response.json();",
+                "pm.test(\"code=00000000 业务成功\", function () { pm.expect(body.code).to.eql('00000000'); });",
+                "pm.test(\"返回 id + code\", function () { pm.expect(body.data.id).to.exist; pm.expect(body.data.code).to.exist; });",
+                "pm.collectionVariables.set('equipmentId', body.data.id);",
+                "pm.collectionVariables.set('equipmentCode', body.data.code);"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "1.2 正向 · 新增仅中文名（无英文名）",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"categoryId\":{{categoryId}},\"name\":\"主机柴油机-纯中文\"}" },
+            "url": { "raw": "{{baseUrl}}/web/equipment/add", "host": ["{{baseUrl}}"], "path": ["web", "equipment", "add"] },
+            "description": "正向：nameEn 不传，nameEn 字段留空 → 期望成功"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                "var body = pm.response.json();",
+                "pm.test(\"code=00000000\", function () { pm.expect(body.code).to.eql('00000000'); });",
+                "pm.test(\"返回 id+code\", function () { pm.expect(body.data.id).to.exist; pm.expect(body.data.code).to.exist; });"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "1.3 边界 · 中文名 100 字符上限",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"categoryId\":{{categoryId}},\"name\":\"{{name100}}\"}" },
+            "url": { "raw": "{{baseUrl}}/web/equipment/add", "host": ["{{baseUrl}}"], "path": ["web", "equipment", "add"] },
+            "description": "边界：name 正好 100 字符（@Size max=100 上限） → 期望成功"
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.collectionVariables.set('name100', '测'.repeat(100));"]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"code=00000000 边界通过\", function () { pm.expect(body.code).to.eql('00000000'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2.1 异常 · categoryId 缺失",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"name\":\"无分类设备\"}" },
+            "url": { "raw": "{{baseUrl}}/web/equipment/add", "host": ["{{baseUrl}}"], "path": ["web", "equipment", "add"] },
+            "description": "异常：categoryId 字段缺失（@NotNull 校验） → 期望 200 + code 非零 + msg 提示"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"HTTP 200（业务层校验）\", function () { pm.response.to.have.status(200); });",
+                "var body = pm.response.json();",
+                "pm.test(\"code 非零（参数校验失败）\", function () { pm.expect(body.code).to.not.eql('00000000'); });",
+                "pm.test(\"msg 包含关键字\", function () { pm.expect(body.msg).to.match(/参数|categoryId|不能为空/); });"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "2.2 异常 · categoryId 不存在",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"categoryId\":999999999,\"name\":\"不存在的分类\"}" },
+            "url": { "raw": "{{baseUrl}}/web/equipment/add", "host": ["{{baseUrl}}"], "path": ["web", "equipment", "add"] },
+            "description": "异常：categoryId 指向不存在 id → 期望 803120302 (EQUIPMENT_CATEGORY_NOT_EXIST)"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                "var body = pm.response.json();",
+                "pm.test(\"code = 803120302 父分类不存在\", function () { pm.expect(body.code).to.eql('803120302'); });"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "2.3 异常 · 父分类已停用 → 803120303",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"categoryId\":{{categoryIdDisabled}},\"name\":\"停用分类下的设备\"}" },
+            "url": { "raw": "{{baseUrl}}/web/equipment/add", "host": ["{{baseUrl}}"], "path": ["web", "equipment", "add"] },
+            "description": "异常：父分类 status=0 → 期望 803120303 (EQUIPMENT_CATEGORY_DISABLED)"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                "var body = pm.response.json();",
+                "pm.test(\"code = 803120303 父分类已停用\", function () { pm.expect(body.code).to.eql('803120303'); });"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "2.4 异常 · name 缺失（@NotBlank）",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"categoryId\":{{categoryId}},\"name\":\"\"}" },
+            "url": { "raw": "{{baseUrl}}/web/equipment/add", "host": ["{{baseUrl}}"], "path": ["web", "equipment", "add"] },
+            "description": "异常：name 空字符串（@NotBlank 校验） → 期望 code 非零"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                "var body = pm.response.json();",
+                "pm.test(\"code 非零（参数校验失败）\", function () { pm.expect(body.code).to.not.eql('00000000'); });"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "2.5 异常 · name 超 100 字符",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"categoryId\":{{categoryId}},\"name\":\"{{name101}}\"}" },
+            "url": { "raw": "{{baseUrl}}/web/equipment/add", "host": ["{{baseUrl}}"], "path": ["web", "equipment", "add"] },
+            "description": "异常：name 101 字符超 @Size max=100 → 期望 code 非零"
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.collectionVariables.set('name101', '测'.repeat(101));"]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "var body = pm.response.json();",
+                  "pm.test(\"code 非零（参数校验失败）\", function () { pm.expect(body.code).to.not.eql('00000000'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2.6 异常 · 同分类下 name 重复 → 803120306",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"categoryId\":{{categoryId}},\"name\":\"主机柴油机\"}" },
+            "url": { "raw": "{{baseUrl}}/web/equipment/add", "host": ["{{baseUrl}}"], "path": ["web", "equipment", "add"] },
+            "description": "异常：name 已存在（BR-EQ-10 同分类下精确唯一） → 期望 803120306 (EQUIPMENT_NAME_ALREADY_EXIST)"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                "var body = pm.response.json();",
+                "pm.test(\"code = 803120306 同分类下名称已存在\", function () { pm.expect(body.code).to.eql('803120306'); });"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "2.7 异常 · name 含特殊字符（SQL 注入样本）",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"categoryId\":{{categoryId}},\"name\":\"'; DROP TABLE wk_equipment;--\"}" },
+            "url": { "raw": "{{baseUrl}}/web/equipment/add", "host": ["{{baseUrl}}"], "path": ["web", "equipment", "add"] },
+            "description": "安全：name 含 SQL 注入尝试 → MyBatis-Plus 参数化查询应安全入库，期望 803120307 (EQUIPMENT_NAME_ILLEGAL) 或成功（依 IN-EQ-05 严格度）"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                "var body = pm.response.json();",
+                "pm.test(\"code 在允许集合内（参数化查询防注入）\", function () { pm.expect(['00000000','803120307']).to.include(body.code); });"
+              ]
+            }
+          }]
+        }
+      ]
+    },
+    {
+      "name": "3. 设备列表 · 三视图用例集",
+      "item": [
+        {
+          "name": "3.1 正向 · 扁平列表（无过滤）",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/web/equipment/list?keyword=&categoryId=", "host": ["{{baseUrl}}"], "path": ["web", "equipment", "list"], "query": [
+              { "key": "keyword", "value": "" },
+              { "key": "categoryId", "value": "" }
+            ]},
+            "description": "正向：keyword/categoryId 留空 → 返所有设备（含停用）扁平数组，按 code 升序"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                "var body = pm.response.json();",
+                "pm.test(\"code=00000000\", function () { pm.expect(body.code).to.eql('00000000'); });",
+                "pm.test(\"返回数组\", function () { pm.expect(Array.isArray(body.data)).to.eql(true); });"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "3.2 正向 · 按分类过滤",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/web/equipment/list?categoryId={{categoryId}}", "host": ["{{baseUrl}}"], "path": ["web", "equipment", "list"], "query": [
+              { "key": "categoryId", "value": "{{categoryId}}" }
+            ]},
+            "description": "正向：按 categoryId 过滤 → 仅返回该分类下设备"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                "var body = pm.response.json();",
+                "pm.test(\"code=00000000\", function () { pm.expect(body.code).to.eql('00000000'); });",
+                "pm.test(\"返回数组（仅分类 10）\", function () { pm.expect(Array.isArray(body.data)).to.eql(true); body.data.forEach(function (e) { pm.expect(e.categoryId).to.eql(10); }); });"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "3.3 正向 · 关键词模糊匹配（name）",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/web/equipment/list?keyword=柴油机", "host": ["{{baseUrl}}"], "path": ["web", "equipment", "list"], "query": [
+              { "key": "keyword", "value": "柴油机" }
+            ]},
+            "description": "正向：keyword=柴油机 → 匹配 code/name/nameEn（不区分大小写）"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                "var body = pm.response.json();",
+                "pm.test(\"code=00000000\", function () { pm.expect(body.code).to.eql('00000000'); });"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "3.4 正向 · groupBy=category 嵌套树",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/web/equipment/list?groupBy=category", "host": ["{{baseUrl}}"], "path": ["web", "equipment", "list"], "query": [
+              { "key": "groupBy", "value": "category" }
+            ]},
+            "description": "正向：groupBy=category → 返回 EquipmentTreeNodeVo[] 嵌套结构"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                "var body = pm.response.json();",
+                "pm.test(\"code=00000000\", function () { pm.expect(body.code).to.eql('00000000'); });",
+                "pm.test(\"返回数组（嵌套聚合）\", function () { pm.expect(Array.isArray(body.data)).to.eql(true); });"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "3.5 边界 · categoryId 越界（不存在）",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/web/equipment/list?categoryId=999999", "host": ["{{baseUrl}}"], "path": ["web", "equipment", "list"], "query": [
+              { "key": "categoryId", "value": "999999" }
+            ]},
+            "description": "边界：categoryId 越界 → 返空数组（不报错，记忆内存过滤）"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                "var body = pm.response.json();",
+                "pm.test(\"code=00000000\", function () { pm.expect(body.code).to.eql('00000000'); });",
+                "pm.test(\"返回空数组\", function () { pm.expect(body.data.length).to.eql(0); });"
+              ]
+            }
+          }]
+        }
+      ]
+    },
+    {
+      "name": "4. 设备详情 · 用例集",
+      "item": [
+        {
+          "name": "4.1 正向 · id=变量引用",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/web/equipment/detail/{{equipmentId}}", "host": ["{{baseUrl}}"], "path": ["web", "equipment", "detail", "{{equipmentId}}"] },
+            "description": "正向：用 1.1 提取的 equipmentId → 返完整详情"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                "var body = pm.response.json();",
+                "pm.test(\"code=00000000\", function () { pm.expect(body.code).to.eql('00000000'); });",
+                "pm.test(\"返回 id+code\", function () { pm.expect(body.data.id).to.exist; pm.expect(body.data.code).to.exist; });"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "4.2 异常 · id 不存在 → 803120305",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/web/equipment/detail/999999999", "host": ["{{baseUrl}}"], "path": ["web", "equipment", "detail", "999999999"] },
+            "description": "异常：id 指向不存在 → 期望 803120305 (EQUIPMENT_NOT_EXIST)"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                "var body = pm.response.json();",
+                "pm.test(\"code = 803120305\", function () { pm.expect(body.code).to.eql('803120305'); });"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "4.3 异常 · id 负数（非数字）",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/web/equipment/detail/-1", "host": ["{{baseUrl}}"], "path": ["web", "equipment", "detail", "-1"] },
+            "description": "异常：id=-1 → 期望 803120305 或参数非法"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                "var body = pm.response.json();",
+                "pm.test(\"code 非零\", function () { pm.expect(body.code).to.not.eql('00000000'); });"
+              ]
+            }
+          }]
+        }
+      ]
+    },
+    {
+      "name": "5. 重命名 · 用例集",
+      "item": [
+        {
+          "name": "5.1 正向 · 改名（同时改中英文）",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"id\":{{equipmentId}},\"name\":\"主机柴油机-改名\",\"nameEn\":\"Main Diesel Engine - Renamed\"}" },
+            "url": { "raw": "{{baseUrl}}/web/equipment/rename", "host": ["{{baseUrl}}"], "path": ["web", "equipment", "rename"] },
+            "description": "正向：同时改中英文名 → 期望成功"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                "var body = pm.response.json();",
+                "pm.test(\"code=00000000\", function () { pm.expect(body.code).to.eql('00000000'); });"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "5.2 正向 · nameEn 传空清空",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"id\":{{equipmentId}},\"name\":\"主机柴油机-清英文名\",\"nameEn\":\"\"}" },
+            "url": { "raw": "{{baseUrl}}/web/equipment/rename", "host": ["{{baseUrl}}"], "path": ["web", "equipment", "rename"] },
+            "description": "正向：nameEn 传空字符串清空 → 期望成功"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                "var body = pm.response.json();",
+                "pm.test(\"code=00000000\", function () { pm.expect(body.code).to.eql('00000000'); });"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "5.3 异常 · id 缺失",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"name\":\"无 id 改名\"}" },
+            "url": { "raw": "{{baseUrl}}/web/equipment/rename", "host": ["{{baseUrl}}"], "path": ["web", "equipment", "rename"] },
+            "description": "异常：id 字段缺失 → 期望 code 非零"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                "var body = pm.response.json();",
+                "pm.test(\"code 非零\", function () { pm.expect(body.code).to.not.eql('00000000'); });"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "5.4 异常 · 改名后同名冲突 → 803120306",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"id\":{{equipmentId}},\"name\":\"主机柴油机\"}" },
+            "url": { "raw": "{{baseUrl}}/web/equipment/rename", "host": ["{{baseUrl}}"], "path": ["web", "equipment", "rename"] },
+            "description": "异常：改名后与同分类下其他设备同名 → 期望 803120306"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                "var body = pm.response.json();",
+                "pm.test(\"code = 803120306\", function () { pm.expect(body.code).to.eql('803120306'); });"
+              ]
+            }
+          }]
+        }
+      ]
+    },
+    {
+      "name": "6. 启停 · 用例集",
+      "item": [
+        {
+          "name": "6.1 正向 · 停用（status=0）",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"id\":{{equipmentId}},\"status\":0}" },
+            "url": { "raw": "{{baseUrl}}/web/equipment/change-status", "host": ["{{baseUrl}}"], "path": ["web", "equipment", "change-status"] },
+            "description": "正向：停用 status=0 → 期望成功，前台接口后续不可见"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                "var body = pm.response.json();",
+                "pm.test(\"code=00000000\", function () { pm.expect(body.code).to.eql('00000000'); });"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "6.2 正向 · 启用（status=1）",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"id\":{{equipmentId}},\"status\":1}" },
+            "url": { "raw": "{{baseUrl}}/web/equipment/change-status", "host": ["{{baseUrl}}"], "path": ["web", "equipment", "change-status"] },
+            "description": "正向：启用 status=1 → 期望成功"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                "var body = pm.response.json();",
+                "pm.test(\"code=00000000\", function () { pm.expect(body.code).to.eql('00000000'); });"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "6.3 异常 · status=2 非法 → 803120304",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"id\":{{equipmentId}},\"status\":2}" },
+            "url": { "raw": "{{baseUrl}}/web/equipment/change-status", "host": ["{{baseUrl}}"], "path": ["web", "equipment", "change-status"] },
+            "description": "异常：status=2 非 0/1 → 期望 803120304 (EQUIPMENT_STATUS_ILLEGAL)"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                "var body = pm.response.json();",
+                "pm.test(\"code = 803120304\", function () { pm.expect(body.code).to.eql('803120304'); });"
+              ]
+            }
+          }]
+        }
+      ]
+    },
+    {
+      "name": "7. 删除 · 用例集",
+      "item": [
+        {
+          "name": "7.1 异常 · 被型号引用 → 803120308",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/web/equipment/delete/{{equipmentId}}", "host": ["{{baseUrl}}"], "path": ["web", "equipment", "delete", "{{equipmentId}}"] },
+            "description": "异常：若本设备被任一型号关联 → 期望 803120308 (EQUIPMENT_REFERENCED_BY_MODEL)。如未关联则期望成功（取决于测试数据）。"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                "var body = pm.response.json();",
+                "pm.test(\"code 是 803120308 或 00000000\", function () { pm.expect(['803120308','00000000']).to.include(body.code); });"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "7.2 异常 · id 不存在 → 803120305",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/web/equipment/delete/999999999", "host": ["{{baseUrl}}"], "path": ["web", "equipment", "delete", "999999999"] },
+            "description": "异常：id 指向不存在 → 期望 803120305"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                "var body = pm.response.json();",
+                "pm.test(\"code = 803120305\", function () { pm.expect(body.code).to.eql('803120305'); });"
+              ]
+            }
+          }]
+        }
+      ]
+    },
+    {
+      "name": "8. 前台 · 用例集",
+      "item": [
+        {
+          "name": "8.1 正向 · by-category 启用设备",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/web/portal/equipment/by-category/{{categoryId}}", "host": ["{{baseUrl}}"], "path": ["web", "portal", "equipment", "by-category", "{{categoryId}}"] },
+            "description": "正向：型号维护下拉 + 询价页下拉 → 仅启用设备"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                "var body = pm.response.json();",
+                "pm.test(\"code=00000000\", function () { pm.expect(body.code).to.eql('00000000'); });",
+                "pm.test(\"返回数组\", function () { pm.expect(Array.isArray(body.data)).to.eql(true); });",
+                "pm.test(\"所有项 status=1\", function () { body.data.forEach(function (e) { pm.expect(e.status).to.eql(1); }); });"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "8.2 正向 · nav-tree 设备叶子",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/web/portal/equipment/nav-tree", "host": ["{{baseUrl}}"], "path": ["web", "portal", "equipment", "nav-tree"] },
+            "description": "正向：询价嵌入页设备叶子（仅启用，按分类聚合）"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                "var body = pm.response.json();",
+                "pm.test(\"code=00000000\", function () { pm.expect(body.code).to.eql('00000000'); });",
+                "pm.test(\"返回嵌套树数组\", function () { pm.expect(Array.isArray(body.data)).to.eql(true); });"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "8.3 边界 · by-category 不存在分类",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/web/portal/equipment/by-category/99999", "host": ["{{baseUrl}}"], "path": ["web", "portal", "equipment", "by-category", "99999"] },
+            "description": "边界：categoryId 不存在 → 返空数组不报错"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                "var body = pm.response.json();",
+                "pm.test(\"code=00000000\", function () { pm.expect(body.code).to.eql('00000000'); });",
+                "pm.test(\"返回空数组\", function () { pm.expect(body.data.length).to.eql(0); });"
+              ]
+            }
+          }]
+        }
+      ]
+    }
+  ]
+}

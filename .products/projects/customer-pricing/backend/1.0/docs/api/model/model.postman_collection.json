@@ -1,0 +1,303 @@
+{
+  "info": {
+    "_postman_id": "model-2026-09-21",
+    "name": "型号字典接口（wk-customer-pricing）",
+    "description": "型号字典 11 个接口的 Postman 集合，与《docs/api/model/型号接口对接文档.md》同步维护。\n\n**使用说明**\n\n1. 先在集合 Variables 中按环境修改 `baseUrl`（默认 `http://localhost:8031`）；\n2. 鉴权已统一预置：集合级 Authorization 头直接携带裸 token（无 Bearer 前缀），取变量 `{{token}}`，全部请求自动继承；token 过期时替换 `token` 即可；\n3. 每个请求已内置测试脚本：断言 HTTP 200 且 `code=00000000`；\n4. 建议顺序：\n   - 后台：新增 → 列表（扁平） → 列表（groupBy=equipment） → 详情 → 重命名 → 切换设备 → 更新关联 → 停用/启用 → 删除；\n   - 前台：by-equipment → list-enabled → by-equipment-and-vendor。\n\n业务规则速记：code = MOD+4 位系统生成不可传参；中文名同设备下精确唯一；缸数 1~20 整数；默认厂家 ∈ 关联集合；至少一个关联厂家；R-01 型号不参与定价。",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      { "key": "key", "value": "Authorization", "type": "string" },
+      { "key": "value", "value": "{{token}}", "type": "string" },
+      { "key": "in", "value": "header", "type": "string" }
+    ]
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8031" },
+    { "key": "token", "value": "" },
+    { "key": "equipmentId", "value": "" },
+    { "key": "manufacturerId", "value": "" },
+    { "key": "modelId", "value": "" },
+    { "key": "modelCode", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. 新增型号",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"equipmentId\":10,\"defaultManufacturerId\":1,\"name\":\"6S60MC-C\",\"nameEn\":\"Main Engine\",\"mark\":\"C9.7\",\"cylinderCount\":6,\"powerKw\":12000.50,\"boreMm\":460,\"manufacturerLinks\":[{\"manufacturerId\":1,\"isLicense\":0,\"sortOrder\":50},{\"manufacturerId\":2,\"isLicense\":1,\"sortOrder\":99}]}"
+        },
+        "url": { "raw": "{{baseUrl}}/web/model/add", "host": ["{{baseUrl}}"], "path": ["web", "model", "add"] },
+        "description": "新增型号；equipmentId 必填且校验存在/启用；code 系统生成返回 MOD+4 位；manufacturerLinks ≥1；defaultManufacturerId ∈ links"
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+            "var body = pm.response.json();",
+            "pm.test(\"code=00000000\", function () { pm.expect(body.code).to.eql('00000000'); });",
+            "pm.test(\"返回 id + code\", function () { pm.expect(body.data.id).to.exist; pm.expect(body.data.code).to.exist; });",
+            "pm.collectionVariables.set('modelId', body.data.id);",
+            "pm.collectionVariables.set('modelCode', body.data.code);"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "2. 型号列表（扁平）",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/web/model/list?keyword=&equipmentId=", "host": ["{{baseUrl}}"], "path": ["web", "model", "list"], "query": [
+          { "key": "keyword", "value": "" },
+          { "key": "equipmentId", "value": "" }
+        ]},
+        "description": "后台维护视图扁平数组；按 code 升序；含停用项（前端置灰）"
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+            "var body = pm.response.json();",
+            "pm.test(\"code=00000000\", function () { pm.expect(body.code).to.eql('00000000'); });",
+            "pm.test(\"data 是数组\", function () { pm.expect(Array.isArray(body.data)).to.be.true; });"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "3. 型号列表（groupBy=equipment 嵌套）",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/web/model/list?keyword=&equipmentId=&groupBy=equipment", "host": ["{{baseUrl}}"], "path": ["web", "model", "list"], "query": [
+          { "key": "keyword", "value": "" },
+          { "key": "equipmentId", "value": "" },
+          { "key": "groupBy", "value": "equipment" }
+        ]},
+        "description": "后台维护视图嵌套结构；每项含 equipment:{id,code,name} + models:[]"
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+            "var body = pm.response.json();",
+            "pm.test(\"code=00000000\", function () { pm.expect(body.code).to.eql('00000000'); });",
+            "pm.test(\"data 是嵌套数组\", function () { pm.expect(Array.isArray(body.data)).to.be.true; });"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "4. 型号详情",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/web/model/detail/{{modelId}}", "host": ["{{baseUrl}}"], "path": ["web", "model", "detail", "{{modelId}}"] },
+        "description": "维护表单回显；含 manufacturerLinks 关联集合"
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+            "var body = pm.response.json();",
+            "pm.test(\"code=00000000\", function () { pm.expect(body.code).to.eql('00000000'); });",
+            "pm.test(\"manufacturerLinks 是数组\", function () { pm.expect(Array.isArray(body.data.manufacturerLinks)).to.be.true; });"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "5. 重命名/改规格",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"id\":{{modelId}},\"name\":\"6S60MC-C-MarkII\",\"nameEn\":\"Main Engine Mark II\",\"cylinderCount\":6,\"mark\":\"C9.8\",\"powerKw\":13500.00,\"boreMm\":460}"
+        },
+        "url": { "raw": "{{baseUrl}}/web/model/rename", "host": ["{{baseUrl}}"], "path": ["web", "model", "rename"] },
+        "description": "更新中英文名+规格字段；code 与 equipmentId 不可改"
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+            "var body = pm.response.json();",
+            "pm.test(\"code=00000000\", function () { pm.expect(body.code).to.eql('00000000'); });"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "6. 切换归属设备",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"id\":{{modelId}},\"equipmentId\":20}"
+        },
+        "url": { "raw": "{{baseUrl}}/web/model/change-equipment", "host": ["{{baseUrl}}"], "path": ["web", "model", "change-equipment"] },
+        "description": "切换所属设备；默认厂家若不在新设备下关联集合则自动重置"
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+            "var body = pm.response.json();",
+            "pm.test(\"code=00000000\", function () { pm.expect(body.code).to.eql('00000000'); });",
+            "pm.test(\"defaultManufacturerId 已返回\", function () { pm.expect(body.data).to.have.property('defaultManufacturerId'); });"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "7. 增量更新厂家关联",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"id\":{{modelId}},\"defaultManufacturerId\":2,\"manufacturerLinks\":[{\"manufacturerId\":1,\"isLicense\":0,\"sortOrder\":50},{\"manufacturerId\":2,\"isLicense\":1,\"sortOrder\":10},{\"manufacturerId\":4,\"isLicense\":0,\"sortOrder\":99}]}"
+        },
+        "url": { "raw": "{{baseUrl}}/web/model/manufacturers", "host": ["{{baseUrl}}"], "path": ["web", "model", "manufacturers"] },
+        "description": "完整列表入参；后端 diff 增删改；默认厂家变化时同步更新字段"
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+            "var body = pm.response.json();",
+            "pm.test(\"code=00000000\", function () { pm.expect(body.code).to.eql('00000000'); });"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "8. 启用/停用",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"id\":{{modelId}},\"status\":0}"
+        },
+        "url": { "raw": "{{baseUrl}}/web/model/change-status", "host": ["{{baseUrl}}"], "path": ["web", "model", "change-status"] },
+        "description": "status=0 停用，1 启用；停用后前台 by-equipment/list-enabled 不可见"
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+            "var body = pm.response.json();",
+            "pm.test(\"code=00000000\", function () { pm.expect(body.code).to.eql('00000000'); });"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "9. 删除型号",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/web/model/delete/{{modelId}}", "host": ["{{baseUrl}}"], "path": ["web", "model", "delete", "{{modelId}}"] },
+        "description": "逻辑删除 state=3；本期不校验被 labor_standard_model 关联（待工时计价模块）"
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+            "var body = pm.response.json();",
+            "pm.test(\"code=00000000\", function () { pm.expect(body.code).to.eql('00000000'); });"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "10. 前台-按设备启用型号",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/web/portal/model/by-equipment/{{equipmentId}}", "host": ["{{baseUrl}}"], "path": ["web", "portal", "model", "by-equipment", "{{equipmentId}}"] },
+        "description": "询价页型号下拉；父设备/父分类停用时返空集（IN-MOD-13 / BR-MOD-11）"
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+            "var body = pm.response.json();",
+            "pm.test(\"code=00000000\", function () { pm.expect(body.code).to.eql('00000000'); });"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "11. 前台-全量启用型号",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/web/portal/model/list-enabled", "host": ["{{baseUrl}}"], "path": ["web", "portal", "model", "list-enabled"] },
+        "description": "型号与厂家联动供询价页 R-04"
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+            "var body = pm.response.json();",
+            "pm.test(\"code=00000000\", function () { pm.expect(body.code).to.eql('00000000'); });"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "12. 前台-按设备+厂家启用型号",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/web/portal/model/by-equipment-and-vendor?equipmentId={{equipmentId}}&manufacturerId={{manufacturerId}}", "host": ["{{baseUrl}}"], "path": ["web", "portal", "model", "by-equipment-and-vendor"], "query": [
+          { "key": "equipmentId", "value": "{{equipmentId}}" },
+          { "key": "manufacturerId", "value": "{{manufacturerId}}" }
+        ]},
+        "description": "选厂家后联动型号 R-03/R-04；该设备下关联当前厂家的启用型号"
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+            "var body = pm.response.json();",
+            "pm.test(\"code=00000000\", function () { pm.expect(body.code).to.eql('00000000'); });"
+          ]
+        }
+      }]
+    }
+  ]
+}

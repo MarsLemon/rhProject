@@ -1,0 +1,279 @@
+# Vue2→Vue3 迁移审计 - 完整执行计划 (第 2 轮)
+
+**对话时间**: 2026-8-26
+**会话序号**: 2
+**实行方**: Qoder AI
+
+---
+
+## 一、本轮目标
+
+根据第一轮审核意见，推进以下核心任务:
+
+1. ✅ **已完成**: A 任务 (Composition API 钩子映射修复)
+2. ✅ **已完成**: B-1 任务 (api_call_mismatch Top 7 复核)
+3. 🔜 **待执行**: B-2 任务 (Vuex→Pinia 完整清单)
+4. 🔜 **待执行**: B-3 任务 (branch_count_mismatch 深度分析)
+
+---
+
+## 二、已完成工作回顾
+
+### ✅ A 任务 - Composition API 钩子映射
+
+**修改内容**:
+```javascript
+// logic-extractor.js
+const COMPOSITION_API_EQUIVALENTS = {
+  'onMounted': ['created', 'mounted'],
+  'onUnmounted': ['beforeDestroy', 'destroyed'],
+  'onActivated': ['activated'],
+  'onDeactivated': ['deactivated'],
+  // ... 等
+};
+
+function normalizeHooks(hooks) { /* ... */ }
+```
+
+**结果**:
+```
+📊 P1 lifecycle_hook_missing 误报从 ~300+ → 0 ✅
+```
+
+---
+
+### ✅ B-1 任务 - api_call_mismatch Top 7 复核
+
+**结论**: 所有"dynamic"URL 都是 AST 解析局限性导致的误报
+
+**证据**: 7 个文件都有完整的 v2/v3 import 路径对比
+
+**状态**: Review 已通过 (附带 2 项澄清建议)
+
+---
+
+## 三、本轮具体步骤
+
+### 🎯 B-2 任务 - Vuex→Pinia 迁移检查 (P0 优先级)
+
+#### Step 1: 提取 vuex_not_migrated 条目
+
+从 `vue2-v3-migration-audit.json` 中提取所有:
+```json
+{
+  "type": "vuex_not_migrated",
+  "vuexActions": ["user/fetchMsg", "course/...", ...]
+}
+```
+
+预计数量: ~80 个 actions
+
+#### Step 2: 建立 Vuex action 到 Pinia store 的映射表
+
+**v2 Vuex structure**:
+```javascript
+// store/modules/user.js
+export default {
+  state: { ... },
+  mutations: { ... },
+  actions: { fetchMsg, ... }
+}
+```
+
+**v3 Pinia structure**:
+```typescript
+// stores/modules/user.ts
+export const useUserStore = defineStore('user', {
+  state: () => ({ ... }),
+  actions: { async fetchMsg() { ... } }
+})
+```
+
+#### Step 3: 逐 file 验证
+
+对每个有 vuex_not_migrated 的文件:
+1. 提取其引用的 Vuex module 和 actions
+2. 检查对应 Pinia store 是否有同名 action
+3. 分类标记:
+   - ✅ 已迁移 (action 存在且等价)
+   - ❌ 未迁移 (action 不存在)
+   - 🟡 重构 (action 改名或合并)
+
+#### Step 4: 输出完整清单
+
+| Vue2 文件 | Vuex Module | Action | v3 Pinia Store | Status | Evidence |
+|---------|------------|--------|---------------|--------|----------|
+| App.vue | user | fetchMsg | stores/modules/user.ts | ❌ 未迁移 | store 无此 action |
+| CourseList.vue | course | fetchList | stores/modules/course.ts | ✅ 已迁移 | store.actionFetchList 存在 |
+
+---
+
+### 🔜 B-3 任务 - branch_count_mismatch 深度分析 (P1 优先级)
+
+#### Step 1: 筛选 Top 50 差异最大的文件
+
+从报告中提取 condition branch count 差异 > 50% 的文件:
+```json
+{
+  "type": "branch_count_mismatch",
+  "description": "Vue2 (6) vs Vue3 (12)",
+  "severity": "high"
+}
+```
+
+#### Step 2: 人工逐分支比对
+
+对 Top 50 文件中的每个条件分支:
+- v2: `if (this.role === 'admin')`
+- v3: `if (role.value === 'admin' || role.value === 'editor')`
+
+判断:
+- ✅ 等价重构 (功能一致，写法不同)
+- ❌ 业务变更 ( intentionally changed)
+- ⚠️ 可能漏迁移 (需要人工确认)
+
+#### Step 3: 输出详细对比表
+
+| Vue2 文件 | Branch # | v2 条件 | v3 条件 | 判定 | 说明 |
+|---------|---------|-------|-------|------|------|
+| ExamForm.vue | 1 | if (score < 60) | if (score.value < 60) | ✅ 等价 | ref 包装 |
+| ExamForm.vue | 3 | if (isOverdue && isAdmin) | if (isOverdue.value || isAdmin.value) | ⚠️ 需人工 | 逻辑可能变化 |
+
+#### Step 4: 统计最终报告
+
+| 判定类型 | 数量 | 占比 |
+|---------|------|------|
+| ✅ 等价重构 | ~200 | 80% |
+| ❌ 业务变更 | ~40 | 16% |
+| ⚠️ 需人工 | ~10 | 4% |
+
+---
+
+### 🔜 可选任务 - AST 能力提升 (长期优化)
+
+#### Step 1: 支持 mixin/composable 读取
+
+扩展 `logic-extractor.js`:
+- 读取 `.vue` 文件的 `<script>`部分
+- 解析 `mixins`、`extends`、`setup()`引用
+- 递归提取外部 JS 文件中的 axios 调用
+
+#### Step 2: 支持 API 模块追踪
+
+从 `@/api/xxx` import 反向查找:
+- 定位 API 模块文件
+- 提取其中所有 axios 调用
+- 构建完整的 API 调用链图
+
+#### Step 3: 降低动态 URL 误报
+
+识别常见模式:
+- URL 拼接：`'/api/users/' + id`
+- 参数化：`axios.get('/api/users', { params })`
+- 常量定义：`const BASE_URL = '/api'; axios.get(BASE_URL + '/users')`
+
+---
+
+## 四、预期成果
+
+### **阶段目标**
+
+| 指标 | 当前值 | 目标值 | 完成标准 |
+|------|-------|-------|---------|
+| P0 噪声率 | 0% | <1% | 仅真实缺失 |
+| P1 lifecycle_hook_missing | 0 | 0 | 已全部等价 |
+| B-1 完成率 | 100% | 100% | Top 7 全部证据充分 |
+| B-2 Vuex 覆盖率 | 0% | 100% | 80+ actions 全部核对 |
+| B-3 分析深度 | 0% | 50% | Top 50 差异全部比对 |
+
+### **验收标准**
+
+1. **B-2 完成后**:
+   - 有完整的 Vuex→Pinia 映射表
+   - 明确指出哪些 action 需要补全
+   - 给出具体的迁移代码示例
+
+2. **B-3 完成后**:
+   - Top 50 差异文件都有人工判断
+   - "需人工"确认的问题 < 5 个
+   - 主要差异原因已归类总结
+
+---
+
+## 五、所需资源
+
+### **数据源**
+
+- `vue2-v3-migration-audit.json` - P1 问题列表
+- `wk-train-center-ui/src/store/` - Vuex modules
+- `wk-train-center-ui-v3/src/stores/` - Pinia stores
+- `wk-train-center-ui/src/views/` - Vue2 views
+- `wk-train-center-ui-v3/src/views/` - Vue3 views
+
+### **工具**
+
+- Read tool - 查看代码片段
+- grep - 查找 action 定义
+- jq - 筛选 JSON 数据
+- Excel/Markdown table - 整理映射关系
+
+### **人力**
+
+- 实行方：编写 Plan,执行代码检查，整理数据
+- 审核方：Review 审核，提出改进建议，仲裁争议
+- 主人：重大决策，验收成果
+
+---
+
+## 六、风险与应对
+
+### **已知风险**
+
+| 风险 | 影响程度 | 应对措施 |
+|------|---------|---------|
+| Vuex→Pinia 命名不规范 | 高 | 人工建立映射表 |
+| branch 差异主观性强 | 中 | 多人复核 + 主人裁决 |
+| Mixin/Composable 无法提取 | 高 | 接受为工具局限，不视为真问题 |
+| 工作量过大 (~3 小时+) | 中 | 分阶段执行，优先完成 B-2 |
+
+### **缓解计划**
+
+1. **短期**: 先完成 B-2 (工具能准确识别的部分)
+2. **中期**: 人工参与 B-3 的深度分析
+3. **长期**: 升级 AST 解析能力，减少误报
+
+---
+
+## 七、下一步行动
+
+**立即执行** (第二轮对话):
+
+1. **启动 B-2 Vuex→Pinia 检查**
+   - 目标：列出所有 80+ Vuex actions 的迁移状态
+   - 产出：完整的 Vuex→Pinia 映射表
+
+2. **开始 B-3 初步筛选**
+   - 目标：找出 Top 20 branch count 差异最大的文件
+   - 产出：重点复核清单
+
+3. **记录本计划到文档**
+   - 位置：`audit-reports/sessions/session-2-20260826/`
+   - 文件名：`03-plan-2-8-26-H-M-b_vuex_pinia_check.txt`
+
+---
+
+## 八、时间预估
+
+| 任务 | 预计耗时 | 关键路径 |
+|------|---------|---------|
+| B-2 Vuex 映射表 | 2-3 小时 | 必须串行处理 |
+| B-3 Top 20 分析 | 1-2 小时 | 可并行抽查 |
+| 文档整理 | 0.5 小时 | 最后汇总 |
+| **总计** | **3.5-5.5 小时** | **分 2 次对话完成** |
+
+---
+
+**提交时间**: 2026-8-26 10:45
+**下次计划**: 启动 B-2 Vuex→Pinia 检查
+**责任人**: 实行方准备数据，审核方确认范围
+**预期完成**: 本轮对话结束前 (第二轮)

@@ -1,0 +1,4384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>客户定价</title>
+    <style>
+        /* ========== CSS Variables & Reset ========== */
+        :root {
+            --primary: #1677ff;
+            --primary-hover: #4096ff;
+            --primary-active: #0958d9;
+            --primary-light: #e6f4ff;
+            --success: #52c41a;
+            --warning-light: #fffbe6;
+            --danger: #ff4d4f;
+            --danger-light: #fff2f0;
+            --danger-border: #ffccc7;
+            --gray-50: #fafafa;
+            --gray-100: #f5f5f5;
+            --gray-200: #f0f0f0;
+            --gray-300: #d9d9d9;
+            --gray-400: #bfbfbf;
+            --gray-500: rgba(0, 0, 0, 0.45);
+            --gray-600: rgba(0, 0, 0, 0.65);
+            --gray-700: rgba(0, 0, 0, 0.88);
+            --gray-800: rgba(0, 0, 0, 0.88);
+            --radius: 8px;
+            --radius-sm: 6px;
+            --shadow-lg: 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+            --transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+            --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--gray-100);
+            color: var(--gray-800);
+            line-height: 1.5714;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        html {
+            scrollbar-width: thin;
+            scrollbar-color: var(--gray-300) transparent;
+        }
+
+        html::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        html::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        html::-webkit-scrollbar-thumb {
+            background: var(--gray-300);
+            border-radius: 4px;
+        }
+
+        html::-webkit-scrollbar-thumb:hover {
+            background: var(--gray-400);
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            background: #FFFFFF;
+            border-radius: var(--radius);
+            border: 1px solid var(--gray-200);
+            box-shadow: var(--shadow-lg);
+            overflow: visible;
+            position: relative;
+        }
+
+        .app-header {
+            padding: 16px 24px;
+            background: #fff;
+            border-bottom: 1px solid var(--gray-200);
+            border-radius: var(--radius) var(--radius) 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .app-header .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .app-header .brand h1 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        .app-header .brand .brand-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: 1px;
+        }
+
+        .progress-section {
+            padding: 16px 24px;
+            background: #fff;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            max-width: 320px;
+            margin: 0 auto;
+        }
+
+        .progress-steps::before {
+            content: '';
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            right: 16px;
+            height: 2px;
+            background: var(--gray-200);
+            z-index: 0;
+        }
+
+        .progress-steps .step-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #fff;
+            color: var(--gray-400);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+            transition: var(--transition);
+            border: 1px solid var(--gray-300);
+            cursor: default;
+        }
+
+        .progress-steps .step-dot.done {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .progress-steps .step-dot.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #fff;
+            transform: scale(1.12);
+            box-shadow: 0 4px 14px rgba(22, 119, 255, 0.35);
+        }
+
+        .progress-steps .step-dot .step-label {
+            position: absolute;
+            top: 40px;
+            font-size: 11px;
+            font-weight: 400;
+            color: var(--gray-500);
+            white-space: nowrap;
+            background: #fff;
+            padding: 0 6px;
+        }
+
+        .progress-steps .step-dot.active .step-label {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .progress-steps .step-dot.done .step-label {
+            color: var(--gray-400);
+        }
+
+        .content-area {
+            padding: 24px;
+            min-height: 400px;
+            background: #fff;
+        }
+
+        .step-panel {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .step-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 400;
+            color: var(--gray-800);
+            margin-bottom: 8px;
+        }
+
+        .form-group .required-star {
+            color: var(--danger);
+            margin-right: 2px;
+        }
+
+        .opt-tag {
+            font-size: 11px;
+            font-weight: 400;
+            color: var(--gray-400);
+            border: 1px solid var(--gray-300);
+            border-radius: 4px;
+            padding: 0 6px;
+            margin-left: 6px;
+            vertical-align: 1px;
+            line-height: 1.6;
+            display: inline-block;
+        }
+
+        .form-card {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .form-card-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray-600);
+            letter-spacing: 0.5px;
+            margin-bottom: 14px;
+        }
+
+        .form-card-title::before {
+            content: '';
+            width: 3px;
+            height: 14px;
+            border-radius: 2px;
+            background: var(--primary);
+        }
+
+        .form-control {
+            width: 100%;
+            height: 40px;
+            padding: 6px 11px;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-family: var(--font);
+            transition: var(--transition);
+            background: #fff;
+            color: var(--gray-800);
+            outline: none;
+            line-height: 1.5714;
+        }
+
+        .form-control:hover {
+            border-color: var(--primary-hover);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(5, 145, 255, 0.1);
+        }
+
+        .form-control::placeholder {
+            color: var(--gray-400);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            height: auto;
+            min-height: 80px;
+        }
+
+        .add-link-row {
+            text-align: right;
+            margin-top: 8px;
+        }
+
+        .add-link {
+            display: inline-block;
+            font-size: 13px;
+            color: var(--primary);
+            cursor: pointer;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .add-link:hover {
+            color: var(--primary-hover);
+            text-decoration: underline;
+        }
+
+        .toast {
+            position: fixed;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-16px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #fff;
+            color: var(--gray-800);
+            padding: 9px 16px;
+            border-radius: var(--radius);
+            font-size: 14px;
+            line-height: 1.5;
+            max-width: 86%;
+            box-shadow: var(--shadow-lg);
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+
+        .toast-icon {
+            display: none;
+            flex-shrink: 0;
+            width: 16px;
+            height: 16px;
+        }
+
+        .toast.info .toast-icon-info {
+            display: block;
+            color: var(--primary);
+        }
+
+        .toast.success .toast-icon-success {
+            display: block;
+            color: var(--success);
+        }
+
+        .toast-text {
+            flex: 1;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        select.form-control,
+        .search-select .ss-input {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23bfbfbf' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 11px center;
+            padding-right: 32px;
+        }
+
+        .search-select {
+            position: relative;
+            z-index: auto;
+        }
+
+        .search-select:focus-within,
+        .search-select.ss-open {
+            z-index: 9999;
+        }
+
+        .search-select .ss-input {
+            cursor: text;
+        }
+
+        .cyl-qty-cell {
+            position: relative;
+            display: inline-flex;
+            align-items: stretch;
+            width: auto;
+            max-width: 140px;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .cyl-qty-cell .cyl-input {
+            width: 70px;
+            flex: 0 1 auto;
+            height: 38px;
+            text-align: center;
+            border: none;
+            border-left: 1px solid var(--gray-300);
+            border-right: 1px solid var(--gray-300);
+            border-radius: 0;
+            padding: 0;
+            appearance: textfield;
+            -moz-appearance: textfield;
+            background: #fff;
+        }
+
+        .cyl-qty-cell button {
+            width: 34px;
+            flex: 0 0 34px;
+            border: none;
+            background: var(--gray-50);
+            color: var(--gray-700);
+            font-size: 18px;
+            font-weight: 600;
+            line-height: 1;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+
+        .cyl-qty-cell button:hover {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .cyl-qty-cell button:active {
+            transform: scale(0.94);
+        }
+
+        .cyl-qty-cell .cyl-input:hover,
+        .cyl-qty-cell .cyl-input:focus {
+            border-color: var(--gray-300);
+            box-shadow: none;
+            outline: none;
+        }
+
+        .cyl-qty-cell .cyl-input::-webkit-outer-spin-button,
+        .cyl-qty-cell .cyl-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .search-select.has-value .ss-input {
+            background-image: none;
+            padding-right: 36px;
+        }
+
+        .ss-clear {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            padding: 0;
+            border: none;
+            border-radius: 50%;
+            background: var(--gray-200);
+            color: var(--gray-500);
+            font-size: 14px;
+            line-height: 1;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ss-clear:hover {
+            background: var(--gray-400);
+            color: #fff;
+        }
+
+        .ss-panel {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-sm);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+            max-height: 220px;
+            overflow-y: auto;
+            z-index: 9999;
+            display: none;
+            padding: 4px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--gray-300) transparent;
+        }
+
+        .ss-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .ss-panel::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .ss-panel::-webkit-scrollbar-thumb {
+            background: var(--gray-300);
+            border-radius: 3px;
+        }
+
+        .ss-panel::-webkit-scrollbar-thumb:hover {
+            background: var(--gray-400);
+        }
+
+        .ss-option {
+            padding: 8px 10px;
+            font-size: 14px;
+            color: var(--gray-700);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .ss-option:hover {
+            background: var(--gray-50);
+        }
+
+        .ss-option.selected {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .ss-empty {
+            padding: 12px 10px;
+            font-size: 13px;
+            color: var(--gray-400);
+            text-align: center;
+        }
+
+        input[type="checkbox"] {
+            accent-color: var(--primary);
+        }
+
+        /* ===== 套餐卡片样式（第一步） ===== */
+        .package-section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .package-section-title::before {
+            content: '';
+            width: 3px;
+            height: 13px;
+            border-radius: 2px;
+            background: var(--primary);
+        }
+
+        .package-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .pkg-card {
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            background: #fff;
+            position: relative;
+        }
+
+        .pkg-card:hover {
+            border-color: var(--primary);
+        }
+
+        .pkg-card.selected {
+            border-color: var(--primary);
+            background: var(--primary-light);
+            box-shadow: 0 2px 8px rgba(22, 119, 255, 0.12);
+        }
+
+        .pkg-card .pkg-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pkg-card .pkg-dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid var(--gray-300);
+            flex-shrink: 0;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .pkg-card.selected .pkg-dot {
+            border-color: var(--primary);
+            background: var(--primary);
+        }
+
+        .pkg-card.selected .pkg-dot::after {
+            content: '';
+            position: absolute;
+            left: 4px;
+            top: 2px;
+            width: 6px;
+            height: 9px;
+            border: solid #fff;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .pkg-card .pkg-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--gray-800);
+            flex: 1;
+        }
+
+        .pkg-card.selected .pkg-name {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .pkg-card .pkg-desc {
+            font-size: 12px;
+            color: var(--gray-500);
+            margin-top: 6px;
+            padding-left: 28px;
+            line-height: 1.6;
+        }
+
+        .pkg-card .pkg-count {
+            font-size: 12px;
+            color: var(--gray-500);
+            flex-shrink: 0;
+        }
+
+        .pkg-card.selected .pkg-count {
+            color: var(--primary);
+        }
+
+        .pkg-card .pkg-items-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 8px;
+            padding-left: 28px;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .pkg-card .pkg-tag {
+            font-size: 11px;
+            color: var(--gray-600);
+            background: var(--gray-100);
+            border-radius: 3px;
+            padding: 2px 8px;
+        }
+
+        .pkg-card.selected .pkg-tag {
+            background: rgba(22, 119, 255, 0.1);
+            color: var(--primary);
+        }
+
+        .pkg-expand-arrow {
+            font-size: 12px;
+            color: var(--primary);
+            margin-left: 4px;
+            cursor: pointer;
+        }
+
+        .pkg-detail {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed var(--gray-200);
+        }
+
+        .tree-cat {
+            border-bottom: 1px dashed var(--gray-200);
+        }
+
+        .tree-cat:last-child {
+            border-bottom: none;
+        }
+
+        .tree-cat-head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            cursor: pointer;
+            user-select: none;
+            border-radius: 3px;
+        }
+
+        .tree-cat-head:hover {
+            background: var(--gray-50);
+        }
+
+        .tree-cat-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray-700);
+            flex: 1;
+        }
+
+        .tree-cat-count {
+            font-size: 12px;
+            color: var(--gray-400);
+        }
+
+        .tree-chk {
+            width: 14px;
+            height: 14px;
+            border: 1px solid var(--gray-300);
+            border-radius: 3px;
+            background: #fff;
+            flex-shrink: 0;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .tree-chk.checked,
+        .tree-chk.partial {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .tree-chk.checked::after {
+            content: '';
+            position: absolute;
+            left: 3px;
+            top: 1px;
+            width: 4px;
+            height: 7px;
+            border: solid #fff;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .tree-chk.partial::after {
+            content: '';
+            position: absolute;
+            left: 2px;
+            top: 5px;
+            width: 8px;
+            height: 2px;
+            background: #fff;
+        }
+
+        .tree-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 8px 5px 28px;
+            cursor: pointer;
+            user-select: none;
+            border-radius: 3px;
+        }
+
+        .tree-item:hover {
+            background: var(--gray-50);
+        }
+
+        .tree-item .tree-chk {
+            width: 15px;
+            height: 15px;
+            flex-shrink: 0;
+        }
+
+        .tree-item .tree-chk::after {
+            left: 3px;
+            top: 1px;
+            width: 5px;
+            height: 8px;
+        }
+
+        .tree-item-name {
+            font-size: 12px;
+            color: var(--gray-500);
+            flex: 1;
+            line-height: 1.4;
+        }
+
+        .qty-ctrl {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            margin-left: auto;
+        }
+
+        .qty-btn {
+            width: 22px;
+            height: 22px;
+            border: 1px solid var(--gray-300);
+            background: #fff;
+            border-radius: 4px;
+            font-size: 14px;
+            line-height: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray-600);
+            transition: var(--transition);
+        }
+
+        .qty-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .qty-btn:active {
+            background: var(--primary-light);
+        }
+
+        .qty-val {
+            min-width: 24px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--gray-700);
+            font-weight: 500;
+        }
+
+        .qty-unit {
+            font-size: 11px;
+            color: var(--gray-500);
+            margin-left: 4px;
+        }
+
+        .cycle-field {
+            margin: 6px 0 6px 28px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cycle-field label {
+            font-size: 12px;
+            color: var(--gray-600);
+            white-space: nowrap;
+        }
+
+        .cycle-field input {
+            width: 120px;
+            height: 28px;
+            border: 1px solid var(--gray-300);
+            border-radius: 4px;
+            padding: 0 8px;
+            font-size: 12px;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .cycle-field input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1);
+        }
+
+        .tree-item.checked .tree-chk {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .tree-item.checked .tree-chk::after {
+            content: '';
+            position: absolute;
+            left: 3px;
+            top: 1px;
+            width: 5px;
+            height: 8px;
+            border: solid #fff;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .tree-item.checked .tree-item-name {
+            color: var(--gray-700);
+            font-weight: 500;
+        }
+
+        .pkg-recommend {
+            position: absolute;
+            top: -1px;
+            right: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            color: #fff;
+            background: var(--primary);
+            padding: 2px 8px 3px;
+            border-radius: 0 0 4px 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .opt-section {
+            margin-top: 16px;
+        }
+
+        .opt-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .opt-badge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 1px 6px;
+            border-radius: 3px;
+            background: var(--warning-light);
+            color: #d48806;
+            flex-shrink: 0;
+        }
+
+        /* 可选项说明 + 逐项「建议加选」徽标（与 PC 对齐） */
+        .opt-hint {
+            font-size: 11px;
+            font-weight: 400;
+            color: var(--gray-500);
+            line-height: 1.3;
+        }
+
+        .sug-badge {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 1px 6px;
+            border-radius: 3px;
+            background: var(--primary-light);
+            color: var(--primary);
+            margin-left: 6px;
+            flex-shrink: 0;
+        }
+
+        /* 维修项搜索框 */
+        .item-search-box {
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .item-search-input {
+            padding-left: 32px;
+            padding-right: 28px;
+            font-size: 13px;
+            height: 34px;
+        }
+
+        .item-search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 14px;
+            height: 14px;
+            color: var(--gray-400);
+            pointer-events: none;
+        }
+
+        .item-search-clear {
+            position: absolute;
+            right: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            border: none;
+            background: none;
+            color: var(--gray-400);
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            padding: 0;
+        }
+
+        .item-search-clear:hover {
+            background: var(--gray-100);
+            color: var(--gray-600);
+        }
+
+        .tree-cat.hidden,
+        .tree-item.hidden {
+            display: none;
+        }
+
+        .no-item-tip {
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: var(--danger-light);
+            border: 1px solid var(--danger-border);
+            border-radius: var(--radius-sm);
+            color: var(--danger);
+            font-size: 13px;
+            text-align: center;
+            animation: fadeIn 0.2s;
+        }
+
+        /* ========== 预算卡片（新样式） ========== */
+        .budget-pkg-card {
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            margin-bottom: 16px;
+            background: #fff;
+        }
+
+        .budget-pkg-card .pkg-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .budget-pkg-card .pkg-head .pkg-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--gray-800);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .budget-pkg-card .pkg-head .pkg-title .pkg-badge {
+            font-size: 10px;
+            font-weight: 400;
+            background: var(--gray-100);
+            color: var(--gray-600);
+            border: 1px solid var(--gray-300);
+            border-radius: 4px;
+            padding: 0 8px;
+            line-height: 1.8;
+        }
+
+        /* 可选项目列表 */
+        .opt-item-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+            color: var(--gray-700);
+            padding: 6px 0;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .opt-item-row:last-child {
+            border-bottom: none;
+        }
+
+        .opt-item-row .opt-item-name {
+            flex: 1;
+            margin-right: 8px;
+        }
+
+        .opt-item-row .opt-item-qty {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin: 0 8px;
+        }
+
+        .opt-item-row .opt-item-qty button {
+            width: 24px;
+            height: 24px;
+            border: 1px solid var(--gray-300);
+            border-radius: 4px;
+            background: #fff;
+            color: var(--gray-700);
+            font-size: 14px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .opt-item-row .opt-item-qty button:hover {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+
+        .opt-item-row .opt-item-qty input {
+            width: 40px;
+            height: 26px;
+            text-align: center;
+            border: 1px solid var(--gray-300);
+            border-radius: 4px;
+            font-size: 13px;
+            background: #fff;
+            padding: 0;
+        }
+
+        .opt-item-row .opt-item-qty input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(5, 145, 255, 0.1);
+            outline: none;
+        }
+
+        .opt-item-row .opt-item-unit {
+            color: var(--gray-400);
+            font-size: 12px;
+            min-width: 30px;
+            text-align: right;
+        }
+
+        .opt-item-row .opt-item-check {
+            margin-right: 10px;
+        }
+
+        .budget-empty-hint {
+            padding: 24px 0;
+            text-align: center;
+            color: var(--gray-400);
+            font-size: 14px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            height: 40px;
+            padding: 6px 20px;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 1.5714;
+            font-family: var(--font);
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 2px 0 rgba(5, 145, 255, 0.1);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-primary:active {
+            background: var(--primary-active);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .btn-outline {
+            background: #fff;
+            color: var(--gray-800);
+            border: 1px solid var(--gray-300);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn-group .btn {
+            flex: 1;
+        }
+
+        /* ===== Modal ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal {
+            background: #fff;
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 440px;
+            max-height: 88vh;
+            display: flex;
+            flex-direction: column;
+            overflow: visible;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.25s ease;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--gray-200);
+            flex-shrink: 0;
+            border-top-left-radius: var(--radius);
+            border-top-right-radius: var(--radius);
+            background: #fff;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        .modal-close {
+            border: none;
+            background: none;
+            font-size: 22px;
+            line-height: 1;
+            color: var(--gray-400);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: var(--radius-sm);
+        }
+
+        .modal-close:hover {
+            color: var(--gray-800);
+            background: var(--gray-100);
+        }
+
+        .modal-body {
+            padding: 20px 24px;
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            padding: 12px 24px;
+            border-top: 1px solid var(--gray-200);
+            flex-shrink: 0;
+            border-bottom-left-radius: var(--radius);
+            border-bottom-right-radius: var(--radius);
+            background: #fff;
+        }
+
+        .modal-footer .btn {
+            flex: 1;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== 移动端适配 ===== */
+        @media (max-width: 480px) {
+
+            html,
+            body {
+                height: 100%;
+            }
+
+            body {
+                display: block;
+                padding: 0;
+                -webkit-tap-highlight-color: transparent;
+            }
+
+            .app-container {
+                max-width: none;
+                min-height: 100vh;
+                min-height: 100dvh;
+                height: 100vh;
+                height: 100dvh;
+                border-radius: 0;
+                border: none;
+                box-shadow: none;
+                display: flex;
+                flex-direction: column;
+                overflow: visible;
+            }
+
+            .app-header {
+                flex-shrink: 0;
+                padding: calc(12px + env(safe-area-inset-top)) 16px 12px;
+                border-radius: 0;
+            }
+
+            .progress-section {
+                flex-shrink: 0;
+                padding: 12px 16px;
+            }
+
+            .content-area {
+                flex: 1 1 auto;
+                min-height: 0;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                padding: 16px;
+            }
+
+            .form-control,
+            .ss-input,
+            textarea.form-control {
+                font-size: 16px;
+            }
+
+            .btn-group {
+                position: sticky;
+                bottom: 0;
+                margin-top: 16px;
+                padding: 12px 0;
+                padding-bottom: calc(12px + env(safe-area-inset-bottom));
+                background: #fff;
+                border-top: 1px solid var(--gray-200);
+                z-index: 10;
+            }
+
+            .cyl-qty-cell .cyl-input {
+                width: 60px;
+                flex-basis: 60px;
+            }
+
+            .modal-overlay {
+                padding: 0;
+                align-items: stretch;
+            }
+
+            .modal {
+                max-width: none;
+                width: 100%;
+                height: 100vh;
+                height: 100dvh;
+                max-height: 100dvh;
+                border-radius: 0;
+                overflow: hidden;
+            }
+
+            .modal-header,
+            .modal-body,
+            .modal-footer {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .modal-footer {
+                padding-bottom: calc(12px + env(safe-area-inset-bottom));
+            }
+
+            .toast {
+                top: calc(16px + env(safe-area-inset-top));
+            }
+
+            .opt-item-row .opt-item-qty input {
+                width: 32px;
+            }
+        }
+
+        /* ===== 引导树 ===== */
+        .guide-body {
+            padding: 14px 20px 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .cascade-search {
+            position: relative;
+            margin: 0 0 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .cascade-search input {
+            padding: 0 36px 0 36px;
+        }
+
+        .cascade-search input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1);
+        }
+
+        .cascade-search .ts-icon {
+            position: absolute;
+            left: 10px;
+            width: 16px;
+            height: 16px;
+            color: var(--gray-400);
+            pointer-events: none;
+        }
+
+        .cascade-search .ts-clear {
+            position: absolute;
+            right: 8px;
+            width: 22px;
+            height: 22px;
+            border: none;
+            background: var(--gray-200);
+            color: var(--gray-500);
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 14px;
+            line-height: 1;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cascade-search .ts-clear.show {
+            display: flex;
+        }
+
+        .cascade-empty {
+            display: none;
+            text-align: center;
+            color: var(--gray-400);
+            font-size: 13px;
+            padding: 24px 0;
+        }
+
+        .cascade-empty.show {
+            display: block;
+        }
+
+        .hl {
+            background: #fff1b8;
+            color: var(--gray-700);
+            border-radius: 2px;
+            padding: 0 1px;
+        }
+
+        .cascade-tree {
+            margin-top: 4px;
+        }
+
+        .cascade-tree ul {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+        }
+
+        .cascade-tree .tree-branch {
+            padding-left: 20px;
+            border-left: 2px solid var(--gray-200);
+            margin-left: 16px;
+        }
+
+        .cascade-tree .tree-node {
+            margin: 2px 0;
+        }
+
+        .cascade-tree .tree-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: background 0.15s, box-shadow 0.15s;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            min-height: 48px;
+        }
+
+        .cascade-tree .tree-row:active {
+            background: var(--gray-100);
+        }
+
+        .cascade-tree .tree-row.branch-row:hover {
+            background: var(--gray-50);
+        }
+
+        .cascade-tree .tree-row .tr-twist {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: var(--gray-400);
+            transition: transform 0.2s ease;
+        }
+
+        .cascade-tree .tree-row .tr-twist.open {
+            transform: rotate(90deg);
+            color: var(--primary);
+        }
+
+        .cascade-tree .tree-row .tr-en {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--gray-700);
+            flex: 1;
+            line-height: 1.4;
+        }
+
+        .cascade-tree .tree-row .tr-cn {
+            font-size: 11px;
+            color: var(--gray-400);
+            flex-shrink: 0;
+        }
+
+        .cascade-tree .tree-row.leaf-row {
+            border: 1px dashed var(--gray-200);
+            background: #fff;
+        }
+
+        .cascade-tree .tree-row.leaf-row:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .cascade-tree .tree-row.leaf-row.selected {
+            background: var(--primary-light);
+            border: 1px solid var(--primary);
+            box-shadow: 0 2px 8px rgba(22, 119, 255, 0.15);
+        }
+
+        .cascade-tree .tree-row.leaf-row .tr-dot {
+            width: 10px;
+            height: 10px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            background: var(--gray-300);
+            transition: var(--transition);
+        }
+
+        .cascade-tree .tree-row.leaf-row.selected .tr-dot {
+            background: var(--primary);
+            box-shadow: 0 0 0 3px rgba(22, 119, 255, 0.2);
+        }
+
+        .cascade-tree .tree-row.leaf-row .tr-en {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--gray-700);
+            flex: 1;
+        }
+
+        .cascade-tree .tree-row.leaf-row.selected .tr-en {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .cascade-tree .tree-row.leaf-row .tr-cn {
+            font-size: 11px;
+            color: var(--gray-400);
+        }
+
+        .cascade-tree .tree-branch.collapsed {
+            display: none;
+        }
+
+        .search-results {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .sr-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px;
+            background: #fff;
+            border: 1px dashed var(--gray-200);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .sr-item:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .sr-item .sr-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .sr-item .sr-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        .sr-item .sr-path {
+            font-size: 11px;
+            color: var(--gray-400);
+            margin-top: 2px;
+        }
+
+        .sr-item .sr-select {
+            flex-shrink: 0;
+            font-size: 12px;
+            color: var(--primary);
+            font-weight: 500;
+            background: var(--primary-light);
+            border: 1px solid var(--primary);
+            border-radius: 4px;
+            padding: 2px 10px;
+        }
+
+        .sr-item:hover .sr-select {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .cascade-confirm {
+            display: none;
+            margin-top: 16px;
+            border: 1px solid var(--primary);
+            background: var(--primary-light);
+            border-radius: var(--radius);
+            padding: 16px;
+        }
+
+        .cascade-confirm.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .cascade-confirm .cc-tag {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--primary);
+            background: #fff;
+            border: 1px solid var(--primary);
+            border-radius: 4px;
+            padding: 2px 10px;
+            margin-bottom: 10px;
+        }
+
+        .cascade-confirm .cc-path {
+            font-size: 13px;
+            color: var(--gray-600);
+            margin-bottom: 6px;
+            line-height: 1.8;
+        }
+
+        .cascade-confirm .cc-device {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: 12px;
+        }
+
+        .cascade-confirm .btn {
+            margin-top: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-container" id="app">
+        <header class="app-header">
+            <div class="brand">
+                <h1 class="brand-title">客户定价</h1>
+            </div>
+        </header>
+
+        <section class="progress-section">
+            <div class="progress-steps" id="progressSteps">
+                <div class="step-dot active" data-step="0">
+                    1
+                    <span class="step-label">选择设备</span>
+                </div>
+                <div class="step-dot" data-step="1">
+                    2
+                    <span class="step-label">维保需求</span>
+                </div>
+                <div class="step-dot" data-step="2">
+                    3
+                    <span class="step-label">预算确认</span>
+                </div>
+            </div>
+        </section>
+
+        <div class="content-area" id="contentArea">
+            <!-- ===== STEP 0: 选择设备 ===== -->
+            <div class="step-panel active" data-step="0">
+                <div class="guide-body">
+                    <div class="cascade-search">
+                        <svg class="ts-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"
+                            stroke-linecap="round">
+                            <circle cx="7" cy="7" r="4.5"></circle>
+                            <line x1="10.4" y1="10.4" x2="14" y2="14"></line>
+                        </svg>
+                        <input type="text" class="form-control" id="cascadeSearch" placeholder="搜索设备分类..." autocomplete="off">
+                        <button class="ts-clear" id="cascadeSearchClear" aria-label="清除">×</button>
+                    </div>
+                    <div class="cascade-empty" id="cascadeEmpty">未找到匹配的设备</div>
+                    <div class="search-results" id="searchResults" style="display:none;"></div>
+                    <div class="cascade-tree" id="cascadeTree"></div>
+                    <div class="cascade-confirm" id="cascadeConfirm">
+                        <span class="cc-tag">✓ 已选定设备</span>
+                        <div class="cc-device" id="ccDevice"></div>
+                        <div class="cc-path" id="ccPath"></div>
+                        <div style="display:flex; gap:10px; margin-top:14px;">
+                            <button class="btn btn-outline" id="clearSelBtn"
+                                style="flex:0 0 auto;width:auto;padding:6px 16px;">取消选择</button>
+                            <button class="btn btn-primary" id="toFormBtn">填写维保需求</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== STEP 1: 需求录入 ===== -->
+            <div class="step-panel" data-step="1">
+                <div class="form-card">
+                    <div class="form-card-title">船舶信息</div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>船名 <span class="opt-tag">选填</span></label>
+                        <input type="text" class="form-control" id="shipName" placeholder="请输入船名">
+                    </div>
+                </div>
+
+                <div class="form-card">
+                    <div class="form-card-title">设备信息</div>
+                    <select id="deviceType" style="display:none;">
+                        <option value="">请选择设备名称</option>
+                    </select>
+
+                    <div class="form-group">
+                        <label>设备型号 <span class="required-star">*</span></label>
+                        <div class="search-select" id="modelWrap">
+                            <input type="text" class="form-control ss-input" id="modelInput" placeholder="请选择设备型号"
+                                autocomplete="off">
+                            <button type="button" class="ss-clear" id="modelClear">×</button>
+                            <div class="ss-panel" id="modelPanel"></div>
+                            <select class="form-control" id="model" style="display:none;">
+                                <option value="">请选择设备型号</option>
+                            </select>
+                        </div>
+                        <div class="field-hint" id="modelHint"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>设备缸数 <span class="required-star">*</span></label>
+                        <div class="cyl-qty-cell">
+                            <button type="button" class="cyl-dec" aria-label="减少缸数">−</button>
+                            <input type="number" class="form-control cyl-input" id="cylInput" min="1" max="20"
+                                placeholder="缸数" aria-label="设备缸数（1-20）">
+                            <button type="button" class="cyl-inc" aria-label="增加缸数">＋</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>制造厂家 <span class="required-star">*</span></label>
+                        <div class="search-select" id="manufacturerWrap">
+                            <input type="text" class="form-control ss-input" id="manufacturerInput"
+                                placeholder="请选择制造厂家" autocomplete="off">
+                            <button type="button" class="ss-clear" id="manufacturerClear">×</button>
+                            <div class="ss-panel" id="manufacturerPanel"></div>
+                            <select class="form-control" id="manufacturer" style="display:none;">
+                                <option value="">请选择制造厂家</option>
+                            </select>
+                        </div>
+                        <div class="field-hint" id="manuHint"></div>
+                    </div>
+
+                    <div class="add-link-row">
+                        <a class="add-link" id="addCustomLink" href="javascript:void(0)">没找到？请联系我们</a>
+                    </div>
+                </div>
+
+                <div class="form-card">
+                    <div class="form-card-title">服务信息</div>
+                    <div class="form-group">
+                        <label>是否紧急 <span class="required-star">*</span></label>
+                        <select class="form-control" id="svcUrg"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>服务地点 <span class="required-star">*</span> </label>
+                        <div style="display:flex;gap:8px;">
+                            <select class="form-control" id="svcRegion" style="flex:1;min-width:0;"></select>
+                            <select class="form-control" id="svcCountry" style="flex:1;min-width:0;"></select>
+                            <select class="form-control" id="svcSite" style="flex:1;min-width:0;"></select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>服务时间 <span class="required-star">*</span></label>
+                        <input type="date" class="form-control" id="svcDate" placeholder="期望服务日期">
+                        <div class="field-hint" id="svcHint"></div>
+                    </div>
+                </div>
+
+                <div class="form-card">
+                    <div class="form-card-title">维保需求</div>
+
+                    <div class="form-group">
+                        <label>维保类型 <span class="required-star">*</span></label>
+                        <div class="search-select" id="maintTypeWrap">
+                            <input type="text" class="form-control ss-input" id="maintTypeInput" placeholder="请选择维保类型"
+                                autocomplete="off">
+                            <button type="button" class="ss-clear" id="maintTypeClear">×</button>
+                            <div class="ss-panel" id="maintTypePanel"></div>
+                            <select class="form-control" id="maintType" style="display:none;">
+                                <option value="">请选择维保类型</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="cycleFieldGroup" style="display:none;">
+                        <label>设备保养周期 <span class="required-star">*</span></label>
+                        <div class="search-select" id="maintCycleWrap">
+                            <input type="text" class="form-control ss-input" id="maintCycleInput"
+                                placeholder="请选择设备保养周期" autocomplete="off">
+                            <button type="button" class="ss-clear" id="maintCycleClear">×</button>
+                            <div class="ss-panel" id="maintCyclePanel"></div>
+                            <select class="form-control" id="maintCycleHours" style="display:none;">
+                                <option value="">请选择设备保养周期</option>
+                                <option value="5年保养">5年保养</option>
+                                <option value="10年保养">10年保养</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="itemsArea" style="margin-bottom:0;">
+                        <label>维保方案 <span class="required-star">*</span></label>
+                        <div class="item-search-box">
+                            <svg class="item-search-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                                stroke-width="1.6" stroke-linecap="round">
+                                <circle cx="7" cy="7" r="4.5"></circle>
+                                <line x1="10.4" y1="10.4" x2="14" y2="14"></line>
+                            </svg>
+                            <input type="text" class="form-control item-search-input" id="itemSearch"
+                                placeholder="搜索维修项目..." autocomplete="off">
+                            <button type="button" class="item-search-clear" id="itemSearchClear"
+                                style="display:none;">×</button>
+                        </div>
+                        <div id="packageContainer"></div>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-outline" id="step1Back">返回上一步</button>
+                    <button class="btn btn-primary" id="step1Next" disabled>查看预算</button>
+                </div>
+            </div>
+
+            <!-- ===== STEP 2: 报价明细 ===== -->
+            <div class="step-panel" data-step="2">
+                <div id="budgetDisplay"></div>
+                <div id="priceJudgeBar" style="margin-top:16px;display:none;">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>补充说明 <span style="font-weight:400;color:var(--gray-400);">（选填，如有特殊要求请在此备注）</span></label>
+                        <textarea class="form-control" id="priceFeedbackInput"
+                            placeholder="例如：希望尽快报价、有交期要求、需要包含差旅费用等"></textarea>
+                    </div>
+                </div>
+                <div class="btn-group" id="step2Buttons">
+                    <button class="btn btn-outline" id="step3Back">返回上一步</button>
+                    <button class="btn btn-primary" id="step2Push">提交询价</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增厂家/型号弹窗 -->
+    <div class="modal-overlay" id="customAddModal">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title">没找到？请联系我们</span>
+                <button type="button" class="modal-close" id="customAddClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>制造厂家</label>
+                    <input type="text" class="form-control" id="customManuInput" placeholder="请输入制造厂家名称">
+                </div>
+                <div class="form-group">
+                    <label>设备型号</label>
+                    <input type="text" class="form-control" id="customModelInput" placeholder="请输入设备型号">
+                </div>
+                <div class="form-group">
+                    <label>您的需求</label>
+                    <textarea class="form-control" id="customNeedInput" rows="4"
+                        placeholder="请描述您的设备情况与维保需求，便于我们为您报价"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" id="customAddCancel">取消</button>
+                <button type="button" class="btn btn-primary" id="customAddConfirm">提交需求</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <svg class="toast-icon toast-icon-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        <svg class="toast-icon toast-icon-success" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+        <span class="toast-text" id="toastText"></span>
+    </div>
+
+    <!-- 后台领域模型（与 PC demo 共用 admin/assets/data.js：SITEMS / SI_LEGACY_PRICE / MTYPES / CYCLES / MODELS） -->
+    <script src="../admin/assets/data.js"></script>
+    <script src="../admin/assets/dp.js"></script>
+    <script src="../admin/assets/sel.js"></script>
+    <script src="inquiry-store.js"></script>
+    <script>
+        (function () {
+            'use strict';
+
+            // 与 PC 对齐：构建后台领域模型（标准工时 / SERVICE_ITEMS）。
+            // H5 不加载 core.js，需在此手动触发，否则 LABOR_STANDARDS 为空、计价全为 0。
+            if (typeof buildDomainModel === 'function' && (typeof LABOR_STANDARDS === 'undefined' || LABOR_STANDARDS.length === 0)) {
+                buildDomainModel();
+            }
+            // resolveLaborStandard（data.js 全局）依赖 core.js 的 groupCodeOfModel；H5 未加载 core.js，
+            // 故在此补齐 window 级实现（与 PC-v2 完全一致：包装 data.js 的全局 groupOfModel）。
+            if (typeof groupCodeOfModel !== 'function') {
+                window.groupCodeOfModel = function (name) {
+                    const g = (typeof groupOfModel === 'function') ? groupOfModel(name) : null;
+                    return g ? g.code : null;
+                };
+            }
+
+            // ----- DOM refs -----
+            const panels = document.querySelectorAll('.step-panel');
+            const dots = document.querySelectorAll('.step-dot');
+            const step1Next = document.getElementById('step1Next');
+            const step1Back = document.getElementById('step1Back');
+            const priceJudgeBar = document.getElementById('priceJudgeBar');
+            const priceFeedbackInput = document.getElementById('priceFeedbackInput');
+            const step2Buttons = document.getElementById('step2Buttons');
+            const step2Push = document.getElementById('step2Push');
+            const shipName = document.getElementById('shipName');
+            const deviceType = document.getElementById('deviceType');
+            const maintType = document.getElementById('maintType');
+            const manufacturer = document.getElementById('manufacturer');
+            const model = document.getElementById('model');
+            const cylInput = document.getElementById('cylInput');
+            const maintTypeInput = document.getElementById('maintTypeInput');
+            const maintTypePanel = document.getElementById('maintTypePanel');
+            const manufacturerInput = document.getElementById('manufacturerInput');
+            const manufacturerPanel = document.getElementById('manufacturerPanel');
+            const modelInput = document.getElementById('modelInput');
+            const modelPanel = document.getElementById('modelPanel');
+            const toast = document.getElementById('toast');
+            const toastText = document.getElementById('toastText');
+            const addCustomLink = document.getElementById('addCustomLink');
+
+            const customAddModal = document.getElementById('customAddModal');
+            const customManuInput = document.getElementById('customManuInput');
+            const customModelInput = document.getElementById('customModelInput');
+            const customNeedInput = document.getElementById('customNeedInput');
+            const customAddClose = document.getElementById('customAddClose');
+            const customAddCancel = document.getElementById('customAddCancel');
+            const customAddConfirm = document.getElementById('customAddConfirm');
+
+            const itemsArea = document.getElementById('itemsArea');
+            const modelHint = document.getElementById('modelHint');
+            const manuHint = document.getElementById('manuHint');
+            const budgetDisplay = document.getElementById('budgetDisplay');
+            const itemSearch = document.getElementById('itemSearch');
+            const itemSearchClear = document.getElementById('itemSearchClear');
+
+            // 维修项搜索过滤
+            function applyItemFilter() {
+                const keyword = (itemSearch.value || '').trim().toLowerCase();
+                const container = document.getElementById('packageContainer');
+                if (!container) return;
+                const cats = container.querySelectorAll('.tree-cat');
+                cats.forEach(function (catEl) {
+                    const items = catEl.querySelectorAll('.tree-item');
+                    let anyVisible = false;
+                    items.forEach(function (itemEl) {
+                        const name = (itemEl.querySelector('.tree-item-name') || {}).textContent || '';
+                        if (!keyword || name.toLowerCase().indexOf(keyword) !== -1) {
+                            itemEl.classList.remove('hidden');
+                            anyVisible = true;
+                        } else {
+                            itemEl.classList.add('hidden');
+                        }
+                    });
+                    if (anyVisible || !keyword) {
+                        catEl.classList.remove('hidden');
+                    } else {
+                        catEl.classList.add('hidden');
+                    }
+                });
+                itemSearchClear.style.display = keyword ? 'flex' : 'none';
+            }
+
+            if (itemSearch) {
+                itemSearch.addEventListener('input', applyItemFilter);
+            }
+            if (itemSearchClear) {
+                itemSearchClear.addEventListener('click', function () {
+                    itemSearch.value = '';
+                    applyItemFilter();
+                    itemSearch.focus();
+                });
+            }
+
+            // ----- State -----
+            let currentStep = 0;
+            let selectedItems = [];
+            let quoteExcluded = new Set();
+            let quoteQty = {};
+            let cycleHours = '';
+            let itemFilter = '';
+            let customManufacturer = '';
+            let customModel = '';
+            let customNeed = '';
+
+            // ===== 维保数据 =====
+            // 内联数据仅作「后台不可用」时的兜底；正式数据由下方 buildEquipmentData() 从 assets/data.js 后台领域模型重建
+            const EQUIPMENT_DATA_SRC = {
+                'Main diesel engine': {
+                    "base_info": { "equipment_name": "Main diesel engine" },
+                    "all_maintenance_types": ["5年保养", "10年保养", "健康检查", "监工服务", "车间保养测试", "常规吊缸类", "故障排查维修", "部件翻新"],
+                    "equipment_series": [{
+                        "series_name": "MAN B&W系列",
+                        "manufacturers": ["HD HYUNDAI", "Hanwha(Doosan/HSD)", "HME(STX)", "HHM", "CSSC", "MITSUI",
+                            "Kawasaki", "Hitachi Zosen", "Makita"
+                        ],
+                        "model_list": ["6L35MC-C", "6S42MC", "6S46MC-C", "5S50MC-C", "6S50MC-C",
+                            "7S50MC-C", "5S60MC-C", "6S60MC-C", "7S60MC-C", "6S70MC-C",
+                            "7S80MC-C", "8K90MC-C", "12K98MC-C", "6S35ME-B9.3", "5S50ME-B9.3",
+                            "6S60ME-C10.5", "6G60ME-C9.5", "6G70ME-C9.5", "6G80ME-C9.5", "11G95ME-C9.5"
+                        ],
+                        "special_5year_maintenance": {
+                            "HCU": [
+                                {
+                                    "item_name": "Accumulator overhaul", "unit": "EA", "base_qty": "缸数",
+                                    "unit_price_usd": 300
+                                },
+                                {
+                                    "item_name": "F.O. booster overhaul", "unit": "EA", "base_qty": "缸数",
+                                    "unit_price_usd": 450
+                                },
+                                {
+                                    "item_name": "Exhaust v/v Actuator overhaul", "unit": "EA", "base_qty": "缸数",
+                                    "unit_price_usd": 300
+                                },
+                                {
+                                    "item_name": "Cylinder lubricator overhaul", "unit": "EA", "base_qty": "缸数",
+                                    "unit_price_usd": 350
+                                },
+                                {
+                                    "item_name": "FIVA valve overhaul (on board)", "unit": "EA", "base_qty": "缸数",
+                                    "unit_price_usd": 300
+                                },
+                                {
+                                    "item_name": "FIVA valve overhaul (workshop)", "unit": "EA", "base_qty": "缸数",
+                                    "unit_price_usd": 1000
+                                },
+                                {
+                                    "item_name": "HCU block overhaul(shut-off valves, return oil block etc)",
+                                    "unit": "set", "base_qty": 1, "unit_price_usd": 800
+                                }
+                            ],
+                            "HPS": [
+                                {
+                                    "item_name": "Engine driven hyd. pump: Renewal", "unit": "EA", "base_qty": 2,
+                                    "unit_price_usd": 1000
+                                },
+                                {
+                                    "item_name": "Engine driven hyd. pump: workshop recondition", "unit": "EA",
+                                    "base_qty": 2, "unit_price_usd": 2500
+                                },
+                                {
+                                    "item_name": "Pump shaft clean and inspection", "unit": "set", "base_qty": 1,
+                                    "unit_price_usd": 300
+                                },
+                                {
+                                    "item_name": "Proportional directional control v/v renewal", "unit": "EA",
+                                    "base_qty": 2, "unit_price_usd": 350
+                                },
+                                {
+                                    "item_name": "Hyd. rubber hose Replacement renewal", "unit": "set", "base_qty": 1,
+                                    "unit_price_usd": 500
+                                },
+                                {
+                                    "item_name": "High pressure pipe of servo oil to HCU renewal", "unit": "set",
+                                    "base_qty": 1, "unit_price_usd": 500
+                                },
+                                {
+                                    "item_name": "Accumulator overhaul", "unit": "EA", "base_qty": 2,
+                                    "unit_price_usd": 300
+                                },
+                                {
+                                    "item_name": "Valve block: Option 1: renewal of sealing rings for cartridge valve&end cover&block of 310#,311# v/v",
+                                    "unit": "set", "base_qty": 1, "unit_price_usd": 300
+                                },
+                                {
+                                    "item_name": "Valve block: Option-2 renewed cartridge valve&relief valve  for 310#; cartridge valve,relief valve&solenoid valve for 311# v/v",
+                                    "unit": "set", "base_qty": 1, "unit_price_usd": 500
+                                },
+                                {
+                                    "item_name": "Valve block: Check and renewal of sealing ring for #304*3sets, #305*2 sets,#309*1set,#315*1 set,#316*1 set",
+                                    "unit": "set", "base_qty": 1, "unit_price_usd": 800
+                                },
+                                {
+                                    "item_name": "Elec. Driven hyd. pump overhaul (on board)", "unit": "EA",
+                                    "base_qty": 2, "unit_price_usd": 500
+                                },
+                                {
+                                    "item_name": "Elec. Driven hyd. pump overhaul (workshop recondition)",
+                                    "unit": "EA", "base_qty": 2, "unit_price_usd": 1000
+                                }
+                            ],
+                            "Mechanical control gear": [
+                                {
+                                    "item_name": "Chain Tighten", "unit": "set", "base_qty": 1,
+                                    "unit_price_usd": 1500
+                                },
+                                {
+                                    "item_name": "Main starting v/v Slow turning v/v & actuator", "unit": "set",
+                                    "base_qty": 1, "unit_price_usd": 1500
+                                },
+                                {
+                                    "item_name": "Exhaust gas bypass valve", "unit": "EA", "base_qty": 1,
+                                    "unit_price_usd": 500
+                                }
+                            ],
+                            "Electric control system": [
+                                {
+                                    "item_name": "MPC for EICU,CCU clean and inspection", "unit": "set",
+                                    "base_qty": 1, "unit_price_usd": 300
+                                },
+                                {
+                                    "item_name": "Cables, 120ohm resistors, plug, electrical screw-terminals & terminal boards check",
+                                    "unit": "set", "base_qty": 1, "unit_price_usd": 300
+                                },
+                                {
+                                    "item_name": "UPS, power supply A+B check", "unit": "set", "base_qty": 1,
+                                    "unit_price_usd": 300
+                                },
+                                {
+                                    "item_name": "low insulation check", "unit": "set", "base_qty": 1,
+                                    "unit_price_usd": 300
+                                },
+                                {
+                                    "item_name": "MOP, ESC, RCS check and function test", "unit": "set",
+                                    "base_qty": 1, "unit_price_usd": 300
+                                },
+                                {
+                                    "item_name": "Junction box check", "unit": "set", "base_qty": 1,
+                                    "unit_price_usd": 200
+                                }
+                            ],
+                            "Tacho system": [
+                                {
+                                    "item_name": "Angle Encoder check and calibration", "unit": "set",
+                                    "base_qty": 1, "unit_price_usd": 1500
+                                },
+                                {
+                                    "item_name": "Trigger rings + Sensors MSA+MSBn calibration", "unit": "set",
+                                    "base_qty": 1, "unit_price_usd": 1500
+                                }
+                            ],
+                            "Pneumatic control system Overhaul": [
+                                {
+                                    "item_name": "Pneumatic control system Overhaul", "unit": "set", "base_qty": 1,
+                                    "unit_price_usd": 1500
+                                }
+                            ],
+                            "Hydraulic system calibration and function test": [
+                                {
+                                    "item_name": "Hydraulic system calibration and function test", "unit": "set",
+                                    "base_qty": 1, "unit_price_usd": 1000
+                                }
+                            ],
+                            "Sea trial": [
+                                { "item_name": "Sea trial", "unit": "set", "base_qty": 1, "unit_price_usd": 800 }
+                            ]
+                        }
+                    }, {
+                        "series_name": "WinGD系列",
+                        "manufacturers": ["HD HYUNDAI", "Hanwha(Doosan/HSD)", "HME(STX)", "CSSC", "Sulzer"],
+                        "model_list": ["6RTA48T-B", "6RT-flex58T-B", "7RT-flex60C", "7RT-flex84T-D", "12RTA96C",
+                            "6X62-S2.0", "7X72", "6X82-2.0"
+                        ]
+                    }, {
+                        "series_name": "J-ENG UEC系列",
+                        "manufacturers": ["J-ENG", "CSSC", "Akasaka"],
+                        "model_list": ["5UEC33LSE-C2", "6UEC33LSH-C2", "6UEC45LSE-Eco-B2", "6UEC50LSH-Eco-C2",
+                            "6UEC60LSH-Eco-C3", "8UEC60LSE-Eco-A2", "7UEC80LSE-Eco-A2"
+                        ]
+                    }],
+                },
+                'Aux. diesel generator aggregates, complete': {
+                    "base_info": { "equipment_name": "Aux. diesel generator aggregates, complete" },
+                    "all_maintenance_types": ["5年保养", "10年保养", "健康检查", "监工服务", "车间保养测试", "常规吊缸类", "故障排查维修",
+                        "部件翻新"
+                    ],
+                    "equipment_series": []
+                }
+            };
+
+            // ===== 从后台领域模型重建维保数据（与 PC demo 同源：SITEMS / SI_LEGACY_PRICE / MTYPES / CYCLES / MODELS） =====
+            // H5 专属：每个服务项在「5年保养·液压电控」下的默认数量基准（缸数 / 固定件数）。
+            // 后台 SITEMS 仅承载 编码/名称/分组/单位/类型/周期，不承载该数量基准，故以编码映射保留，便于随后台同步价格与项目。
+            const H5_BASE_QTY = {
+                'SI-001': '缸数', 'SI-002': '缸数', 'SI-003': '缸数', 'SI-004': '缸数', 'SI-005': '缸数', 'SI-006': '缸数',
+                'SI-007': 1, 'SI-008': 2, 'SI-009': 2,  'SI-011': 2,  'SI-013': 1, 'SI-014': 2,
+                    
+                'SI-020': 1, 'SI-021': 1, 'SI-022': 1,
+                'SI-023': 1, 'SI-024': 1, 'SI-025': 1, 'SI-026': 1, 'SI-027': 1, 'SI-028': 1,
+                'SI-029': 1, 'SI-030': 1, 'SI-031': 1, 'SI-032': 1, 'SI-033': 1
+            };
+
+            // 与 PC rebuildItemsFromBackend 同源：默认数量 = PACKAGES(PKG-STD) 优先，RULES.sug 覆盖；
+            // 二者皆无则回退 H5_BASE_QTY（仅作兜底）。修复前 H5 直接用 H5_BASE_QTY 决定初始数量，
+            // 导致 SI-002（F.O. booster）等被误判为「缸数」而非后台 RULES.sug 的 fixed qty。
+            // ⚠️ 关键：H5 的 PACKAGES 是从 IndexedDB 快照异步加载的（initState → bootH5 → applyBackendPackages），
+            // 若 PKG_MAP 在脚本加载时就静态构建，会一直使用静态 data.js 的 PACKAGES，与 PC（快照加载后才重建 pkgMap）
+            // 读到不同的 PACKAGES，导致套餐内子项初始数量不一致。这里用 let 声明并在 rebuildSugSet 中重建。
+            let PKG_MAP = {};
+            function _rebuildPkgMap() {
+                PKG_MAP = {};
+                if (typeof PACKAGES !== 'undefined') {
+                    PACKAGES.forEach(function (bp) { (bp.items || []).forEach(function (it) { PKG_MAP[it.ref] = it; }); });
+                }
+            }
+            _rebuildPkgMap();
+            function baseQtyForSiCode(code, sugBySi) {
+                const pm = PKG_MAP[code];
+                let bq = pm ? (pm.mode === 'auto_cylinder' ? '缸数' : (parseInt(pm.qty, 10) || 1)) : null;
+                if (sugBySi && sugBySi[code]) {
+                    const su = sugBySi[code];
+                    bq = (su.mode === 'auto_cylinder' ? '缸数' : (parseInt(su.qty, 10) || 1));
+                }
+                if (bq == null) bq = (H5_BASE_QTY[code] !== undefined) ? H5_BASE_QTY[code] : 1;
+                return bq;
+            }
+            // 设备编码 → 设备名（取后台 CATALOG 叶子的 en 名，与目录树展示一致）
+            const H5_DEV_NAME = { '601.001': 'Main diesel engine', '651.001': 'Aux. diesel generator aggregates, complete' };
+            // 系列归类（H5 展示口径）：按型号名特征归并到 MAN B&W、WinGD、J-ENG UEC 三大品牌系列
+            // （具体机型名以缸数开头，如 6S60MC-C / 7RT-flex84T-D / 6X62-S2.0 / 6UEC45LSE-Eco-B2）
+            function h5SeriesOfModel(name) {
+                if (/UEC/.test(name)) return 'J-ENG UEC系列';
+                if (/RTA|RT-flex|X\d\d/.test(name)) return 'WinGD系列';
+                return 'MAN B&W系列';
+            }
+            // 从后台领域模型重建 EQUIPMENT_DATA；后台不可用时回退到内联 EQUIPMENT_DATA_SRC
+            function buildEquipmentData() {
+                if (typeof SITEMS === 'undefined' && typeof MODELS === 'undefined') return EQUIPMENT_DATA_SRC;
+                // R-07：维保类型按设备挂载（D10：5年/10年保养是保养周期，不是维保类型）
+                function mountedTypeNames(dev) {
+                    let node = null;
+                    if (typeof CATALOG !== 'undefined') {
+                        (function walk(ns) {
+                            ns.forEach(function (n) {
+                                if (n.code === dev) node = node || n;
+                                if (n.children && n.children.length) walk(n.children);
+                            });
+                        })(CATALOG);
+                    }
+                    const mounted = (node && Array.isArray(node.mts) && node.mts.length) ? node.mts : null;
+                    if (typeof MTYPES === 'undefined') return ['液压和电控系统保养'];
+                    return MTYPES.filter(function (t) { return !mounted || mounted.indexOf(t.code) !== -1; })
+                        .map(function (t) { return t.name; });
+                }
+
+                const EQUIPMENT_DATA = {};
+                Object.keys(H5_DEV_NAME).forEach(function (dev) {
+                    const eqName = H5_DEV_NAME[dev];
+                    const seriesMap = {};
+                    const models = (typeof MODELS !== 'undefined') ? MODELS.filter(function (m) { return m.dev === dev; }) : [];
+                    models.forEach(function (m) {
+                        const sn = h5SeriesOfModel(m.name);
+                        if (!seriesMap[sn]) seriesMap[sn] = { manufacturers: {}, model_list: [] };
+                        seriesMap[sn].model_list.push(m.name);
+                        (m.vendors || []).forEach(function (v) { seriesMap[sn].manufacturers[v] = true; });
+                    });
+                    const equipment_series = Object.keys(seriesMap).map(function (sn) {
+                        return {
+                            series_name: sn,
+                            manufacturers: Object.keys(seriesMap[sn].manufacturers),
+                            model_list: seriesMap[sn].model_list
+                        };
+                    });
+                    EQUIPMENT_DATA[eqName] = {
+                        base_info: { equipment_name: eqName },
+                        all_maintenance_types: mountedTypeNames(dev),
+                        equipment_series: equipment_series
+                    };
+                });
+
+                // 主机柴油机（601.001）：补充「5年保养·液压电控」标准项，数据来自后台 SITEMS + SI_LEGACY_PRICE
+                if (EQUIPMENT_DATA['Main diesel engine']) {
+                    const special = {};
+                    (typeof SGROUPS !== 'undefined' ? SGROUPS : []).forEach(function (cat) { special[cat] = []; });
+                    (typeof SITEMS !== 'undefined' ? SITEMS : []).forEach(function (s) {
+                        if (s.mt !== 'HYDELEC' || s.cycle !== '5年保养') return;
+                        // 项目分组非必填（D2）：未归类服务项归入兜底分组「其他」，避免整组丢失
+                        const g = s.grp || '其他';
+                        if (!special[g]) special[g] = [];
+                        special[g].push({
+                            item_name: s.name,
+                            unit: s.unit || '',
+                            base_qty: baseQtyForSiCode(s.code, null),
+                            siCode: s.code,
+                            unit_price_usd: (typeof SI_LEGACY_PRICE !== 'undefined' && SI_LEGACY_PRICE[s.code] != null) ? SI_LEGACY_PRICE[s.code] : 0
+                        });
+                    });
+                    const series = (EQUIPMENT_DATA['Main diesel engine'].equipment_series || []);
+                    const mc = series.find(function (x) { return x.series_name === 'MAN B&W系列'; }) || series[0];
+                    if (mc) mc.special_5year_maintenance = special;
+                }
+                return EQUIPMENT_DATA;
+            }
+
+            let EQUIPMENT_DATA = buildEquipmentData();
+
+            let DATA = EQUIPMENT_DATA['Main diesel engine'];
+            let MAINTENANCE_TYPES = [];
+            let MODEL_TO_SERIES = {};
+            let SERIES_INFO = {};
+            let ALL_MANUFACTURERS = [];
+            let SPECIAL_5Y_LEAVES = [];
+            let ITEM_MAP = {};
+            let SI_CODE_TO_KEY = {};   // SI 编码 → demo 项 key（在 loadEquipmentData 填充）
+            let SUG_SET = new Set();   // 后台 RULES.sug 建议加选项 key 集合（与 PC 同源）
+            let SUG_MAP = {};          // demo 项 key → { mode, qty }（后台建议默认数量）
+            // 设备 → 设备编码（dev）：主机柴油机=601.001，辅助柴油发电机组=651.001（与 PC/后台一致）
+            const EQUIP_DEV = { 'Main diesel engine': '601.001', 'Aux. diesel generator aggregates, complete': '651.001' };
+            function currentEquipName() { return (deviceType && deviceType.value) || 'Main diesel engine'; }
+
+            // 重算后台建议项集合（RULES.sug）：随设备/维保类型(mt)/周期(cycle) 变化而刷新，与 PC rebuildSugSet 同源
+            function rebuildSugSet() {
+                // 同步重建 PKG_MAP：快照异步加载完成后 PACKAGES 已被还原为快照版本，
+                // 此处重建以保证套餐内子项初始数量与 PC rebuildItemsFromBackend 完全同源。
+                _rebuildPkgMap();
+                const sugBySi = {};
+                if (typeof RULES !== 'undefined' && RULES.sug) {
+                    // sugDev 取所选型号的 dev（主机柴油机=601.001 / 辅助柴油发电机组=651.001），与 PC rebuildSugSet 同源；
+                    // 不再依赖 deviceType（H5 无 STEP0 引导，deviceType 恒空 → 会误判为主机柴油机）
+                    const _mdl = (typeof MODELS !== 'undefined' && model && model.value)
+                        ? MODELS.find(function (x) { return x.name === model.value; })
+                        : null;
+                    const sugDev = _mdl ? _mdl.dev : '601.001';
+                    const sugMt = maintTypeCode();
+                    const sugCycle = currentCycle();
+                    RULES.sug.forEach(function (r) {
+                        if (!r || !r.si) return;
+                        if (r.dev && r.dev !== sugDev) return;
+                        if (sugMt && r.mt && r.mt !== sugMt) return;
+                        if (r.cycle && r.cycle !== sugCycle) return;
+                        sugBySi[r.si] = { mode: r.mode, qty: r.qty, badge: !!r.badge };
+                    });
+                }
+                SUG_SET = new Set();
+                SUG_MAP = {};
+                // demo 项直接挂载 siCode，按 SI 编码命中 RULES.sug（无需再走 SITEMS）
+                SPECIAL_5Y_LEAVES.forEach(function (it) {
+                    if (!it.siCode) return;
+                    const su = sugBySi[it.siCode];
+                    if (su) { SUG_SET.add(it.key); SUG_MAP[it.key] = { mode: su.mode, qty: su.qty }; }
+                });
+                // 与 PC rebuildItemsFromBackend 一致：依据 PACKAGES(PKG-STD) + RULES.sug 反推每项默认数量，
+                // 覆盖 buildEquipmentData 阶段的初值（例如 SI-002 F.O. booster 应为 RULES.sug 的 fixed qty=1，而非缸数）
+                SPECIAL_5Y_LEAVES.forEach(function (it) {
+                    if (!it.siCode) return;
+                    it.base_qty = baseQtyForSiCode(it.siCode, sugBySi);
+                });
+            }
+
+            function loadEquipmentData(name) {
+                const equipmentName = (name && EQUIPMENT_DATA[name]) ? name : 'Main diesel engine';
+                DATA = EQUIPMENT_DATA[equipmentName];
+                MAINTENANCE_TYPES = (DATA.all_maintenance_types || []).slice();
+                MODEL_TO_SERIES = {};
+                SERIES_INFO = {};
+                (DATA.equipment_series || []).forEach(function (series) {
+                    SERIES_INFO[series.series_name] = series;
+                    (series.model_list || []).forEach(function (m) {
+                        if (!MODEL_TO_SERIES[m]) MODEL_TO_SERIES[m] = series.series_name;
+                    });
+                });
+                const SPECIAL_5Y = SERIES_INFO['MAN B&W系列'] ? SERIES_INFO['MAN B&W系列'].special_5year_maintenance :
+                    {};
+                SPECIAL_5Y_LEAVES = [];
+                ITEM_MAP = {};
+                SI_CODE_TO_KEY = {};
+                Object.keys(SPECIAL_5Y).forEach(function (cat) {
+                    (SPECIAL_5Y[cat] || []).forEach(function (obj) {
+                        if (!obj || !obj.item_name) return;
+                        const key = cat + '::' + obj.item_name;
+                        if (ITEM_MAP[key]) return;
+                        const item = {
+                            key: key,
+                            cat: cat,
+                            item_name: obj.item_name,
+                            unit: obj.unit || '',
+                            base_qty: (obj.base_qty === undefined || obj.base_qty === null) ? 1 : obj.base_qty,
+                            siCode: obj.siCode,
+                            unit_price_usd: obj.unit_price_usd || 0
+                        };
+                        ITEM_MAP[key] = item;
+                        SPECIAL_5Y_LEAVES.push(item);
+                        if (obj.siCode) SI_CODE_TO_KEY[obj.siCode] = key;
+                    });
+                });
+                // 全部已知厂家（去重），用于型号无 series 映射时的兜底
+                ALL_MANUFACTURERS = [];
+                Object.keys(SERIES_INFO).forEach(function (sn) {
+                    (SERIES_INFO[sn].manufacturers || []).forEach(function (m) {
+                        if (ALL_MANUFACTURERS.indexOf(m) === -1) ALL_MANUFACTURERS.push(m);
+                    });
+                });
+                rebuildSugSet();   // 同步重建后台建议项集合（RULES.sug），与 PC 保持一致
+            }
+            loadEquipmentData('Main diesel engine');
+
+            function getManufacturersForModel(modelVal) {
+                const series = modelVal ? MODEL_TO_SERIES[modelVal] : '';
+                return series ? (SERIES_INFO[series].manufacturers || []) : [];
+            }
+
+            deviceType.innerHTML = '<option value="">请选择设备名称</option>' + Object.keys(EQUIPMENT_DATA).map(function (
+                name) {
+                return '<option value="' + escapeHtml(name) + '"' + (name === 'Main diesel engine' ? ' selected' : '') +
+                    '>' + escapeHtml(name) + '</option>';
+            }).join('');
+            // 切换设备后按设备挂载重建维保类型下拉（R-07）并同步周期默认值
+            function refreshMaintTypeOptions() {
+                const types = MAINTENANCE_TYPES.slice();
+                maintType.innerHTML = '<option value="">请选择维保类型</option>' + types.map(function (t) {
+                    return '<option value="' + escapeHtml(t) + '">' + escapeHtml(t) + '</option>';
+                }).join('');
+                if (types.indexOf(maintType.value) === -1) maintType.value = types[0] || '';
+                if (maintType._syncInput) maintType._syncInput();
+                syncCycleDefault();
+                const cycleGroup = document.getElementById('cycleFieldGroup');
+                if (cycleGroup) cycleGroup.style.display = maintCycleEnabled() ? '' : 'none';
+            }
+            refreshMaintTypeOptions();
+
+            const _allPanels = [];
+
+            // 全局单次注册：点击面板外部区域时关闭所有搜索面板（事件委托，避免每个实例重复注册）
+            document.addEventListener('click', function (e) {
+                _allPanels.forEach(function (p) {
+                    if (p.style.display === 'none') return;
+                    const w = p.closest('.search-select');
+                    const isInside = w && w.contains(e.target);
+                    if (!isInside) {
+                        p.style.display = 'none';
+                        if (w) w.classList.remove('ss-open');
+                    }
+                });
+            });
+
+            function setupSearchSelect(selectEl, inputEl, panelEl, clearEl, beforeRender) {
+                _allPanels.push(panelEl);
+                const wrap = inputEl.closest('.search-select');
+
+                function closeOtherPanels() {
+                    _allPanels.forEach(function (p) {
+                        if (p !== panelEl) {
+                            p.style.display = 'none';
+                            const w = p.closest('.search-select');
+                            if (w) w.classList.remove('ss-open');
+                        }
+                    });
+                }
+
+                function render(query) {
+                    const q = (query || '').trim().toLowerCase();
+                    panelEl.innerHTML = '';
+                    let any = false;
+                    const allOptions = selectEl.querySelectorAll('option');
+                    allOptions.forEach(o => {
+                        if (o.value === '') return;
+                        if (q && o.textContent.toLowerCase().indexOf(q) === -1) return;
+                        any = true;
+                        const div = document.createElement('div');
+                        div.className = 'ss-option' + (o.value === selectEl.value ? ' selected' : '');
+                        div.textContent = o.textContent;
+                        div.addEventListener('mousedown', function (e) {
+                            e.preventDefault();
+                            selectEl.value = o.value;
+                            inputEl.value = o.textContent;
+                            panelEl.style.display = 'none';
+                            if (wrap) wrap.classList.remove('ss-open');
+                            selectEl.dispatchEvent(new Event('change'));
+                        });
+                        panelEl.appendChild(div);
+                    });
+                    if (!any) {
+                        const empty = document.createElement('div');
+                        empty.className = 'ss-empty';
+                        if (selectEl.id === 'manufacturer') {
+                            empty.textContent = '请先选择设备型号';
+                        } else if (selectEl.id === 'model') {
+                            empty.textContent = '暂无可选型号';
+                        } else {
+                            empty.textContent = '无匹配结果';
+                        }
+                        panelEl.appendChild(empty);
+                    }
+                }
+
+                function syncInput() {
+                    const sel = selectEl.selectedOptions[0];
+                    inputEl.value = (sel && selectEl.value) ? sel.textContent : '';
+                    const has = !!inputEl.value;
+                    if (clearEl) {
+                        clearEl.style.display = has ? 'flex' : 'none';
+                    }
+                    if (wrap) wrap.classList.toggle('has-value', has);
+                }
+                inputEl.addEventListener('focus', function () {
+                    if (selectEl.id === 'model' && selectEl.options.length <= 1) {
+                        rebuildModelOptions();
+                    }
+                    if (beforeRender) beforeRender();
+                    closeOtherPanels();
+                    render('');
+                    panelEl.style.display = 'block';
+                    if (wrap) wrap.classList.add('ss-open');
+                    inputEl.select();
+                });
+                inputEl.addEventListener('input', function () {
+                    if (beforeRender) beforeRender();
+                    render(inputEl.value);
+                    panelEl.style.display = 'block';
+                });
+                inputEl.addEventListener('blur', function () {
+                    setTimeout(() => {
+                        panelEl.style.display = 'none';
+                        if (wrap) wrap.classList.remove('ss-open');
+                    }, 120);
+                    syncInput();
+                });
+                if (clearEl) {
+                    clearEl.addEventListener('mousedown', function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        selectEl.value = '';
+                        panelEl.style.display = 'none';
+                        syncInput();
+                        selectEl.dispatchEvent(new Event('change'));
+                    });
+                }
+                selectEl._syncInput = syncInput;
+                syncInput();
+            }
+
+            function rebuildModelOptions() {
+                model.innerHTML = '<option value="">请选择设备型号</option>';
+                if (DATA && DATA.equipment_series) {
+                    DATA.equipment_series.forEach(function (series) {
+                        const og = document.createElement('optgroup');
+                        og.label = series.series_name;
+                        (series.model_list || []).forEach(function (m) {
+                            const o = document.createElement('option');
+                            o.value = m;
+                            o.textContent = m;
+                            og.appendChild(o);
+                        });
+                        model.appendChild(og);
+                    });
+                }
+                model.value = '';
+                if (model._syncInput) model._syncInput();
+                customModel = '';
+                customModelInput.value = '';
+            }
+
+            function refreshDeviceDependentDropdowns() {
+                rebuildModelOptions();
+                manufacturer.innerHTML = '<option value="">请选择制造厂家</option>';
+                manufacturer.value = '';
+                if (manufacturer._syncInput) manufacturer._syncInput();
+                resetCustomFields();
+                selectedItems = [];
+                quoteExcluded.clear();
+                quoteQty = {};
+                modelHint.textContent = '';
+                manuHint.textContent = '';
+            }
+
+            function resetCustomFields() {
+                customManufacturer = '';
+                customModel = '';
+                customNeed = '';
+                customNeedInput.value = '';
+                customManuInput.value = '';
+                customModelInput.value = '';
+                customAddModal.classList.remove('open');
+            }
+
+            function escapeHtml(s) {
+                return String(s).replace(/[&<>"']/g, c => ({
+                    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;',
+                    "'": '&#39;'
+                }[c]));
+            }
+
+            const fmtNum = n => Number(n).toLocaleString('en-US');
+
+            // ----- 缸数输入（输入过程防抖渲染，失焦时立即渲染） -----
+            let cylRenderTimer = null;
+            function clampCyl(immediate) {
+                if (cylInput.value === '') { renderItems(); return; }
+                let v = parseInt(cylInput.value, 10);
+                if (isNaN(v)) { cylInput.value = ''; renderItems(); return; }
+                if (v < 1) v = 1;
+                if (v > 20) v = 20;
+                cylInput.value = v;
+                clearTimeout(cylRenderTimer);
+                if (immediate) {
+                    renderItems();
+                } else {
+                    cylRenderTimer = setTimeout(renderItems, 300);
+                }
+            }
+            cylInput.addEventListener('input', function () { clampCyl(false); });
+            cylInput.addEventListener('blur', function () { clampCyl(true); });
+            document.querySelectorAll('.cyl-qty-cell button').forEach(btn => {
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    let v = parseInt(cylInput.value, 10);
+                    if (isNaN(v) || v < 0) v = 0;
+                    if (this.classList.contains('cyl-inc')) {
+                        v += 1;
+                    } else {
+                        v -= 1;
+                        if (v < 1) {
+                            cylInput.value = '';
+                            cylInput.dispatchEvent(new Event('input')); return;
+                        }
+                    }
+                    if (v < 1) v = 1;
+                    if (v > 20) v = 20;
+                    cylInput.value = v;
+                    cylInput.dispatchEvent(new Event('input'));
+                });
+            });
+
+            // ----- 获取厂家/型号 -----
+            function getManufacturerText() {
+                if (customManufacturer) return customManufacturer;
+                return (manufacturer.selectedOptions[0] && manufacturer.value) ? manufacturer.selectedOptions[0].text :
+                    '';
+            }
+
+            function getModelText() {
+                if (customModel) return customModel;
+                return (model.selectedOptions[0] && model.value) ? model.selectedOptions[0].text : '';
+            }
+
+            function updateAddLinkVisibility() {
+                const show = !!deviceType.value;
+                const el = document.querySelector('.add-link-row');
+                if (el) el.style.display = show ? 'block' : 'none';
+            }
+
+            function updateItemCount() {
+                const hasDevice = !!deviceType.value;
+                const hasModel = !!model.value || !!customModel;
+                const cycleInput = document.getElementById('maintCycleHours');
+                const hasCycle = !maintCycleEnabled() || !!(cycleInput && cycleInput.value && String(cycleInput.value).trim() !== '');
+                const hasCyl = !!(cylInput.value && String(cylInput.value).trim() !== '');
+                const hasManufacturer = !!manufacturer.value || !!customManufacturer;
+                const hasMaintType = !!maintType.value;
+                const hasItem = selectedItems.length > 0;
+                // R-21 扩展（D17）：服务信息三项齐备（地点到地区+国家；日期不早于当天）
+                const s = svcEnsure();
+                const hasSvc = !!(s.region && s.country) && !!s.date;
+                const valid = hasDevice && hasModel && hasCyl && hasManufacturer && hasMaintType && hasItem && hasCycle && hasSvc;
+                step1Next.disabled = !valid;
+            }
+
+            // ===== 套餐系统 =====
+            // ===== 套餐 / 子系统（方案 A：直接以后台 SGROUPS 为唯一数据源生成，显示原值，与后台服务项 grp 完全一致）=====
+            const SUB_META = {
+                'HCU': { id: 'hcu', tier: 'std', desc: '蓄能器、燃油增压器、排气阀执行器、缸套注油器、FIVA阀等' },
+                'HPS': { id: 'hps', tier: 'opt', desc: '液压泵、比例方向控制阀、高压管路、蓄能器、阀块等' },
+                'Electric control system': { id: 'elec', tier: 'std', desc: 'MPC控制器、线缆检查、UPS电源、绝缘检测、功能测试等' },
+                'Tacho system': { id: 'tacho', tier: 'std', desc: '角度编码器校准、触发环+传感器校准' },
+                'Pneumatic control system Overhaul': { id: 'pneu', tier: 'std', desc: '气动控制系统整体翻新' },
+                'Hydraulic system calibration and function test': { id: 'hydcal', tier: 'std', desc: '液压系统校准与功能测试' },
+                'Sea trial': { id: 'seatrial', tier: 'std', desc: '海试验证维保效果' },
+                'Mechanical control gear': { id: 'mech', tier: 'opt', desc: '链条张紧、主启动阀/慢转阀、排气旁通阀' }
+            };
+            const SUBSYSTEMS = (typeof SGROUPS !== 'undefined' ? SGROUPS : []).map(function (code) {
+                const m = SUB_META[code] || {};
+                return {
+                    id: m.id || ('grp_' + String(code).replace(/[^A-Za-z0-9]+/g, '_')),
+                    name: code,                  // 显示后台原值（与后台服务项 grp 一致）
+                    cat: code,                   // 精确匹配服务项 grp
+                    tier: m.tier || 'opt',
+                    desc: m.desc || ''
+                };
+            });
+            // 兜底分组：项目分组选填（D2），未归类的服务项归入「其他」
+            SUBSYSTEMS.push({ id: 'other', name: '其他', cat: '其他', tier: 'opt', desc: '未归类服务项（项目分组选填，可后补）' });
+
+            // 套餐数据：运行时从后台快照（IndexedDB）还原的全局 PACKAGES 派生，与 PC 完全同源，
+            // 保证 H5 与 PC 的套餐 / 可选项展示一致。无快照时回退到 PKG-001（SI-001 + SI-033）。
+            let PKG_LIST = [];
+
+            // 将后台全局 PACKAGES（快照）转换为 H5 内部使用的套餐结构（按 SI 编码精确命中）
+            function applyBackendPackages() {
+                const src = (typeof PACKAGES !== 'undefined') ? PACKAGES : [];
+                if (src && src.length) {
+                    PKG_LIST = src.map(function (p) {
+                        return {
+                            id: p.code,
+                            name: p.name,
+                            desc: p.desc || '',
+                            recommend: !!p.rec,
+                            siCodes: (p.items || []).map(function (it) { return it.ref; })
+                        };
+                    });
+                } else {
+                    PKG_LIST = [{
+                        id: 'PKG-001',
+                        name: '5年常规保养套餐',
+                        desc: '',
+                        recommend: true,
+                        siCodes: ['SI-001', 'SI-033']
+                    }];
+                }
+            }
+
+            // ===== 服务信息（D17，订单级必填）：是否紧急 / 服务地点 / 服务时间 =====
+            // 原「基础服务费（BFEES，D13 加收）」机制已作废（D16 改保底价托底）。
+            // 与 PC demo 同源：URGENT / LOCATIONS / LEAD_BANDS / PPARAMS 统一来自后台 data.js，
+            // 最终报价 = Max(合计保底价, 明细合计) × 影响系数 K，其中 K = Max(紧急系数, 地点系数, 时间系数)（取三者最大值，Q-9 已决，2026-09-18）。
+            let svcInfo = null;   // {urg, region, country, site, date}；null = 默认（不紧急 / 第一个地区+国家）
+            function svcIsoOf(t) {
+                return t.getFullYear() + '-' + ('0' + (t.getMonth() + 1)).slice(-2) + '-' + ('0' + t.getDate()).slice(-2);
+            }
+            function svcDefault() {
+                const r0 = (typeof locRegions === 'function') ? (locRegions()[0] || '') : '';
+                const c0 = r0 && typeof locCountries === 'function' ? (locCountries(r0)[0] || '') : '';
+                return { urg: (typeof URGENT !== 'undefined' && URGENT[0] ? URGENT[0].key : 'no'), region: r0, country: c0, site: '', date: '' };
+            }
+            function svcEnsure() { if (!svcInfo) svcInfo = svcDefault(); return svcInfo; }
+            // 距询价天数 = 服务日期 − 今天（自然日，当天 = 0；IN-INQ-05：min=今天，负值防御性按 0）
+            function svcLeadDays() {
+                const s = svcEnsure();
+                if (!s.date) return null;
+                const d = new Date(s.date + 'T00:00:00');
+                if (isNaN(d.getTime())) return null;
+                const now = new Date(); now.setHours(0, 0, 0, 0);
+                return Math.max(0, Math.round((d - now) / 86400000));
+            }
+            // 三维系数（R-41）：K = Max(紧急, 地点, 时间)，各未命中 = 1.0（取最大值，Q-9 已决）
+            function svcCoef() {
+                const s = svcEnsure();
+                const u = (typeof urgentOf === 'function') ? urgentOf(s.urg) : { label: '不紧急', c: 1 };
+                const l = (typeof locResolve === 'function') ? locResolve(s.region, s.country, s.site) : { c: 1, level: '未配置' };
+                const days = svcLeadDays();
+                const b = (days == null || typeof leadBandOf !== 'function') ? { c: 1, band: null } : leadBandOf(days);
+                return { u: u, l: l, days: days, b: b, k: Math.max(u.c, l.c, b.c) };
+            }
+            function svcLocTxt() {
+                const s = svcEnsure();
+                return s.region + (s.country ? ' · ' + s.country : '') + (s.site ? ' · ' + s.site : '');
+            }
+            function svcHintUpdate() {
+                const el = document.getElementById('svcHint');
+                if (!el) return;
+                const s = svcEnsure();
+                // 客户侧不展示系数/构成：提示只做必填引导（R-36 口径扩展）
+            }
+            function svcRenderOptions() {
+                const s = svcEnsure();
+                const uSel = document.getElementById('svcUrg');
+                const rSel = document.getElementById('svcRegion');
+                const cSel = document.getElementById('svcCountry');
+                const stSel = document.getElementById('svcSite');
+                const dInp = document.getElementById('svcDate');
+                if (uSel) uSel.innerHTML = (typeof URGENT !== 'undefined' ? URGENT : []).map(function (u) {
+                    return '<option value="' + u.key + '"' + (u.key === s.urg ? ' selected' : '') + '>' + u.label + '</option>';   // 系数不外显（R-36 口径扩展）
+                }).join('');
+                const regions = (typeof locRegions === 'function') ? locRegions() : [];
+                if (s.region && regions.indexOf(s.region) < 0) { s.region = regions[0] || ''; s.country = ''; s.site = ''; }
+                if (rSel) rSel.innerHTML = regions.length
+                    ? '<option value="">请选择地区</option>' + regions.map(function (r) {
+                        return '<option value="' + r + '"' + (r === s.region ? ' selected' : '') + '>' + r + '</option>';
+                    }).join('')
+                    : '<option value="">（暂无地区配置）</option>';
+                const countries = s.region && typeof locCountries === 'function' ? locCountries(s.region) : [];
+                if (s.country && countries.indexOf(s.country) < 0) { s.country = ''; s.site = ''; }
+                if (cSel) cSel.innerHTML = '<option value="">请选择国家</option>' + countries.map(function (c) {
+                    return '<option value="' + c + '"' + (c === s.country ? ' selected' : '') + '>' + c + '</option>';
+                }).join('');
+                const sites = (s.region && s.country && typeof locSites === 'function') ? locSites(s.region, s.country) : [];
+                if (stSel) stSel.innerHTML = '<option value="">请选择地点（选填）</option>' + sites.map(function (t) {
+                    return '<option value="' + t + '"' + (t === s.site ? ' selected' : '') + '>' + t + '</option>';
+                }).join('');
+                if (dInp) { dInp.min = svcIsoOf(new Date()); dInp.value = s.date || ''; }
+                if (window.SEL) SEL.syncAll();   // 升级后的 Select：选项重建后同步触发器文案
+            }
+            function svcBindEvents() {
+                const uSel = document.getElementById('svcUrg');
+                const rSel = document.getElementById('svcRegion');
+                const cSel = document.getElementById('svcCountry');
+                const stSel = document.getElementById('svcSite');
+                const dInp = document.getElementById('svcDate');
+                if (uSel) uSel.addEventListener('change', function () { svcEnsure().urg = this.value; svcHintUpdate(); liveRenderBudget(); });
+                if (rSel) rSel.addEventListener('change', function () {
+                    const s = svcEnsure(); s.region = this.value;
+                    s.country = (typeof locCountries === 'function' ? locCountries(this.value)[0] : '') || '';
+                    s.site = '';
+                    svcRenderOptions(); svcHintUpdate(); updateItemCount(); liveRenderBudget();
+                });
+                if (cSel) cSel.addEventListener('change', function () {
+                    const s = svcEnsure(); s.country = this.value; s.site = '';
+                    svcRenderOptions(); svcHintUpdate(); updateItemCount(); liveRenderBudget();
+                });
+                if (stSel) stSel.addEventListener('change', function () { svcEnsure().site = this.value; svcHintUpdate(); liveRenderBudget(); });
+                if (dInp) dInp.addEventListener('change', function () { svcEnsure().date = this.value; svcHintUpdate(); updateItemCount(); liveRenderBudget(); });
+            }
+
+            let selectedPackage = '';
+            let expandedPkg = '';
+
+            function getSubsystemKeys(subId) {
+                const sub = SUBSYSTEMS.find(function (s) { return s.id === subId; });
+                if (!sub) return [];
+                return SPECIAL_5Y_LEAVES.filter(function (it) { return it.cat === sub.cat; }).map(function (it) {
+                    return it
+                        .key;
+                });
+            }
+
+            function changeQty(key, delta) {
+                const it = ITEM_MAP[key];
+                if (!it) return;
+                const cyl = parseInt((cylInput && cylInput.value) || '0', 10) || 1;
+                const baseQty = it.base_qty === '缸数' ? cyl : (parseInt(it.base_qty, 10) || 1);
+                if (quoteQty[key] == null) quoteQty[key] = baseQty;
+                quoteQty[key] = Math.max(1, quoteQty[key] + delta);
+                renderPackageUI();
+                applyItemFilter();
+                liveRenderBudget();
+            }
+
+            function selectPackage(pkgId) {
+                selectedPackage = pkgId;
+                selectedItems = [];
+                if (pkgId) {
+                    const pkg = PKG_LIST.find(function (p) { return p.id === pkgId; });
+                    if (pkg) {
+                        (pkg.siCodes || []).forEach(function (code) {
+                            const key = SI_CODE_TO_KEY[code];
+                            if (key && selectedItems.indexOf(key) === -1) selectedItems.push(key);
+                        });
+                    }
+                }
+                renderPackageUI();
+                applyItemFilter();
+                updateItemCount();
+                liveRenderBudget();
+            }
+
+            function cancelPackage(e) {
+                e.stopPropagation();
+                selectedPackage = '';
+                selectedItems = [];
+                renderPackageUI();
+                applyItemFilter();
+                updateItemCount();
+                liveRenderBudget();
+            }
+
+            // 按展示规则（RULES.pkg）回溯套餐：命中顺序 型号级 > 设备级，返回命中套餐编码或 null（未命中 → R-26）
+            // 与 PC 端 resolvePkgRule 逻辑一致，确保 H5 / PC 命中结果一致
+            function resolvePkgRule() {
+                if (typeof RULES === 'undefined' || !RULES.pkg) return null;
+                const modelName = (model && model.value) || '';
+                const mtCode = (typeof MTYPES !== 'undefined')
+                    ? ((MTYPES.find(function (x) { return x.name === (maintType && maintType.value); }) || {}).code || null)
+                    : null;
+                const cycle = currentCycle();
+                const m = (typeof MODELS !== 'undefined')
+                    ? MODELS.find(function (x) { return x.name === modelName; })
+                    : null;
+                const dev = m ? m.dev : null;
+                const f = function (r) { return r.mt === mtCode && (r.cycle || null) === (cycle || null); };
+                const r = RULES.pkg.find(function (x) {
+                    return f(x) && x.level === '型号级' && x.ref === modelName;
+                });
+                if (r) return r.pkg;
+                const rows = RULES.pkg.filter(function (x) {
+                    return f(x) && x.level === '设备级' && x.dev === dev;
+                });
+                return rows.length ? rows[0].pkg : null;
+            }
+
+            // R-26：当前型号 / 维保类型 / 周期未命中任何展示规则，渲染提示与可选项（与 PC 对齐）
+            function renderNoSchemeHint() {
+                const pkgContainer = document.getElementById('packageContainer');
+                if (!pkgContainer) return;
+                const cyl = parseInt((cylInput && cylInput.value) || '0', 10) || 0;
+                const optItems = SPECIAL_5Y_LEAVES.filter(function (it) {
+                    return it.key && SUG_SET.has(it.key) && it.siCode;
+                });
+                const optGroups = {};
+                optItems.forEach(function (it) { (optGroups[it.cat] = optGroups[it.cat] || []).push(it); });
+                const optCatList = Object.keys(optGroups);
+                let html = '';
+                if (optCatList.length > 0) {
+                    html += '<div class="items-locked">暂无标准维保套餐，您可单独勾选下列项目。</div>';
+                } else {
+                    html += '<div class="items-locked">暂无维保方案数据，可咨询服务顾问为您报价。</div>';
+                }
+                if (optCatList.length > 0) {
+                    html += '<div class="opt-section">';
+                    html += '<div class="opt-section-title">可选项目</div>';
+                    optCatList.forEach(function (cat) {
+                        const sub = SUBSYSTEMS.find(function (x) { return x.cat === cat; });
+                        const subName = sub ? sub.name : cat;
+                        const items = optGroups[cat];
+                        const allKeys = items.map(function (it) { return it.key; });
+                        const checkedKeys = allKeys.filter(function (k) { return selectedItems.indexOf(k) !== -1; });
+                        const allSel = allKeys.length > 0 && checkedKeys.length === allKeys.length;
+                        let partial = !allSel && checkedKeys.length > 0;
+                        html += '<div class="tree-cat">';
+                        html += '<div class="tree-cat-head" data-sub="' + escapeHtml(cat) + '" data-scope="opt">';
+                        html += '<span class="tree-chk' + (allSel ? ' checked' : (partial ? ' partial' : '')) + '"></span>';
+                        html += '<span class="tree-cat-name">' + escapeHtml(subName) + '</span>';
+                                                html += '<span class="tree-cat-count">' + checkedKeys.length + '/' + allKeys.length + '</span>';
+                        html += '</div>';
+                        items.forEach(function (it) {
+                            const key = it.key;
+                            const checked = selectedItems.indexOf(key) !== -1;
+                            const baseQty = it.base_qty === '缸数' ? (isNaN(cyl) ? 6 : cyl) : (parseInt(it.base_qty, 10) || 1);
+                            let qty = quoteQty[key] != null ? quoteQty[key] : baseQty;
+                            html += '<div class="tree-item' + (checked ? ' checked' : '') + '" data-item="' + escapeHtml(key) + '">';
+                            html += '<span class="tree-chk"></span>';
+                            html += '<span class="tree-item-name">' + escapeHtml(it.item_name) + '</span>';
+                            if (SUG_SET.has(key)) html += '<span class="sug-badge">建议加选</span>';
+                            html += '<span class="qty-ctrl">';
+                            html += '<button class="qty-btn" data-qty-key="' + escapeHtml(key) + '" data-delta="-1">−</button>';
+                            html += '<span class="qty-val">' + qty + '</span>';
+                            html += '<button class="qty-btn" data-qty-key="' + escapeHtml(key) + '" data-delta="1">+</button>';
+                            html += '<span class="qty-unit">' + escapeHtml(it.unit) + '</span>';
+                            html += '</span>';
+                            html += '</div>';
+                        });
+                        html += '</div>';
+                    });
+                    html += '</div>';
+                }
+                pkgContainer.innerHTML = html;
+                // 事件绑定（opt 区域：分组勾选 / 单项勾选 / ± 数量）
+                pkgContainer.querySelectorAll('.tree-cat-head[data-scope="opt"]').forEach(function (el) {
+                    el.addEventListener('click', function () {
+                        const cat = this.getAttribute('data-sub');
+                        const items = optGroups[cat] || [];
+                        const keys = items.map(function (it) { return it.key; });
+                        const allSel = keys.length > 0 && keys.every(function (k) { return selectedItems.indexOf(k) !== -1; });
+                        if (allSel) {
+                            selectedItems = selectedItems.filter(function (k) { return keys.indexOf(k) === -1; });
+                        } else {
+                            keys.forEach(function (k) { if (selectedItems.indexOf(k) === -1) selectedItems.push(k); });
+                        }
+                        updatePackageSelection();
+                        renderPackageUI();
+                        updateItemCount();
+                        liveRenderBudget();
+                    });
+                });
+                pkgContainer.querySelectorAll('.tree-item').forEach(function (el) {
+                    el.addEventListener('click', function (e) {
+                        if (e.target.classList.contains('qty-btn')) return;
+                        e.stopPropagation();
+                        const key = this.getAttribute('data-item');
+                        if (selectedItems.indexOf(key) !== -1) {
+                            selectedItems = selectedItems.filter(function (v) { return v !== key; });
+                        } else {
+                            selectedItems.push(key);
+                        }
+                        updatePackageSelection();
+                        renderPackageUI();
+                        updateItemCount();
+                        liveRenderBudget();
+                    });
+                });
+                pkgContainer.querySelectorAll('.qty-btn').forEach(function (el) {
+                    el.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        const key = this.getAttribute('data-qty-key');
+                        const delta = parseInt(this.getAttribute('data-delta'), 10);
+                        changeQty(key, delta);
+                    });
+                });
+            }
+
+            function renderPackageUI() {
+                const pkgContainer = document.getElementById('packageContainer');
+                if (!pkgContainer) return;
+                if (SPECIAL_5Y_LEAVES.length === 0) {
+                    pkgContainer.innerHTML = '<div class="cat-empty">暂无维保方案数据</div>';
+                    return;
+                }
+
+                // 按展示规则 RULES.pkg 回溯套餐（型号级 > 设备级），未命中 → R-26 提示（与 PC 对齐）
+                const pkgCode = resolvePkgRule();
+                const pkg = pkgCode ? PKG_LIST.find(function (p) { return p.id === pkgCode; }) : null;
+                if (!pkg) {
+                    // ⚠️ 不要在这里清空 selectedItems——R-26 模式下用户正是在勾选可选项（RULES.sug），
+                    // renderNoSchemeHint 依赖 selectedItems 渲染勾选状态；跨维保配置的重置由
+                    // model / maintType / maintCycle 的 change 处理器负责（见下方事件绑定）。
+                    selectedPackage = '';
+                    renderNoSchemeHint();
+                    updateItemCount();
+                    liveRenderBudget();
+                    return;
+                }
+                const sel = selectedPackage === pkg.id;
+                const expanded = expandedPkg === pkg.id;
+
+                const cyl = parseInt((cylInput && cylInput.value) || '0', 10) || 0;
+                // 标准套餐项：按 siCodes 精确命中（与 PC PKG-001 同源）
+                const pkgSiSet = new Set(pkg.siCodes || []);
+                const pkgItems = SPECIAL_5Y_LEAVES.filter(function (it) { return it.siCode && pkgSiSet.has(it.siCode); });
+                const pkgGroups = {};
+                pkgItems.forEach(function (it) { (pkgGroups[it.cat] = pkgGroups[it.cat] || []).push(it); });
+                const pkgCatList = Object.keys(pkgGroups);
+                // 可选项：严格以后台「建议项规则(RULES.sug)」命中的建议加选项为准（排除已含在套餐内的），与 PC 对齐
+                const optItems = SPECIAL_5Y_LEAVES.filter(function (it) {
+                    return it.key && SUG_SET.has(it.key) && it.siCode && !pkgSiSet.has(it.siCode);
+                });
+                const optGroups = {};
+                optItems.forEach(function (it) { (optGroups[it.cat] = optGroups[it.cat] || []).push(it); });
+                let html = '';
+
+                const totalItems = pkgItems.length;
+                const checkedItems = pkgItems.reduce(function (s, it) { return s + (selectedItems.indexOf(it.key) !== -1 ? 1 : 0); }, 0);
+
+                html += '<div class="package-cards">';
+                html += '<div class="pkg-card' + (sel ? ' selected' : '') + '" data-pkg="' + pkg.id + '">';
+                if (pkg.recommend) html += '<div class="pkg-recommend">推荐</div>';
+
+                html += '<div class="pkg-row" data-action="select">';
+                html += '<span class="pkg-dot"></span>';
+                html += '<span class="pkg-name">' + escapeHtml(pkg.name) + '</span>';
+                html += '<span class="pkg-count">' + checkedItems + '/' + totalItems + ' items</span>';
+                html += '</div>';
+                html += '<div class="pkg-desc">' + escapeHtml(pkg.desc) + '</div>';
+
+                html += '<div class="pkg-items-preview" data-action="expand">';
+                pkgCatList.forEach(function (cat) {
+                    const sub = SUBSYSTEMS.find(function (x) { return x.cat === cat; });
+                    const name = sub ? sub.name : cat;
+                    html += '<span class="pkg-tag">' + escapeHtml(name) + '</span>';
+                });
+                html += '<span class="pkg-expand-arrow">' + (expanded ? '▾ Hide' : '▸ View items') + '</span>';
+                html += '</div>';
+
+                if (expanded) {
+                    html += '<div class="pkg-detail">';
+                    pkgCatList.forEach(function (cat) {
+                        const sub = SUBSYSTEMS.find(function (x) { return x.cat === cat; });
+                        const subName = sub ? sub.name : cat;
+                        const items = pkgGroups[cat];
+                        const allKeys = items.map(function (it) { return it.key; });
+                        const checkedKeys = allKeys.filter(function (k) { return selectedItems.indexOf(k) !== -1; });
+                        const allSel = allKeys.length > 0 && checkedKeys.length === allKeys.length;
+                        let partial = !allSel && checkedKeys.length > 0;
+
+                        html += '<div class="tree-cat">';
+                        html += '<div class="tree-cat-head" data-sub="' + escapeHtml(cat) + '" data-scope="pkg">';
+                        html += '<span class="tree-chk' + (allSel ? ' checked' : (partial ? ' partial' : '')) +
+                            '"></span>';
+                        html += '<span class="tree-cat-name">' + escapeHtml(subName) + '</span>';
+                        html += '<span class="tree-cat-count">' + checkedKeys.length + '/' + allKeys.length +
+                            '</span>';
+                        html += '</div>';
+
+                        items.forEach(function (it) {
+                            const key = it.key;
+                            const checked = selectedItems.indexOf(key) !== -1;
+                            const baseQty = it.base_qty === '缸数' ? (isNaN(cyl) ? 6 : cyl) : (parseInt(it.base_qty, 10) || 1);
+                            let qty = quoteQty[key] != null ? quoteQty[key] : baseQty;
+                            html += '<div class="tree-item' + (checked ? ' checked' : '') + '" data-item="' +
+                                escapeHtml(key) + '">';
+                            html += '<span class="tree-chk"></span>';
+                            html += '<span class="tree-item-name">' + escapeHtml(it.item_name) + '</span>';
+                            if (SUG_SET.has(key)) html += '<span class="sug-badge">建议加选</span>';
+                            html += '<span class="qty-ctrl">';
+                            html += '<button class="qty-btn" data-qty-key="' + escapeHtml(key) + '" data-delta="-1">−</button>';
+                            html += '<span class="qty-val">' + qty + '</span>';
+                            html += '<button class="qty-btn" data-qty-key="' + escapeHtml(key) + '" data-delta="1">+</button>';
+                            html += '<span class="qty-unit">' + escapeHtml(it.unit) + '</span>';
+                            html += '</span>';
+                            html += '</div>';
+                            if (sub && sub.hasCycle && checked) {
+                                html += '<div class="cycle-field">';
+                                html += '<label>设备运行周期：</label>';
+                                html += '<input type="number" id="cycleHoursInput" placeholder="请输入小时数" value="' + escapeHtml(cycleHours) + '">';
+                                html += '<span style="font-size:11px;color:var(--gray-500)">h</span>';
+                                html += '</div>';
+                            }
+                        });
+                        html += '</div>';
+                    });
+                    html += '</div>';
+                }
+                html += '</div>';
+                html += '</div>';
+
+                // 自由选择：不在标准套餐 siCodes 中的项（按 cat 分组）
+                const optCatList = Object.keys(optGroups);
+                if (optCatList.length > 0) {
+                    html += '<div class="opt-section">';
+                    html += '<div class="opt-section-title">可选项目</div>';
+                    optCatList.forEach(function (cat) {
+                        const sub = SUBSYSTEMS.find(function (x) { return x.cat === cat; });
+                        const subName = sub ? sub.name : cat;
+                        const items = optGroups[cat];
+                        const allKeys = items.map(function (it) { return it.key; });
+                        const checkedKeys = allKeys.filter(function (k) { return selectedItems.indexOf(k) !== -1; });
+                        const allSel = allKeys.length > 0 && checkedKeys.length === allKeys.length;
+                        let partial = !allSel && checkedKeys.length > 0;
+
+                        html += '<div class="tree-cat">';
+                        html += '<div class="tree-cat-head" data-sub="' + escapeHtml(cat) + '" data-scope="opt">';
+                        html += '<span class="tree-chk' + (allSel ? ' checked' : (partial ? ' partial' : '')) +
+                            '"></span>';
+                        html += '<span class="tree-cat-name">' + escapeHtml(subName) + '</span>';
+                                                html += '<span class="tree-cat-count">' + checkedKeys.length + '/' + allKeys.length +
+                            '</span>';
+                        html += '</div>';
+
+                        items.forEach(function (it) {
+                            const key = it.key;
+                            const checked = selectedItems.indexOf(key) !== -1;
+                            const baseQty = it.base_qty === '缸数' ? (isNaN(cyl) ? 6 : cyl) : (parseInt(it.base_qty, 10) || 1);
+                            let qty = quoteQty[key] != null ? quoteQty[key] : baseQty;
+                            html += '<div class="tree-item' + (checked ? ' checked' : '') + '" data-item="' +
+                                escapeHtml(key) + '">';
+                            html += '<span class="tree-chk"></span>';
+                            html += '<span class="tree-item-name">' + escapeHtml(it.item_name) + '</span>';
+                            if (SUG_SET.has(key)) html += '<span class="sug-badge">建议加选</span>';
+                            html += '<span class="qty-ctrl">';
+                            html += '<button class="qty-btn" data-qty-key="' + escapeHtml(key) + '" data-delta="-1">−</button>';
+                            html += '<span class="qty-val">' + qty + '</span>';
+                            html += '<button class="qty-btn" data-qty-key="' + escapeHtml(key) + '" data-delta="1">+</button>';
+                            html += '<span class="qty-unit">' + escapeHtml(it.unit) + '</span>';
+                            html += '</span>';
+                            html += '</div>';
+                            if (sub && sub.hasCycle && checked) {
+                                html += '<div class="cycle-field">';
+                                html += '<label>设备运行周期：</label>';
+                                html += '<input type="number" id="cycleHoursInput" placeholder="请输入小时数" value="' + escapeHtml(cycleHours) + '">';
+                                html += '<span style="font-size:11px;color:var(--gray-500)">h</span>';
+                                html += '</div>';
+                            }
+                        });
+                        html += '</div>';
+                    });
+                    html += '</div>';
+                }
+
+                // 已移除 cost-summary 汇总条
+
+                pkgContainer.innerHTML = html;
+
+                // 事件绑定
+                pkgContainer.querySelectorAll('[data-action="select"]').forEach(function (el) {
+                    el.addEventListener('click', function () {
+                        const pkgId = this.closest('.pkg-card').dataset.pkg;
+                        if (selectedPackage === pkgId) {
+                            selectedPackage = '';
+                            selectedItems = [];
+                        } else {
+                            selectPackage(pkgId);
+                        }
+                        renderPackageUI();
+                    });
+                });
+
+                pkgContainer.querySelectorAll('[data-action="expand"]').forEach(function (el) {
+                    el.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        const pkgId = this.closest('.pkg-card').dataset.pkg;
+                        expandedPkg = expandedPkg === pkgId ? '' : pkgId;
+                        renderPackageUI();
+                    });
+                });
+
+                pkgContainer.querySelectorAll('.tree-cat-head').forEach(function (el) {
+                    el.addEventListener('click', function () {
+                        const cat = this.getAttribute('data-sub');
+                        const scope = this.getAttribute('data-scope');
+                        const group = scope === 'opt' ? optGroups : pkgGroups;
+                        const items = group[cat] || [];
+                        const keys = items.map(function (it) { return it.key; });
+                        const allSel = keys.length > 0 && keys.every(function (k) {
+                            return selectedItems.indexOf(k) !== -1;
+                        });
+                        if (allSel) {
+                            selectedItems = selectedItems.filter(function (k) {
+                                return keys.indexOf(k) === -1;
+                            });
+                        } else {
+                            keys.forEach(function (k) {
+                                if (selectedItems.indexOf(k) === -1) selectedItems.push(k);
+                            });
+                        }
+                        updatePackageSelection();
+                        renderPackageUI();
+                        updateItemCount();
+                        liveRenderBudget();
+                    });
+                });
+
+                pkgContainer.querySelectorAll('.tree-item').forEach(function (el) {
+                    el.addEventListener('click', function (e) {
+                        if (e.target.classList.contains('qty-btn')) return;
+                        e.stopPropagation();
+                        const key = this.getAttribute('data-item');
+                        if (selectedItems.indexOf(key) !== -1) {
+                            selectedItems = selectedItems.filter(function (v) { return v !== key; });
+                        } else {
+                            selectedItems.push(key);
+                        }
+                        updatePackageSelection();
+                        renderPackageUI();
+                        updateItemCount();
+                        liveRenderBudget();
+                    });
+                });
+
+                // ± 数量按钮
+                pkgContainer.querySelectorAll('.qty-btn').forEach(function (el) {
+                    el.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        const key = this.getAttribute('data-qty-key');
+                        const delta = parseInt(this.getAttribute('data-delta'), 10);
+                        changeQty(key, delta);
+                    });
+                });
+
+                // 设备运行周期输入
+                const cycleInput = document.getElementById('cycleHoursInput');
+                if (cycleInput) {
+                    cycleInput.addEventListener('input', function () {
+                        cycleHours = this.value;
+                    });
+                    cycleInput.addEventListener('click', function (e) { e.stopPropagation(); });
+                }
+            }
+
+            function updatePackageSelection() {
+                if (PKG_LIST.length === 0) return;
+                const pkg = PKG_LIST[0];
+                const allKeys = (pkg.siCodes || []).map(function (c) { return SI_CODE_TO_KEY[c]; }).filter(Boolean);
+                const selCount = allKeys.filter(function (k) { return selectedItems.indexOf(k) !== -1; }).length;
+                selectedPackage = selCount > 0 ? pkg.id : '';
+            }
+
+            // 校验展示“维保方案”所需的前置条件是否已填齐
+            function hasPackagePrereqs() {
+                const hasModel = !!model.value || !!customModel;
+                const cycleInput = document.getElementById('maintCycleHours');
+                const hasCycle = !maintCycleEnabled() || !!(cycleInput && cycleInput.value && String(cycleInput.value).trim() !== '');
+                const hasCyl = !!(cylInput.value && String(cylInput.value).trim() !== '');
+                const hasManufacturer = !!manufacturer.value || !!customManufacturer;
+                const hasMaintType = !!maintType.value;
+                return !!deviceType.value && hasModel && hasCyl && hasManufacturer && hasMaintType && hasCycle;
+            }
+
+            function renderItems() {
+                if (!hasPackagePrereqs()) {
+                    itemsArea.style.display = 'none';
+                    updateItemCount();
+                    return;
+                }
+                itemsArea.style.display = 'block';
+                if (!selectedPackage && SPECIAL_5Y_LEAVES.length > 0) {
+                    // 仅当当前型号 / 维保类型 / 周期确实命中标准套餐时才自动选；
+                    // 未命中（R-26）不自动选套餐，保持只展示可选项（与 PC 对齐）
+                    const matchedPkg = resolvePkgRule();
+                    if (matchedPkg) {
+                        selectPackage(matchedPkg);
+                        return;
+                    }
+                }
+                renderPackageUI();
+                applyItemFilter();
+                updateItemCount();
+                liveRenderBudget();
+            }
+
+            // ===== 预算生成（用于计算） =====
+            // 维保类型名称 → 后台 mt code（与 PC maintTypeCode 对齐）
+            function maintTypeCode() {
+                const name = (maintType && maintType.value) || '';
+                if (!name) return '';
+                if (typeof MTYPES !== 'undefined') {
+                    const m = MTYPES.find(function (x) { return x.name === name; });
+                    if (m) return m.code;
+                }
+                if (name === '液压和电控系统保养') return 'HYDELEC';
+                return '';
+            }
+            // R-28：周期仅在类型启用周期时生效；未启用的类型不得带周期（IN-MC-09）
+            function maintCycleEnabled() {
+                if (typeof MTYPES === 'undefined') return (maintType && maintType.value === '液压和电控系统保养');
+                const t = MTYPES.find(function (x) { return x.name === ((maintType && maintType.value) || ''); });
+                return !!(t && t.cycle);
+            }
+            function currentCycle() {
+                if (!maintCycleEnabled()) return '';
+                const cycEl = document.getElementById('maintCycleHours');
+                return (cycEl && cycEl.value) || '';
+            }
+            function syncCycleDefault() {
+                const cycEl = document.getElementById('maintCycleHours');
+                if (cycEl && maintCycleEnabled() && !cycEl.value) {
+                    cycEl.value = ((typeof CYCLES !== 'undefined' && CYCLES[0]) || '5年保养');
+                    if (cycEl._syncInput) cycEl._syncInput();
+                }
+            }
+            // R-05 修订：缸数不再由型号自动带出，由客户手动填写（1–20 整数）
+            // 单项单价：与 PC 完全一致 —— 后台标准工时三级回溯 → 人员配置费率 × 工时
+            // （设备级标准工时由 buildDomainModel 从 SI_LEGACY_PRICE 折算而来，源头同一份数据）
+            function h5ItemUnitPrice(it) {
+                if (!it || !it.siCode) return (it && it.unit_price_usd) ? it.unit_price_usd : 0;
+                const modelName = (model && model.value) || customModel || '';
+                const mt = maintTypeCode();
+                // 工时按"发动机实际气缸数"计：优先取客户确认的缸数，未填时取型号缸数
+                const modelEntry = MODELS.find(function (m) { return m.name === modelName; });
+                const cylInputVal = parseInt((cylInput && cylInput.value), 10);
+                const cylN = (!isNaN(cylInputVal) && cylInputVal >= 1)
+                    ? cylInputVal : (parseInt(modelEntry && modelEntry.cyl, 10) || 6);
+                const cycle = currentCycle();
+                const r = resolveLaborStandard(it.siCode, modelName, mt, cycle);
+                if (!r) return 0;
+                const H = laborHoursOf(r.std, cylN);
+                if (!H) return 0;
+                return rateSumOf(r.std.crew, RATES.active.rates) * H;
+            }
+
+            function generateBudget(planItems) {
+                const items = planItems.map(key => {
+                    const it = ITEM_MAP[key];
+                    if (!it) return null;
+                    let defaultQty = it.base_qty;
+                    if (defaultQty === '缸数') {
+                        const cyl = parseInt((cylInput && cylInput.value) || '0', 10);
+                        defaultQty = (isNaN(cyl) || cyl < 1) ? 1 : cyl;
+                    } else {
+                        defaultQty = (isNaN(parseInt(defaultQty, 10)) || parseInt(defaultQty, 10) < 1) ? 1 :
+                            parseInt(defaultQty, 10);
+                    }
+                    const unitPrice = h5ItemUnitPrice(it);
+                    return {
+                        name: key,
+                        item_name: it.item_name,
+                        unit: it.unit || '',
+                        defaultQty: defaultQty,
+                        unitPrice: unitPrice,
+                        total: unitPrice * defaultQty,   // v1.14 去件数系数（D18）：多件不再折减
+                        cat: it.cat
+                    };
+                }).filter(Boolean);
+                const subtotal = items.reduce((s, i) => s + i.total, 0);
+                return { items, subtotal, total: subtotal };
+            }
+
+            // ===== 判断是否属于标准套餐 =====
+            // 标准套餐判定：严格按当前选中套餐的 siCodes 命中（与 PC PKG_KEY_SET 同源）
+            function isStandardItem(key) {
+                const it = ITEM_MAP[key];
+                if (!it || !it.siCode) return false;
+                // 无选中套餐（如 R-26 未命中）时，没有任何项属于「标准套餐」，全部归为可选项目
+                if (!selectedPackage) return false;
+                const pkg = PKG_LIST.find(function (p) { return p.id === selectedPackage; });
+                return pkg && (pkg.siCodes || []).indexOf(it.siCode) !== -1;
+            }
+
+            // ===== 保底价（D16/R-30，按一份计）：人员配置综合费率 × 最低计费工时 =====
+            function h5ItemFloor(it) {
+                if (!it || !it.siCode) return 0;
+                const mtCode = maintTypeCode();
+                const cycle = currentCycle();
+                const modelName = (model && model.value) || customModel || '';
+                const r = (typeof resolveLaborStandard === 'function') ? resolveLaborStandard(it.siCode, modelName, mtCode, cycle) : null;
+                if (!r) return 0;
+                const rates = (typeof RATES !== 'undefined' && RATES.active) ? RATES.active.rates : null;
+                return rateSumOf(r.std.crew, rates) * ((typeof PPARAMS !== 'undefined' && PPARAMS) ? PPARAMS.minH : 8);
+            }
+            // 合计保底价 = Σ(各已勾选且可计价服务项的项保底价)；未勾选可选项不计入（R-30）
+            function h5FloorTotals() {
+                const minH = (typeof PPARAMS !== 'undefined' && PPARAMS) ? PPARAMS.minH : 8;
+                const floorOn = (typeof PPARAMS !== 'undefined' && PPARAMS) ? !!PPARAMS.floorOn : true;
+                if (!floorOn) return { floorOn: false, floorTotal: 0, floorN: 0, floorHours: minH };
+                let f = 0, n = 0;
+                selectedItems.forEach(function (key) {
+                    const it = ITEM_MAP[key];
+                    if (!it) return;
+                    if (!isStandardItem(key) && quoteExcluded.has(key)) return;
+                    const v = h5ItemFloor(it);
+                    if (v > 0) { f += v; n++; }
+                });
+                return { floorOn: true, floorTotal: f, floorN: n, floorHours: minH };
+            }
+
+            // ===== 渲染预算（精简版） =====
+            // 合计区（D16/D17）：客户侧仅展示最终报价（R-36 口径扩展）——
+            // 明细合计/保底价/影响系数不外显，构成冻结进快照，后台「客户定价单」与销售邮件可见。
+            // renderBudget 与 STEP 2 的 recalcAll 共用，保证勾选/数量/服务信息变化后口径一致
+            function h5TotalsBoxHtml(detailTotal) {
+                const ft = h5FloorTotals();
+                const co = svcCoef();
+                const pricingBase = Math.max(ft.floorTotal, detailTotal);
+                const grandTotal = Math.round(pricingBase * co.k * 100) / 100;
+                return '<div style="margin-top:16px;padding:14px 16px;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius-sm);display:flex;justify-content:space-between;align-items:center;gap:12px;">'
+                    + '<span style="font-weight:600;font-size:16px;color:var(--gray-800);">预算合计</span>'
+                    + '<span style="font-size:20px;font-weight:700;color:var(--primary);">$' + fmtNum(Math.round(grandTotal)) + '</span></div>';
+            }
+            function renderBudget() {
+                const deviceLabel = selectedDeviceName || deviceType.value || '设备';
+                const itemsToUse = selectedItems;
+                quoteExcluded = new Set([...quoteExcluded].filter(n => itemsToUse.includes(n)));
+
+                // 分离标准套餐和可选项目
+                const standardKeys = [];
+                const optionalKeys = [];
+                itemsToUse.forEach(function (key) {
+                    const it = ITEM_MAP[key];
+                    if (!it) return;
+                    if (isStandardItem(key)) {
+                        standardKeys.push(key);
+                    } else {
+                        optionalKeys.push(key);
+                    }
+                });
+
+                const cylVal = parseInt((cylInput && cylInput.value) || '0', 10);
+                const cylText = cylVal > 0 ? cylVal + '缸' : '';
+                const manuText = getManufacturerText();
+                const modelText = getModelText();
+                const maintText = (maintType.selectedOptions[0] && maintType.value) ? maintType.selectedOptions[0].text :
+                    '';
+                const subInfo = [[manuText, modelText].filter(Boolean).join(' · '), cylText, maintText].filter(Boolean)
+                    .join(' · ');
+                const shipNameVal = (shipName.value || '').trim();
+
+                // ---- 顶部：设备信息（去掉计数和价格） ----
+                let html = `
+                    <div style="background:var(--gray-50);border-radius:var(--radius-sm);padding:16px;margin-bottom:12px;border:1px solid var(--gray-200);">
+                        <div style="font-weight:600;font-size:15px;display:flex;flex-wrap:wrap;gap:6px;">
+                            <span>${escapeHtml(deviceLabel)}${shipNameVal ? '（' + escapeHtml(shipNameVal) + '）' : ''}</span>
+                        </div>
+                        ${subInfo ? '<div style="font-size:12px;color:var(--gray-500);margin-top:4px;">' + escapeHtml(subInfo) + '</div>' : ''}
+                    </div>
+                `;
+
+                // 计算标准套餐单价（按子项实际数量，即 quoteQty）
+                let stdUnitPrice = 0;
+                if (standardKeys.length > 0) {
+                    const stdBudget = generateBudget(standardKeys);
+                    stdUnitPrice = stdBudget.items.reduce(function (s, item) {
+                        const qty = quoteQty[item.name] != null ? quoteQty[item.name] : item.defaultQty;
+                        return s + (item.unitPrice || 0) * qty;   // v1.14 去件数系数（D18）
+                    }, 0);
+                }
+
+                // 套餐不再有份数（2026-09-10 评审）：套餐小计 = Σ(勾选明细行金额)
+                const stdTotal = stdUnitPrice;
+
+                // ---- 标准套餐卡片（无标准项时不渲染）----
+                if (standardKeys.length > 0) {
+                    html += '<div class="budget-pkg-card">';
+                    html += '<div class="pkg-head">';
+                    html += '<span class="pkg-title">标准保养套餐 <span class="pkg-badge">推荐项目</span></span>';
+                    html += '</div>';
+                    html += '</div>';
+                }
+
+                // ---- 可选项目卡片 ----
+                if (optionalKeys.length > 0) {
+                    const optBudget = generateBudget(optionalKeys);
+                    // 初始化数量
+                    optBudget.items.forEach(function (item) {
+                        if (quoteQty[item.name] == null) {
+                            quoteQty[item.name] = item.defaultQty;
+                        }
+                    });
+
+                    html += '<div class="budget-pkg-card budget-optional-section" style="border-color:var(--gray-300);">';
+                    html += '<div class="pkg-head">';
+                    html += '<span class="pkg-title">可选项目 <span class="pkg-badge">可选项目</span></span>';
+                    html += '</div>';
+                    html += '<div class="pkg-items">';
+                    optBudget.items.forEach(function (item) {
+                        const checked = !quoteExcluded.has(item.name);
+                        const qty = quoteQty[item.name] || item.defaultQty;
+                        html += '<div class="opt-item-row">';
+                        html += '<span class="opt-item-check"><input type="checkbox" class="opt-check" data-item="' +
+                            escapeHtml(item.name) + '" ' + (checked ? 'checked' : '') + '></span>';
+                        html += '<span class="opt-item-name">' + escapeHtml(item.item_name) + '</span>';
+                        html += '<span class="opt-item-qty">';
+                        html += '<button type="button" class="opt-qty-dec" data-item="' + escapeHtml(item
+                            .name) + '" aria-label="减少">−</button>';
+                        html += '<input type="number" class="opt-qty-input" data-item="' + escapeHtml(item
+                            .name) + '" min="1" step="1" value="' + qty + '" aria-label="数量">';
+                        html += '<button type="button" class="opt-qty-inc" data-item="' + escapeHtml(item
+                            .name) + '" aria-label="增加">＋</button>';
+                        html += '</span>';
+                        html += '<span class="opt-item-unit">' + escapeHtml(item.unit) + '</span>';
+                        html += '</div>';
+                    });
+                    html += '</div>';
+                    html += '</div>';
+                }
+
+                // ---- 底部合计（D16/D17：明细合计 → 保底托底 → ×影响系数 → 最终报价）----
+                if (standardKeys.length > 0 || optionalKeys.length > 0) {
+                    let detailTotal = stdTotal;
+                    // 可选项目小计（未排除）
+                    let optTotal = 0;
+                    if (optionalKeys.length > 0) {
+                        const optBudget = generateBudget(optionalKeys);
+                        optBudget.items.forEach(function (item) {
+                            if (!quoteExcluded.has(item.name)) {
+                                const qty = quoteQty[item.name] || item.defaultQty;
+                                optTotal += item.unitPrice * qty;   // v1.14 去件数系数（D18）
+                            }
+                        });
+                    }
+                    detailTotal += optTotal;
+                    html += '<div id="budgetTotalBox">' + h5TotalsBoxHtml(detailTotal) + '</div>';
+                }
+
+                if (standardKeys.length === 0 && optionalKeys.length === 0) {
+                    html += '<div class="budget-empty-hint">暂无选中的维保项目</div>';
+                }
+
+                budgetDisplay.innerHTML = html;
+                priceJudgeBar.style.display = 'block';
+                priceFeedbackInput.value = '';
+
+                // ---- 事件绑定 ----
+                // 可选数量
+                budgetDisplay.querySelectorAll('.opt-qty-input').forEach(function (inp) {
+                    inp.addEventListener('input', function () {
+                        let v = parseInt(this.value, 10);
+                        if (isNaN(v) || v < 1) v = 1;
+                        this.value = v;
+                        quoteQty[this.dataset.item] = v;
+                        recalcAll();
+                    });
+                });
+                budgetDisplay.querySelectorAll('.opt-qty-dec, .opt-qty-inc').forEach(function (btn) {
+                    btn.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        const itemName = this.dataset.item;
+                        const inp = Array.prototype.find.call(
+                            budgetDisplay.querySelectorAll('.opt-qty-input'),
+                            function (el) { return el.dataset.item === itemName; }
+                        );
+                        if (!inp) return;
+                        let v = parseInt(inp.value, 10);
+                        if (isNaN(v) || v < 1) v = 1;
+                        v += this.classList.contains('opt-qty-inc') ? 1 : -1;
+                        if (v < 1) v = 1;
+                        inp.value = v;
+                        quoteQty[itemName] = v;
+                        recalcAll();
+                    });
+                });
+
+                // 可选勾选
+                budgetDisplay.querySelectorAll('.opt-check').forEach(function (cb) {
+                    cb.addEventListener('change', function () {
+                        const itemName = this.dataset.item;
+                        if (this.checked) quoteExcluded.delete(itemName);
+                        else quoteExcluded.add(itemName);
+                        recalcAll();
+                    });
+                });
+
+                // ---- 重新计算汇总 ----
+                function recalcAll() {
+                    // 标准套餐小计 = Σ(勾选明细行金额)，无份数
+                    const stdTotalVal = stdUnitPrice;
+
+                    // 可选项目
+                    let optTotalVal = 0;
+                    budgetDisplay.querySelectorAll('.opt-check').forEach(function (cb) {
+                        if (cb.checked) {
+                            const itemName = cb.dataset.item;
+                            const inp = Array.prototype.find.call(
+                                budgetDisplay.querySelectorAll('.opt-qty-input'),
+                                function (el) { return el.dataset.item === itemName; }
+                            );
+                            if (inp) {
+                                const qty = parseInt(inp.value, 10) || 1;
+                                const it = ITEM_MAP[itemName];
+                                if (it) {
+                                    optTotalVal += (it.unit_price_usd || 0) * qty;
+                                }
+                            }
+                        }
+                    });
+
+                    // 最终报价（D16/D17）：Max(合计保底价, 明细合计) × 影响系数
+                    const detailTotalVal = stdTotalVal + optTotalVal;
+                    const box = document.getElementById('budgetTotalBox');
+                    if (box) box.innerHTML = h5TotalsBoxHtml(detailTotalVal);
+                    box && box.setAttribute('aria-live', 'polite');
+                }
+
+                // 初始化计算
+                setTimeout(recalcAll, 50);
+            }
+
+            function renderBudgetPlaceholder() {
+                budgetDisplay.innerHTML = '<div class="budget-empty-hint">请先在上方选择维保项目，<br>报价明细将显示在这里。</div>';
+                priceJudgeBar.style.display = 'none';
+            }
+
+            function liveRenderBudget() {
+                if (currentStep !== 2) return;
+                if (selectedItems.length > 0) {
+                    renderBudget();
+                } else {
+                    renderBudgetPlaceholder();
+                }
+            }
+
+            // ===== 步骤切换 =====
+            function setStep(step) {
+                currentStep = step;
+                panels.forEach(p => p.classList.toggle('active', parseInt(p.dataset.step) === step));
+                dots.forEach(d => {
+                    const s = parseInt(d.dataset.step);
+                    d.classList.remove('active', 'done');
+                    if (s === step) d.classList.add('active');
+                    else if (s < step) d.classList.add('done');
+                });
+                document.querySelector('.app-container').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                if (step === 0) {
+                    cascadeSearch.value = '';
+                    cascadeSearchClear.classList.remove('show');
+                    cascadeEmpty.classList.remove('show');
+                    searchResults.style.display = 'none';
+                    searchResults.innerHTML = '';
+                    cascadeTree.style.display = '';
+                }
+            }
+
+            // ===== 事件绑定 =====
+            deviceType.addEventListener('change', function () {
+                selectedItems = [];
+                selectedPackage = '';
+                expandedPkg = '';
+                quoteExcluded.clear();
+                quoteQty = {};
+                applyBackendPackages();
+                rebuildSugSet();
+                loadEquipmentData(deviceType.value);
+                refreshMaintTypeOptions();
+                refreshDeviceDependentDropdowns();
+                renderItems();
+                updateItemCount();
+                updateAddLinkVisibility();
+                liveRenderBudget();
+            });
+
+            maintType.addEventListener('change', function () {
+                syncCycleDefault();
+                const cycleGroup = document.getElementById('cycleFieldGroup');
+                if (cycleGroup) {
+                    cycleGroup.style.display = maintCycleEnabled() ? '' : 'none';
+                }
+                rebuildSugSet();   // 维保类型变化 → 建议项集合随之刷新（与 PC 一致）
+                renderItems();
+                updateAddLinkVisibility();
+                updateItemCount();
+                liveRenderBudget();
+            });
+
+            const maintCycleHours = document.getElementById('maintCycleHours');
+            if (maintCycleHours) {
+                maintCycleHours.addEventListener('change', function () {
+                    rebuildSugSet();   // 保养周期变化 → 建议项集合随之刷新（与 PC 一致）
+                    renderItems();
+                    updateItemCount();
+                });
+            }
+
+            manufacturer.addEventListener('change', function () {
+                renderItems();
+                updateItemCount();
+            });
+
+            // 依据当前已选型号重建制造厂家下拉选项（preserve=true 时保留已选厂家）
+            function rebuildManufacturerByModel(preserve) {
+                const modelVal = model.value || customModel;
+                let manus = getManufacturersForModel(modelVal);
+                if (!manus.length) manus = ALL_MANUFACTURERS.slice(); // 自定义/未知型号兜底
+                const prev = manufacturer.value;
+                manufacturer.innerHTML = '<option value="">请选择制造厂家</option>';
+                manus.forEach(function (m) {
+                    const o = document.createElement('option');
+                    o.value = m;
+                    o.textContent = m;
+                    manufacturer.appendChild(o);
+                });
+                if (preserve && prev && manus.indexOf(prev) !== -1) {
+                    manufacturer.value = prev;
+                } else {
+                    manufacturer.value = manus.length ? manus[0] : '';
+                }
+                if (manufacturer._syncInput) manufacturer._syncInput();
+            }
+
+            model.addEventListener('change', function () {
+                rebuildManufacturerByModel(false);
+                selectedItems = [];
+                selectedPackage = '';
+                expandedPkg = '';
+                quoteExcluded.clear();
+                quoteQty = {};
+                rebuildSugSet();   // 型号变化 → 建议项集合(按型号 dev)随之刷新（与 PC 一致）
+                renderItems();
+                updateItemCount();
+                updateAddLinkVisibility();
+            });
+
+            // 新增厂家/型号
+            function openCustomAdd() {
+                customManuInput.value = customManufacturer;
+                customModelInput.value = customModel;
+                customNeedInput.value = customNeed;
+                customAddModal.classList.add('open');
+                setTimeout(() => customManuInput.focus(), 50);
+            }
+
+            function closeCustomAdd() {
+                customAddModal.classList.remove('open');
+            }
+
+            function confirmCustomAdd() {
+                const manuVal = customManuInput.value.trim();
+                const modelVal = customModelInput.value.trim();
+                const needVal = customNeedInput.value.trim();
+                if (!manuVal && !modelVal) { customManuInput.focus(); return; }
+                customManufacturer = manuVal;
+                customModel = modelVal;
+                customNeed = needVal;
+                closeCustomAdd();
+                renderItems();
+                updateItemCount();
+                updateAddLinkVisibility();
+                showToast('需求已提交，我们会尽快与您联系。', 'success');
+            }
+
+            addCustomLink.addEventListener('click', openCustomAdd);
+            customAddConfirm.addEventListener('click', confirmCustomAdd);
+            customAddCancel.addEventListener('click', closeCustomAdd);
+            customAddClose.addEventListener('click', closeCustomAdd);
+            customAddModal.addEventListener('click', function (e) {
+                if (e.target === customAddModal) closeCustomAdd();
+            });
+            customModelInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') confirmCustomAdd();
+            });
+
+            // Toast
+            let toastTimer = null;
+
+            function showToast(message, type, duration) {
+                type = type || 'info';
+                duration = duration || 3000;
+                toastText.textContent = message;
+                toast.classList.remove('info', 'success');
+                toast.classList.add(type);
+                toast.classList.add('show');
+                if (toastTimer) clearTimeout(toastTimer);
+                toastTimer = setTimeout(function () {
+                    toast.classList.remove('show');
+                }, duration);
+            }
+
+            // Step 1: Next
+            step1Next.addEventListener('click', function () {
+                if (step1Next.disabled) {
+                    if (selectedItems.length === 0) {
+                        const pkgContainer = document.getElementById('packageContainer');
+                        if (pkgContainer) {
+                            const oldTip = pkgContainer.querySelector('.no-item-tip');
+                            if (oldTip) oldTip.remove();
+                            const tip = document.createElement('div');
+                            tip.className = 'no-item-tip';
+                            tip.textContent = '请至少选择一项维保项目';
+                            pkgContainer.appendChild(tip);
+                            setTimeout(function () { if (tip.parentNode) tip.remove(); }, 3000);
+                        }
+                    }
+                    return;
+                }
+                setStep(2);
+                renderBudget();
+            });
+
+            step1Back.addEventListener('click', function () {
+                setStep(0);
+            });
+
+            document.getElementById('step3Back').addEventListener('click', function () {
+                quoteExcluded.clear();
+                setStep(1);
+            });
+
+            // ===== 提交冻结（R-23）：组装询价单快照，写入共享存储供后台「客户定价单」展示 =====
+            function freezeInquiryRecord() {
+                const modelName = (model && model.value) || customModel || '';
+                const mtCode = maintTypeCode();
+                const cycle = currentCycle();
+                const cylVal = parseInt((cylInput && cylInput.value) || '0', 10);
+                const modelEntry = (typeof MODELS !== 'undefined') ? MODELS.find(function (m) { return m.name === modelName; }) : null;
+                const cylN = (!isNaN(cylVal) && cylVal >= 1) ? cylVal : (parseInt(modelEntry && modelEntry.cyl, 10) || 6);
+                function laborOf(it) {
+                    try {
+                        if (!it.siCode || typeof resolveLaborStandard !== 'function') return null;
+                        const r = resolveLaborStandard(it.siCode, modelName, mtCode, cycle);
+                        if (!r || !r.std) return null;
+                        const H = laborHoursOf(r.std, cylN);
+                        if (!H) return null;
+                        const rates = (typeof RATES !== 'undefined' && RATES.active) ? RATES.active.rates : null;
+                        const crew = r.std.crew || {};
+                        const crewTxt = Object.keys(crew).map(function (k) { return k + '×' + crew[k]; }).join('+');
+                        return { level: r.level, crew: crewTxt, rateSum: rateSumOf(crew, rates), hours: H };
+                    } catch (e) { return null; }
+                }
+                function lineOf(key, type) {
+                    const it = ITEM_MAP[key];
+                    if (!it) return null;
+                    const budget = generateBudget([key]);
+                    const b = budget.items[0];
+                    if (!b) return null;
+                    const qty = quoteQty[b.name] != null ? quoteQty[b.name] : b.defaultQty;
+                    return {
+                        type: type,
+                        name: it.item_name, unit: it.unit || '',
+                        unitPrice: Math.round(b.unitPrice || 0),
+                        qty: qty,
+                        amount: Math.round((b.unitPrice || 0) * qty),   // v1.14 去件数系数（D18）
+                        labor: laborOf(it)
+                    };
+                }
+                const lines = [];
+                let stdUnitPrice = 0;
+                let stdCount = 0;
+                selectedItems.forEach(function (key) {
+                    if (!ITEM_MAP[key]) return;
+                    if (isStandardItem(key)) {
+                        const l = lineOf(key, 'package');
+                        if (l) { lines.push(l); stdUnitPrice += l.amount; stdCount++; }
+                    } else if (!quoteExcluded.has(key)) {   // 未勾选的可选项不进快照
+                        lines.push(lineOf(key, 'optional'));
+                    }
+                });
+                let optTotal = 0;
+                lines.forEach(function (l) { if (l.type === 'optional') optTotal += l.amount; });
+                const stdTotal = stdUnitPrice;
+                const detailTotal = stdTotal + optTotal;
+                // 新价格构成随快照冻结（R-23 / IN-INQ-06）：保底三要素 + 三维系数 + 最终报价
+                const ft = h5FloorTotals();
+                const co = svcCoef();
+                const s = svcEnsure();
+                const floorShortfall = Math.max(0, ft.floorTotal - detailTotal);
+                const pricingBase = Math.max(ft.floorTotal, detailTotal);
+                const pkg = selectedPackage
+                    ? (PKG_LIST.find(function (p) { return p.id === selectedPackage; }) || {})
+                    : {};
+                return {
+                    no: '', at: 0, atTxt: '', src: 'H5',
+                    customer: null,   // demo 无登录态；正式系统取登录快照（表设计 inquiry）
+                    shipName: (shipName.value || '').trim(),
+                    deviceName: selectedDeviceName || deviceType.value || '',
+                    deviceCode: (typeof EQUIPMENT_NAME !== 'undefined' && typeof EQUIP_DEV !== 'undefined' && EQUIP_DEV[EQUIPMENT_NAME]) || '',
+                    modelName: getModelText(), modelCustom: !!customModel,
+                    cyl: cylN,
+                    manufacturer: getManufacturerText(), manufacturerCustom: !!customManufacturer,
+                    maintTypeCode: mtCode || '',
+                    maintTypeName: (maintType.selectedOptions[0] && maintType.value) ? maintType.selectedOptions[0].text : '',
+                    cycle: cycle || null,
+                    currency: 'USD', remarks: (priceFeedbackInput.value || '').trim(),
+                    stdPkg: stdCount ? { name: pkg.name || '标准保养', subtotal: Math.round(stdTotal) } : null,
+                    lines: lines,
+                    svc: {
+                        urgKey: s.urg, urgency: co.u.label, urgC: co.u.c,
+                        region: s.region, country: s.country, site: s.site,
+                        locC: co.l.c, locLevel: co.l.level, locTxt: svcLocTxt(),
+                        serviceDate: s.date, leadDays: co.days == null ? 0 : co.days, leadC: co.b.c,
+                        leadNote: co.b && co.b.band ? (co.b.band.note || '') : ''
+                    },
+                    detailTotal: Math.round(detailTotal),
+                    floorHours: ft.floorHours, floorTotal: Math.round(ft.floorTotal), floorN: ft.floorN,
+                    floorShortfall: Math.round(floorShortfall), pricingBase: Math.round(pricingBase),
+                    coefficient: co.k,
+                    grand: Math.round(pricingBase * co.k)
+                };
+            }
+
+            step2Push.addEventListener('click', function () {
+                let rec = null;
+                try { rec = freezeInquiryRecord(); } catch (e) { rec = null; }   // 冻结失败不阻断提交主流程
+                if (rec) {
+                    INQStore.list().then(function (list) {
+                        rec.no = INQStore.nextNo(list);
+                        const st = INQStore.stamp();
+                        rec.at = st.at; rec.atTxt = st.atTxt;
+                        return INQStore.save(rec);
+                    }).then(function (saved) {
+                        showToast('提交成功！询价单号 ' + saved.no + '，我们会尽快回复您。', 'success', 4000);
+                    }).catch(function () {
+                        showToast('提交成功！我们会尽快回复您。', 'success', 4000);
+                    });
+                } else {
+                    showToast('提交成功！我们会尽快回复您。', 'success', 4000);
+                }
+                resetAll();
+            });
+
+            // Reset
+            function resetAll() {
+                selectedItems = [];
+                quoteExcluded.clear();
+                quoteQty = {};
+                priceFeedbackInput.value = '';
+                shipName.value = '';
+                deviceType.value = '';
+                selectedDeviceName = '';
+                if (deviceType._syncInput) deviceType._syncInput();
+                loadEquipmentData('Main diesel engine');
+                refreshMaintTypeOptions();
+                cylInput.value = '';
+                resetCustomFields();
+                refreshDeviceDependentDropdowns();
+                updateAddLinkVisibility();
+                selectedPackage = '';
+                expandedPkg = '';
+                const pkgC = document.getElementById('packageContainer');
+                if (pkgC) pkgC.innerHTML = '';
+                svcInfo = null;            // 服务信息回默认（不紧急 / 第一个地区+国家；日期清空）
+                svcRenderOptions();
+                svcHintUpdate();
+                updateItemCount();
+                priceJudgeBar.style.display = 'none';
+                step2Buttons.style.display = 'flex';
+                step1Next.disabled = true;
+                clearSelection();
+                setStep(0);
+                renderBudgetPlaceholder();
+            }
+
+            // ===== 引导树 =====
+            const TREE = [{
+                level: 1,
+                code: "6",
+                cn_name: "机械设备主要部件",
+                en_name: "MACHINERY MAIN COMPONENTS",
+                children: [{
+                    level: 2,
+                    code: "60",
+                    cn_name: "推进用柴油机",
+                    en_name: "DIESEL ENGINES FOR PROPULSION",
+                    children: [{
+                        level: 3,
+                        code: "601",
+                        cn_name: "柴油机",
+                        en_name: "DIESEL ENGINES",
+                        children: [{
+                            level: 4,
+                            code: "601.001",
+                            cn_name: "主机柴油机",
+                            en_name: "Main diesel engine",
+                            equipment_name: "Main diesel engine",
+                            all_maintenance_types: ["5年保养", "10年保养", "健康检查", "监工服务",
+                                "车间保养测试", "常规吊缸类", "故障排查维修", "部件翻新"
+                            ],
+                            equipment_series: (EQUIPMENT_DATA['Main diesel engine'] || {})
+                                .equipment_series || []
+                        }]
+                    }]
+                }, {
+                    level: 2,
+                    code: "65",
+                    cn_name: "发电用电动机装置",
+                    en_name: "MOTOR AGGREGATES FOR MAIN ELECTRIC POWER PRODUCTION",
+                    children: [{
+                        level: 3,
+                        code: "651",
+                        cn_name: "电动机装置",
+                        en_name: "MOTOR AGGREGATES",
+                        children: [{
+                            level: 4,
+                            code: "651.001",
+                            cn_name: "辅助柴油发电机组",
+                            en_name: "Aux. diesel generator aggregates, complete",
+                            equipment_name: "Aux. diesel generator aggregates, complete",
+                            all_maintenance_types: ["5年保养", "10年保养", "健康检查", "监工服务",
+                                "车间保养测试", "常规吊缸类", "故障排查维修", "部件翻新"
+                            ],
+                            equipment_series: []
+                        }]
+                    }]
+                }]
+            }];
+
+            const cascadeTree = document.getElementById('cascadeTree');
+            const cascadeConfirm = document.getElementById('cascadeConfirm');
+            const cascadeSearch = document.getElementById('cascadeSearch');
+            const cascadeSearchClear = document.getElementById('cascadeSearchClear');
+            const cascadeEmpty = document.getElementById('cascadeEmpty');
+            const searchResults = document.getElementById('searchResults');
+            let selectedLeaf = null;
+            let selectedDeviceName = '';
+            let leafRowMap = new Map();
+
+            function collectLeaves(nodes, trail) {
+                let result = [];
+                nodes.forEach(function (n) {
+                    const t = trail.concat(n);
+                    if (!n.children || !n.children.length) {
+                        result.push({ node: n, path: t });
+                    } else {
+                        result = result.concat(collectLeaves(n.children, t));
+                    }
+                });
+                return result;
+            }
+            const ALL_LEAVES = collectLeaves(TREE, []);
+
+            function buildPathText(leaf, field) {
+                const f = field || 'cn_name';
+                const names = [];
+                (function find(nodes, trail) {
+                    for (const n of nodes) {
+                        const t = trail.concat(n[f] || n.cn_name);
+                        if (n === leaf) { names.push(...t); return true; }
+                        if (n.children && find(n.children, t)) return true;
+                    }
+                    return false;
+                })(TREE, []);
+                return names;
+            }
+
+            function renderTreeNodes(nodes, container) {
+                nodes.forEach(function (node) {
+                    const li = document.createElement('li');
+                    li.className = 'tree-node';
+                    const hasChildren = node.children && node.children.length;
+
+                    if (hasChildren) {
+                        const row = document.createElement('div');
+                        row.className = 'tree-row branch-row';
+                        const twist = document.createElement('span');
+                        twist.className = 'tr-twist open';
+                        twist.textContent = '▶';
+                        row.appendChild(twist);
+                        const en = document.createElement('span');
+                        en.className = 'tr-en';
+                        en.textContent = node.en_name;
+                        row.appendChild(en);
+                        const cn = document.createElement('span');
+                        cn.className = 'tr-cn';
+                        cn.textContent = node.cn_name;
+                        row.appendChild(cn);
+                        li.appendChild(row);
+
+                        const branch = document.createElement('div');
+                        branch.className = 'tree-branch';
+                        const childUl = document.createElement('ul');
+                        renderTreeNodes(node.children, childUl);
+                        branch.appendChild(childUl);
+                        li.appendChild(branch);
+
+                        row.addEventListener('click', function () {
+                            const isCollapsed = branch.classList.toggle('collapsed');
+                            twist.classList.toggle('open', !isCollapsed);
+                        });
+                    } else {
+                        const row = document.createElement('div');
+                        row.className = 'tree-row leaf-row';
+                        const dot = document.createElement('span');
+                        dot.className = 'tr-dot';
+                        row.appendChild(dot);
+                        const en = document.createElement('span');
+                        en.className = 'tr-en';
+                        en.textContent = node.en_name;
+                        row.appendChild(en);
+                        const cn = document.createElement('span');
+                        cn.className = 'tr-cn';
+                        cn.textContent = node.cn_name;
+                        row.appendChild(cn);
+                        row.addEventListener('click', function () { selectLeaf(node, row); });
+                        li.appendChild(row);
+                        leafRowMap.set(node, row);
+                    }
+                    container.appendChild(li);
+                });
+            }
+
+            function renderTree() {
+                cascadeTree.innerHTML = '';
+                leafRowMap.clear();
+                const ul = document.createElement('ul');
+                renderTreeNodes(TREE, ul);
+                cascadeTree.appendChild(ul);
+            }
+
+            function selectLeaf(node, row) {
+                leafRowMap.forEach(function (r) { r.classList.remove('selected'); });
+                row.classList.add('selected');
+                selectedLeaf = node;
+                document.getElementById('ccDevice').textContent = node.cn_name + ' ' + node.en_name;
+                document.getElementById('ccPath').textContent = buildPathText(node).join('  ›  ');
+                cascadeConfirm.classList.add('show');
+                cascadeConfirm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+
+            function clearSelection() {
+                leafRowMap.forEach(function (r) { r.classList.remove('selected'); });
+                selectedLeaf = null;
+                cascadeConfirm.classList.remove('show');
+            }
+
+            function applyCascadeSearch(rawQuery) {
+                const query = (rawQuery || '').trim();
+                if (!query) {
+                    searchResults.style.display = 'none';
+                    cascadeEmpty.classList.remove('show');
+                    cascadeSearchClear.classList.remove('show');
+                    cascadeTree.style.display = '';
+                    return;
+                }
+                cascadeSearchClear.classList.add('show');
+                cascadeTree.style.display = 'none';
+                searchResults.innerHTML = '';
+                const q = query.toLowerCase();
+                const matched = ALL_LEAVES.filter(function (item) {
+                    return (item.node.cn_name || '').toLowerCase().indexOf(q) >= 0 ||
+                        (item.node.en_name || '').toLowerCase().indexOf(q) >= 0;
+                });
+                if (!matched.length) {
+                    cascadeEmpty.classList.add('show');
+                    searchResults.style.display = 'none';
+                    return;
+                }
+                cascadeEmpty.classList.remove('show');
+                searchResults.style.display = 'flex';
+                matched.forEach(function (item) {
+                    const div = document.createElement('div');
+                    div.className = 'sr-item';
+                    const info = document.createElement('div');
+                    info.className = 'sr-info';
+                    const name = document.createElement('div');
+                    name.className = 'sr-name';
+                    const cn = item.node.cn_name || '';
+                    const cnIdx = cn.toLowerCase().indexOf(q);
+                    if (cnIdx >= 0) {
+                        name.textContent = '';
+                        name.appendChild(document.createTextNode(cn.slice(0, cnIdx)));
+                        const h = document.createElement('span');
+                        h.className = 'hl';
+                        h.textContent = cn.slice(cnIdx, cnIdx + query.length);
+                        name.appendChild(h);
+                        name.appendChild(document.createTextNode(cn.slice(cnIdx + query.length)));
+                    } else {
+                        name.textContent = cn;
+                    }
+                    info.appendChild(name);
+                    const path = document.createElement('div');
+                    path.className = 'sr-path';
+                    path.textContent = buildPathText(item.node).join('  ›  ');
+                    info.appendChild(path);
+                    div.appendChild(info);
+                    const btn = document.createElement('span');
+                    btn.className = 'sr-select';
+                    btn.textContent = '选择';
+                    div.appendChild(btn);
+                    div.addEventListener('click', function () {
+                        cascadeSearch.value = '';
+                        cascadeSearchClear.classList.remove('show');
+                        searchResults.style.display = 'none';
+                        searchResults.innerHTML = '';
+                        cascadeTree.style.display = '';
+                        cascadeEmpty.classList.remove('show');
+                        expandToNode(item.node);
+                        const row = leafRowMap.get(item.node);
+                        if (row) {
+                            leafRowMap.forEach(function (r) { r.classList.remove('selected'); });
+                            row.classList.add('selected');
+                            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                        selectedLeaf = item.node;
+                        document.getElementById('ccDevice').textContent = item.node.cn_name + ' ' + item.node
+                            .en_name;
+                        document.getElementById('ccPath').textContent = buildPathText(item.node).join(
+                            '  ›  ');
+                        cascadeConfirm.classList.add('show');
+                    });
+                    searchResults.appendChild(div);
+                });
+            }
+
+            function expandToNode(targetNode) {
+                const tree = cascadeTree;
+
+                function walk(nodes) {
+                    for (const node of nodes) {
+                        if (node === targetNode) return true;
+                        if (node.children && walk(node.children)) {
+                            const rows = tree.querySelectorAll('.tree-row.branch-row');
+                            rows.forEach(function (row) {
+                                const twist = row.querySelector('.tr-twist');
+                                const branch = row.parentElement.querySelector('.tree-branch');
+                                if (twist && branch && branch.classList.contains('collapsed')) {
+                                    if (branch.contains(leafRowMap.get(targetNode))) {
+                                        branch.classList.remove('collapsed');
+                                        twist.classList.add('open');
+                                    }
+                                }
+                            });
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+                walk(TREE);
+            }
+
+            document.getElementById('toFormBtn').addEventListener('click', function () {
+                if (!selectedLeaf) return;
+                if (EQUIPMENT_DATA[selectedLeaf.equipment_name]) {
+                    deviceType.value = selectedLeaf.equipment_name;
+                    selectedDeviceName = selectedLeaf.en_name || selectedLeaf.cn_name || selectedLeaf
+                        .equipment_name;
+                    deviceType.dispatchEvent(new Event('change'));
+                }
+                setStep(1);
+            });
+
+            document.getElementById('clearSelBtn').addEventListener('click', clearSelection);
+            cascadeSearch.addEventListener('input', function () { applyCascadeSearch(this.value); });
+            cascadeSearchClear.addEventListener('click', function () {
+                cascadeSearch.value = '';
+                applyCascadeSearch('');
+                cascadeSearch.focus();
+            });
+
+            function initCascade() { renderTree(); }
+
+            // ===== 初始化 =====
+            step1Next.disabled = true;
+            initCascade();
+            updateAddLinkVisibility();
+            renderBudgetPlaceholder();
+            refreshDeviceDependentDropdowns();
+            svcRenderOptions();      // 服务信息（D17）：三级下拉 + 紧急下拉 + 日期下限
+            svcBindEvents();
+            svcHintUpdate();
+            if (window.DP) DP(document.getElementById('svcDate'));   // 服务时间：antd 风格 DatePicker（替换原生 date 控件）
+            if (window.SEL) ['svcUrg', 'svcRegion', 'svcCountry', 'svcSite'].forEach(function (id) {
+                const el = document.getElementById(id);
+                if (el) SEL.mount(el, { allowClear: false });  // 服务信息下拉：antd 风格 Select（前台客户侧不显示清除按钮）
+            });
+            setupSearchSelect(maintType, maintTypeInput, maintTypePanel, document.getElementById('maintTypeClear'));
+            setupSearchSelect(manufacturer, manufacturerInput, manufacturerPanel, document.getElementById(
+                'manufacturerClear'), function () {
+                    rebuildManufacturerByModel(true); // 打开/输入时先按已选型号刷新选项，再渲染面板
+                });
+            setupSearchSelect(model, modelInput, modelPanel, document.getElementById('modelClear'));
+            setupSearchSelect(maintCycleHours, maintCycleInput, maintCyclePanel, document.getElementById('maintCycleClear'));
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    if (currentStep === 1 && !step1Next.disabled) step1Next.click();
+                }
+            });
+
+            setTimeout(function () {
+                // 与 PC 同源：先加载后台快照（IndexedDB），再用还原后的全局
+                // PACKAGES / RULES / SITEMS 重建 H5 数据，确保套餐与可选项完全一致
+                function bootH5() {
+                    // 套餐与可选项仅依赖后台快照（PACKAGES / RULES.sug），与设备无关，可先构建
+                    applyBackendPackages();
+                    rebuildSugSet();
+                    svcRenderOptions();   // 紧急/地点/系数与保底参数以后台为准（保留已选值，失效则回默认）
+                    svcHintUpdate();
+                    if (!deviceType.value) return;
+                    EQUIPMENT_DATA = buildEquipmentData(); // 基于还原后的 SITEMS 重建
+                    loadEquipmentData(deviceType.value);
+                    refreshMaintTypeOptions();
+                    refreshDeviceDependentDropdowns();
+                    renderItems();
+                    updateItemCount();
+                    updateAddLinkVisibility();
+                }
+                if (typeof initState === 'function') {
+                    initState().then(bootH5).catch(bootH5);
+                } else {
+                    bootH5();
+                }
+            }, 100);
+
+        })();
+    </script>
+
+</body>
+
+</html>

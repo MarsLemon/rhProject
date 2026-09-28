@@ -1,0 +1,4374 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> 客户定价（PC）</title>
+    <style>
+        /* ============================================================
+           客户定价 PC 版
+           业务逻辑与移动端 demov8 保持一致（设备引导树 / 型号-厂家联动 /
+           缸数 / 标准套餐+子系统 / 数量 / 服务信息与影响系数 D17 /
+           保底价托底 D16 / 自定义询价）
+           布局按 PC 习惯重新设计：顶栏步骤导航 + 主从双栏 + 右侧吸顶实时报价
+           ============================================================ */
+        :root {
+            --primary: #1677ff;
+            --primary-hover: #4096ff;
+            --primary-active: #0958d9;
+            --primary-light: #e6f4ff;
+            --primary-wash: #f0f7ff;
+            --success: #52c41a;
+            --warning-light: #fffbe6;
+            --warning-border: #ffe58f;
+            --danger: #ff4d4f;
+            --gray-50: #fafafa;
+            --gray-100: #f5f5f5;
+            --gray-200: #f0f0f0;
+            --gray-300: #d9d9d9;
+            --gray-400: #bfbfbf;
+            --gray-500: rgba(0, 0, 0, 0.45);
+            --gray-600: rgba(0, 0, 0, 0.65);
+            --gray-700: rgba(0, 0, 0, 0.65);
+            --gray-800: rgba(0, 0, 0, 0.88);
+            --bg: #f0f2f5;
+            --card-border: #e6e8ef;
+            --radius: 8px;
+            --radius-lg: 10px;
+            --shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02);
+            --shadow-lg: 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+            --transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+            --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scrollbar-width: thin;
+            scrollbar-color: var(--gray-300) transparent;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--gray-700);
+            font-size: 14px;
+            line-height: 1.5714;
+            min-height: 100vh;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--gray-300);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--gray-400);
+        }
+
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* ===== 顶栏 ===== */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #fff;
+            border-bottom: 1px solid var(--card-border);
+            box-shadow: var(--shadow);
+        }
+
+        .topbar-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            height: 60px;
+            padding: 0 28px;
+            display: flex;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .brand-logo {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #1677ff, #4096ff);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+        }
+
+        .brand-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--gray-800);
+            letter-spacing: 0.5px;
+        }
+
+        /* ===== 工作区 ===== */
+        .workspace {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px 28px 40px;
+            min-height: calc(100vh - 60px);
+        }
+
+        .step-view {
+            display: block;
+        }
+
+        /* 分页模式：第 2 步默认隐藏，选中设备后进入 */
+        .step-view[hidden] {
+            display: none;
+        }
+
+        /* 确保所有 hidden 元素真正隐藏（覆盖 display 类） */
+        [hidden] {
+            display: none !important;
+        }
+
+        /* 面板头部操作按钮（上一步） */
+        .panel-head .btn {
+            margin-left: auto;
+        }
+
+        /* ===== 通用卡片 ===== */
+        .panel {
+            background: #fff;
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+        }
+
+        .panel-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .panel-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--gray-800);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .panel-title::before {
+            content: '';
+            width: 3px;
+            height: 14px;
+            border-radius: 2px;
+            background: var(--primary);
+        }
+
+        .panel-body {
+            padding: 18px 20px;
+        }
+
+        .panel-foot {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 14px;
+        }
+
+        /* ===== 按钮 ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            height: 36px;
+            padding: 0 16px;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 400;
+            font-family: var(--font);
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .btn-lg {
+            height: 42px;
+            padding: 0 22px;
+            font-size: 15px;
+        }
+
+        .btn-sm {
+            height: 30px;
+            padding: 0 12px;
+            font-size: 13px;
+        }
+
+        .btn-block {
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 2px 0 rgba(5, 145, 255, 0.1);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-primary:active {
+            background: var(--primary-active);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* 锁定态：保留禁用外观，但可接收点击以给出引导反馈（真 disabled 不派发事件） */
+        .btn-primary.is-locked {
+            opacity: 0.45;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        @keyframes asidePulse {
+            0%, 100% {
+                box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+            }
+            50% {
+                box-shadow: 0 0 0 4px rgba(22, 119, 255, 0.18);
+            }
+        }
+
+        .aside-locked.pulse {
+            animation: asidePulse 0.45s ease 2;
+        }
+
+        .btn-outline {
+            background: #fff;
+            color: var(--gray-700);
+            border-color: var(--gray-300);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .text-link {
+            color: var(--primary);
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .text-link:hover {
+            color: var(--primary-hover);
+            text-decoration: underline;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            font-size: 11px;
+            font-weight: 500;
+            line-height: 1;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: var(--gray-100);
+            color: var(--gray-600);
+            border: 1px solid var(--gray-200);
+        }
+
+        .badge-blue {
+            background: var(--primary-light);
+            color: var(--primary);
+            border-color: rgba(22, 119, 255, 0.25);
+        }
+
+        .opt-badge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 1px 6px;
+            border-radius: 3px;
+            background: var(--warning-light);
+            color: #d48806;
+            border: 1px solid var(--warning-border);
+            flex-shrink: 0;
+        }
+        .sug-badge {
+            display: inline-block;
+            margin-left: 6px;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 1px 6px;
+            border-radius: 3px;
+            background: #e6f4ff;
+            color: #0958d9;
+            border: 1px solid #91caff;
+            vertical-align: middle;
+        }
+
+        /* 自由组合（opt）分组：未勾选时整体置灰、子项数量禁用 */
+        .items-table tbody.grp-opt-off tr.it-opt-off .qty-stepper {
+            opacity: 0.55;
+            pointer-events: none;
+            background: var(--gray-100);
+        }
+
+        .items-table tbody.grp-opt-off tr.it-opt-off .qs-btn {
+            cursor: not-allowed;
+            color: var(--gray-400);
+        }
+
+        .items-table tbody.grp-opt-off tr.it-opt-off .col-name {
+            color: var(--gray-400);
+        }
+
+        /* ===== STEP 0：设备目录（单列居中） ===== */
+        .catalog-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 20px;
+            align-items: start;
+        }
+
+        /* 面包屑等长内容不得把面板撑破：允许面板收缩到轨道宽度 */
+        .catalog-layout>.panel {
+            min-width: 0;
+        }
+
+        .search-results {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .sr-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            background: #fff;
+            border: 1px dashed var(--gray-300);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .sr-item:hover {
+            border-color: var(--primary);
+            background: var(--primary-wash);
+        }
+
+        .sr-item .sr-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .sr-item .sr-name {
+            font-size: 13.5px;
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        .sr-item .sr-path {
+            font-size: 11.5px;
+            color: var(--gray-400);
+            margin-top: 2px;
+        }
+
+        .sr-item .sr-select {
+            font-size: 12px;
+            color: var(--primary);
+            font-weight: 500;
+            background: var(--primary-light);
+            border: 1px solid var(--primary);
+            border-radius: 4px;
+            padding: 3px 12px;
+            flex-shrink: 0;
+        }
+
+        .sr-item:hover .sr-select {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .cascade-empty {
+            display: none;
+            text-align: center;
+            color: var(--gray-400);
+            font-size: 13px;
+            padding: 28px 0;
+        }
+
+        .cascade-empty.show {
+            display: block;
+        }
+
+        .hl {
+            background: #fff1b8;
+            color: var(--gray-700);
+            border-radius: 2px;
+            padding: 0 1px;
+        }
+
+        /* 搜索框 */
+        .search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .search-box input {
+            width: 100%;
+            height: 38px;
+            padding: 0 32px;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius);
+            font-size: 13.5px;
+            font-family: var(--font);
+            background: #fff;
+            color: var(--gray-700);
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1);
+        }
+
+        .search-box .ts-icon {
+            position: absolute;
+            left: 10px;
+            width: 15px;
+            height: 15px;
+            color: var(--gray-400);
+            pointer-events: none;
+        }
+
+        .search-box .ts-clear {
+            position: absolute;
+            right: 8px;
+            width: 20px;
+            height: 20px;
+            border: none;
+            background: var(--gray-200);
+            color: var(--gray-500);
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 13px;
+            line-height: 1;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .search-box .ts-clear.show {
+            display: flex;
+        }
+
+        /* 面板头部搜索框（与标题同行） */
+        .panel-head .search-box {
+            width: 340px;
+            max-width: 55%;
+            margin-bottom: 0;
+            flex-shrink: 0;
+        }
+
+        .panel-head .search-box input {
+            height: 34px;
+            font-size: 13px;
+            background: var(--gray-50);
+        }
+
+        .panel-head .search-box input:focus {
+            background: #fff;
+        }
+
+        /* 维保方案面板内的项目筛选框（略窄于面板头部默认搜索框） */
+        .panel-head .search-box.items-search {
+            width: 230px;
+        }
+
+        /* ===== STEP 0 目录双栏：左侧一级分类导航（悬停浮现树）+ 右侧内容区 ===== */
+        .catalog-split {
+            display: flex;
+            gap: 12px;
+            align-items: stretch;
+            min-height: 0;
+        }
+
+        .mall-left {
+            width: 280px;
+            flex-shrink: 0;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            background: var(--gray-50);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            max-height: calc(100vh - 220px);
+        }
+
+        .hall-entry {
+            border: none;
+            border-bottom: 1px solid var(--gray-200);
+            background: var(--primary);
+            color: #fff;
+            font-family: var(--font);
+            font-size: 13.5px;
+            font-weight: 600;
+            padding: 12px 14px;
+            cursor: pointer;
+            text-align: left;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+
+        .hall-entry:hover {
+            background: var(--primary-hover);
+        }
+
+        .mall-left-roots {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+            scrollbar-width: thin;
+        }
+
+        .ml-root {
+            width: 100%;
+            text-align: left;
+            background: transparent;
+            border: none;
+            border-radius: 7px;
+            padding: 9px 11px;
+            margin-bottom: 3px;
+            cursor: pointer;
+            font-family: var(--font);
+            transition: background 0.2s;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .ml-root:hover,
+        .ml-root.active {
+            background: #fff;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+        }
+
+        .ml-root.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 8px;
+            bottom: 8px;
+            width: 3px;
+            background: var(--primary);
+            border-radius: 0 2px 2px 0;
+        }
+
+        .ml-root .ml-en {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray-700);
+            line-height: 1.3;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .ml-root.active .ml-en {
+            color: var(--primary);
+        }
+
+        .ml-root .ml-cn {
+            font-size: 10.5px;
+            color: var(--gray-400);
+            line-height: 1.3;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* 一级分类右侧展开指示符（悬浮可展开） */
+        .ml-arrow {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 13px;
+            color: var(--gray-400);
+            font-weight: 700;
+            transition: var(--transition);
+        }
+
+        .ml-root:hover .ml-arrow,
+        .ml-root.active .ml-arrow {
+            color: var(--primary);
+        }
+
+        /* ===== 电商分类视图（参照参考网站 gb.marinsmart.pro「分类大厅」：扁平分组列表，无悬浮 panel） ===== */
+        .mall-wrap {
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            overflow: hidden;
+            background: #fff;
+            min-height: 520px;
+            max-height: calc(100vh - 220px);
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .mall-groups {
+            flex: 1;
+            overflow-y: auto;
+            padding: 4px 0 12px;
+            scrollbar-width: thin;
+        }
+
+        /* 分组：一级分类 */
+        .mg-group {
+            padding: 18px 22px 20px;
+        }
+
+        .mg-group+.mg-group {
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .mg-head {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .mg-head::before {
+            content: "";
+            align-self: stretch;
+            width: 4px;
+            border-radius: 2px;
+            background: var(--primary);
+            flex-shrink: 0;
+        }
+
+        .mg-en {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--gray-800);
+            letter-spacing: 0.2px;
+        }
+
+        .mg-cn {
+            font-size: 12px;
+            color: var(--gray-400);
+        }
+
+        /* 二级分类：小节标题 + 内容行 */
+        .mg-sec {
+            margin-bottom: 12px;
+        }
+
+        .mg-sec:last-child {
+            margin-bottom: 0;
+        }
+
+        .mg-sec-title {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            margin-bottom: 6px;
+            padding-left: 2px;
+        }
+
+        .mg-sec-title .ms-en {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .mg-sec-title .ms-cn {
+            font-size: 11.5px;
+            color: var(--gray-400);
+        }
+
+        .mg-sec-body {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        /* 三级分类：平铺 chips（与右侧悬浮树样式一致） */
+        .mg-sec-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding-left: 2px;
+        }
+
+        /* ===== 商品展示视图（参照参考站 gb.marinsmart.pro 商品列表：面包屑 + 卡片网格，每行 4 个） ===== */
+        /* 右侧悬停浮现的树（一级分类 → 二级标题 + 三级 chips） */
+        .tree-view {
+            flex: 1;
+            overflow-y: auto;
+            padding: 18px 20px 20px;
+            scrollbar-width: thin;
+        }
+
+        .tv-sec {
+            margin-bottom: 14px;
+        }
+
+        .tv-sec-title {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .tv-sec-title .tv-sec-cn {
+            font-size: 11px;
+            color: var(--gray-400);
+            font-weight: 400;
+        }
+
+        .tv-groups {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding-left: 2px;
+        }
+
+        .tv-group {
+            border: 1px solid var(--gray-200);
+            background: #fff;
+            font-family: var(--font);
+            font-size: 12.5px;
+            color: var(--gray-600);
+            padding: 5px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: baseline;
+            gap: 5px;
+        }
+
+        .tv-group .tv-group-en,
+        .tv-link .tv-group-en {
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        .tv-group .tv-group-cn,
+        .tv-link .tv-group-cn {
+            font-size: 11px;
+            color: var(--gray-400);
+        }
+
+        .tv-group:hover {
+            border-color: var(--primary);
+            background: var(--primary-wash);
+        }
+
+        .tv-group:hover .tv-group-en {
+            color: var(--primary);
+        }
+
+        /* 三级分类：无按钮样式，平铺为可点击文字 */
+        .tv-link {
+            border: none;
+            background: none;
+            font-family: var(--font);
+            font-size: 12.5px;
+            color: var(--gray-600);
+            padding: 2px 0;
+            border-radius: 0;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: baseline;
+            gap: 5px;
+            line-height: 1.6;
+        }
+
+        .tv-link:hover {
+            color: var(--primary);
+            background: none;
+        }
+
+        .tv-link:hover .tv-group-en {
+            color: var(--primary);
+        }
+
+        .product-view {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            padding: 16px 20px 20px;
+            scrollbar-width: thin;
+        }
+
+        .pv-head {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--gray-200);
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        /* 商品展示顶部的分类路径：面包屑本身即导航，可点击逐级返回 */
+        /* 单行自适应：空间不足时按比例收缩、超长层级出省略号（title 悬停看全名） */
+        .pv-crumb {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12.5px;
+            color: var(--gray-500);
+            white-space: nowrap;
+            min-width: 0;
+        }
+
+        .pv-crumb .pc-item {
+            border: none;
+            background: none;
+            font-family: var(--font);
+            font-size: 12.5px;
+            display: block;
+            color: var(--gray-500);
+            padding: 2px 0;
+            cursor: pointer;
+            transition: var(--transition);
+            min-width: 5em;
+            /* 收缩下限：短层级（如「全部分类」）保持完整，长层级才截断 */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .pv-crumb .pc-item:hover {
+            color: var(--primary);
+        }
+
+        /* 当前所在三级分类：高亮、不可点击（你在这里） */
+        .pv-crumb .pc-item.pc-current {
+            color: var(--primary);
+            font-weight: 600;
+            cursor: default;
+        }
+
+        .pv-crumb .pc-sep {
+            color: var(--gray-400);
+            font-size: 13px;
+            margin: 0 2px;
+            flex-shrink: 0;
+        }
+
+        .pv-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        /* 商品卡片（无照片，仅展示设备名称） */
+        .pv-card {
+            background: #fff;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            overflow: hidden;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 92px;
+        }
+
+        .pv-card:hover {
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        .pv-card.selected {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.15);
+        }
+
+        .pv-name {
+            padding: 14px 12px;
+            text-align: center;
+        }
+
+        /* 设备名完整展示：过长时换行，不裁剪 */
+        .pv-name .pv-name-en {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--gray-800);
+            line-height: 1.45;
+            word-break: break-word;
+        }
+
+        .pv-name .pv-name-cn {
+            font-size: 12px;
+            color: var(--gray-500);
+            margin-top: 3px;
+            line-height: 1.45;
+            word-break: break-word;
+        }
+
+        .pv-card.selected .pv-name-en {
+            color: var(--primary);
+        }
+
+        /* ===== STEP 1：配置区（主内容 + 吸顶实时报价） ===== */
+        .config-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 400px;
+            gap: 20px;
+            align-items: start;
+        }
+
+        /* 必填未填完时：右侧方案/预算未就绪，布局塌缩为单栏，避免右侧空白 */
+        .config-layout.single-col {
+            grid-template-columns: 1fr;
+        }
+
+        .config-main {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-width: 0;
+        }
+
+        /* 表单网格 */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px 22px;
+        }
+
+        .form-extra {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px dashed var(--gray-200);
+            max-width: 50%;
+        }
+
+        /* 服务信息（D17，订单级）：紧急 / 服务地点三级 / 服务时间 */
+        .form-svc {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px dashed var(--gray-200);
+        }
+
+        .svc-grid {
+            display: grid;
+            grid-template-columns: 190px minmax(0, 1fr) 190px;
+            gap: 16px 22px;
+        }
+
+        .svc-loc {
+            display: flex;
+            gap: 8px;
+        }
+
+        .svc-loc .selwrap {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .svc-hint {
+            margin-top: 10px;
+            font-size: 12px;
+            color: var(--gray-500);
+            line-height: 1.7;
+        }
+
+        @media (max-width: 1100px) {
+            .svc-grid { grid-template-columns: 1fr; }
+        }
+
+        .field label {
+            display: block;
+            font-size: 13px;
+            color: var(--gray-700);
+            margin-bottom: 7px;
+        }
+
+        .required-star {
+            color: var(--danger);
+            margin-right: 2px;
+        }
+
+        .opt-tag {
+            font-size: 11px;
+            color: var(--gray-400);
+            border: 1px solid var(--gray-300);
+            border-radius: 4px;
+            padding: 0 6px;
+            margin-left: 6px;
+            vertical-align: 1px;
+            line-height: 1.6;
+            display: inline-block;
+        }
+
+        .form-control {
+            width: 100%;
+            height: 38px;
+            padding: 5px 11px;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius);
+            font-size: 13.5px;
+            font-family: var(--font);
+            transition: var(--transition);
+            background: #fff;
+            color: var(--gray-700);
+            outline: none;
+        }
+
+        .form-control:hover {
+            border-color: var(--primary-hover);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(5, 145, 255, 0.1);
+        }
+
+        .form-control::placeholder {
+            color: var(--gray-400);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            height: auto;
+            min-height: 76px;
+        }
+
+        /* 下拉搜索（PC 组合框：支持键盘上下/回车/ESC） */
+        .search-select {
+            position: relative;
+            z-index: auto;
+        }
+
+        .search-select:focus-within,
+        .search-select.ss-open {
+            z-index: 999;
+        }
+
+        .search-select .ss-input {
+            cursor: text;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23bfbfbf' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 11px center;
+            padding-right: 30px;
+        }
+
+        .search-select.has-value .ss-input {
+            background-image: none;
+            padding-right: 34px;
+        }
+
+        .ss-clear {
+            position: absolute;
+            top: 50%;
+            right: 9px;
+            transform: translateY(-50%);
+            width: 17px;
+            height: 17px;
+            padding: 0;
+            border: none;
+            border-radius: 50%;
+            background: var(--gray-200);
+            color: var(--gray-500);
+            font-size: 13px;
+            line-height: 1;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ss-clear:hover {
+            background: var(--gray-400);
+            color: #fff;
+        }
+
+        .ss-panel {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+            max-height: 264px;
+            overflow-y: auto;
+            z-index: 999;
+            display: none;
+            padding: 4px;
+            scrollbar-width: thin;
+        }
+
+        .ss-option {
+            padding: 7px 10px;
+            font-size: 13.5px;
+            color: var(--gray-700);
+            border-radius: 6px;
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .ss-option:hover,
+        .ss-option.active {
+            background: var(--primary-wash);
+        }
+
+        .ss-option.selected {
+            background: var(--primary-light);
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .ss-group {
+            padding: 7px 10px 3px;
+            font-size: 11px;
+            color: var(--gray-400);
+            letter-spacing: 0.5px;
+        }
+
+        .ss-empty {
+            padding: 12px 10px;
+            font-size: 13px;
+            color: var(--gray-400);
+            text-align: center;
+        }
+
+        /* 缸数步进器 */
+        .qty-cell {
+            display: inline-flex;
+            align-items: stretch;
+            width: 100%;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius);
+            overflow: hidden;
+            background: #fff;
+            transition: var(--transition);
+        }
+
+        .qty-cell:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(5, 145, 255, 0.1);
+        }
+
+        .qty-cell .cyl-input {
+            flex: 1;
+            min-width: 0;
+            height: 36px;
+            text-align: center;
+            border: none;
+            border-left: 1px solid var(--gray-200);
+            border-right: 1px solid var(--gray-200);
+            border-radius: 0;
+            padding: 0;
+            background: #fff;
+            font-size: 14px;
+            font-family: var(--font);
+            outline: none;
+            color: var(--gray-700);
+        }
+
+        .qty-cell .cyl-input:focus {
+            box-shadow: none;
+        }
+
+        .qty-cell button {
+            width: 38px;
+            flex: 0 0 38px;
+            border: none;
+            background: var(--gray-50);
+            color: var(--gray-700);
+            font-size: 17px;
+            font-weight: 600;
+            line-height: 1;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .qty-cell button:hover {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        /* ===== 维保方案：套餐条 + 明细表 ===== */
+        .items-locked {
+            padding: 40px 20px;
+            text-align: center;
+            color: var(--gray-500);
+            font-size: 13.5px;
+            line-height: 1.8;
+        }
+
+        .pkg-strip {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            padding: 14px 18px;
+            cursor: pointer;
+            transition: var(--transition);
+            background: #fff;
+            margin-bottom: 16px;
+        }
+
+        .pkg-strip:hover {
+            border-color: var(--primary);
+        }
+
+        .pkg-strip.selected {
+            border-color: var(--primary);
+            background: var(--primary-wash);
+            box-shadow: 0 2px 8px rgba(22, 119, 255, 0.12);
+        }
+
+        .pkg-radio {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid var(--gray-300);
+            flex-shrink: 0;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .pkg-strip.selected .pkg-radio {
+            border-color: var(--primary);
+            background: var(--primary);
+        }
+
+        .pkg-strip.selected .pkg-radio::after {
+            content: '';
+            position: absolute;
+            left: 4px;
+            top: 2px;
+            width: 6px;
+            height: 9px;
+            border: solid #fff;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .pkg-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .pkg-line1 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .pkg-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        .pkg-strip.selected .pkg-name {
+            color: var(--primary);
+        }
+
+        .pkg-count {
+            font-size: 12.5px;
+            color: var(--gray-500);
+        }
+
+        .pkg-strip.selected .pkg-count {
+            color: var(--primary);
+        }
+
+        .pkg-desc {
+            font-size: 12.5px;
+            color: var(--gray-500);
+            margin-top: 4px;
+            line-height: 1.6;
+        }
+
+        .items-section {
+            margin-bottom: 20px;
+        }
+
+        .items-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .items-sec-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray-600);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .items-sec-title .opt-hint {
+            font-size: 12px;
+            font-weight: 400;
+            color: var(--gray-400);
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .items-table thead th {
+            text-align: left;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--gray-500);
+            background: #fafbfc;
+            padding: 9px 12px;
+            border-bottom: 1px solid var(--gray-200);
+            white-space: nowrap;
+        }
+
+        .items-table th.num,
+        .items-table td.num {
+            text-align: center;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* 单位列居中 */
+        .items-table th.col-unit,
+        .items-table td.col-unit {
+            text-align: center;
+        }
+
+        .items-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--gray-100);
+            color: var(--gray-700);
+            vertical-align: middle;
+        }
+
+        .items-table tbody.grp:last-child tr:last-child td {
+            border-bottom: none;
+        }
+
+        .items-table tbody.grp.collapsed tr.it {
+            display: none;
+        }
+
+        .items-table tr.grp-head td {
+            background: #f7f9fc;
+            padding: 0;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .grp-head-in {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .grp-head-in:hover {
+            background: #f0f5fd;
+        }
+
+        .grp-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+
+        .grp-count {
+            font-size: 12px;
+            color: var(--gray-400);
+        }
+
+        .grp-twist {
+            font-size: 10px;
+            color: var(--gray-400);
+            width: 14px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .items-table tr.it {
+            cursor: pointer;
+        }
+
+        .items-table tr.it:hover td {
+            background: var(--primary-wash);
+        }
+
+        .items-table tr.it .col-name {
+            color: var(--gray-500);
+        }
+
+        .items-table tr.it.checked .col-name {
+            color: var(--gray-700);
+            font-weight: 500;
+        }
+
+        .items-table .muted-td {
+            color: var(--gray-400);
+        }
+
+        .items-table .strong {
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        .col-chk {
+            width: 38px;
+        }
+
+        /* 自定义三态勾选框 */
+        .chk {
+            width: 16px;
+            height: 16px;
+            border: 1px solid var(--gray-300);
+            border-radius: 4px;
+            background: #fff;
+            flex-shrink: 0;
+            position: relative;
+            transition: var(--transition);
+            display: inline-block;
+        }
+
+        .chk.checked,
+        .chk.partial {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .chk.checked::after {
+            content: '';
+            position: absolute;
+            left: 4.5px;
+            top: 1.5px;
+            width: 4px;
+            height: 8px;
+            border: solid #fff;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .chk.partial::after {
+            content: '';
+            position: absolute;
+            left: 3px;
+            top: 6.5px;
+            width: 8px;
+            height: 2px;
+            background: #fff;
+        }
+
+        .chk.disabled {
+            opacity: 0.4;
+        }
+
+        /* 小步进器（表格内） */
+        .qty-stepper {
+            display: inline-flex;
+            align-items: center;
+            gap: 0;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .qty-stepper button {
+            width: 26px;
+            height: 26px;
+            border: none;
+            background: var(--gray-50);
+            color: var(--gray-600);
+            font-size: 14px;
+            line-height: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .qty-stepper button:hover {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .qty-stepper .qs-val {
+            min-width: 38px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--gray-700);
+            font-variant-numeric: tabular-nums;
+            border-left: 1px solid var(--gray-200);
+            border-right: 1px solid var(--gray-200);
+            line-height: 26px;
+        }
+
+        .qty-stepper input {
+            width: 44px;
+            height: 26px;
+            border: none;
+            border-left: 1px solid var(--gray-200);
+            border-right: 1px solid var(--gray-200);
+            text-align: center;
+            font-size: 13px;
+            font-family: var(--font);
+            outline: none;
+            color: var(--gray-700);
+        }
+
+        /* 右侧吸顶实时报价 */
+        .config-aside {
+            position: sticky;
+            top: 84px;
+            align-self: start;
+            height: calc(100vh - 104px);
+        }
+
+        .summary-card {
+            background: #fff;
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sum-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        /* 占位引导卡（必填未完成时） */
+        .aside-locked .lock-tip {
+            font-size: 13px;
+            color: var(--gray-500);
+            line-height: 1.7;
+            padding: 14px 0 6px;
+        }
+
+        .aside-locked .lock-todo {
+            list-style: none;
+            margin: 6px 0 0;
+            padding: 0;
+        }
+
+        .aside-locked .lock-todo li {
+            position: relative;
+            font-size: 13px;
+            color: var(--gray-600);
+            padding: 7px 0 7px 22px;
+            border-bottom: 1px dashed var(--gray-100);
+        }
+
+        .aside-locked .lock-todo li::before {
+            content: '';
+            position: absolute;
+            left: 2px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            border: 2px solid var(--warning-border);
+            background: #fff;
+            box-sizing: border-box;
+        }
+
+        .aside-locked .lock-todo li.done {
+            color: var(--success);
+            padding-left: 22px;
+        }
+
+        .aside-locked .lock-todo li.done::before {
+            border-color: var(--success);
+            background: var(--success);
+        }
+
+        .sum-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        .sum-device {
+            font-size: 12.5px;
+            color: var(--gray-500);
+            padding: 10px 0;
+            line-height: 1.6;
+            border-bottom: 1px dashed var(--gray-200);
+            margin-bottom: 6px;
+            min-height: 20px;
+        }
+
+        .sum-device b {
+            color: var(--gray-700);
+        }
+
+        .sum-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+            color: var(--gray-600);
+            padding: 6px 0;
+        }
+
+        .sum-row em {
+            font-style: normal;
+            font-size: 12px;
+            color: var(--gray-400);
+            margin-left: 4px;
+        }
+
+        .sum-row b {
+            font-weight: 600;
+            color: var(--gray-700);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .sum-grand-row {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            padding: 6px 0 2px;
+        }
+
+        .sum-grand-row>span:first-child {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        .sum-grand {
+            font-size: 27px;
+            font-weight: 700;
+            color: var(--primary);
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.5px;
+        }
+
+        .summary-card .btn-block {
+            margin-top: 14px;
+        }
+
+        .sum-remarks {
+            margin-top: 14px;
+        }
+
+        .sum-remarks label {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--gray-600);
+            margin-bottom: 6px;
+        }
+
+        .sum-remarks .opt {
+            font-size: 11px;
+            font-weight: 400;
+            color: var(--gray-400);
+        }
+
+        .sum-remarks textarea {
+            width: 100%;
+            height: 96px;
+            min-height: 52px;
+            resize: vertical;
+        }
+
+        .sum-note {
+            font-size: 11.5px;
+            color: var(--gray-400);
+            text-align: center;
+            margin-top: 10px;
+            line-height: 1.6;
+        }
+
+        /* ===== 弹窗 ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+            animation: fadeIn 0.18s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 520px;
+            max-height: 88vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.22s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        .modal-close {
+            border: none;
+            background: none;
+            font-size: 22px;
+            line-height: 1;
+            color: var(--gray-400);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: var(--radius);
+        }
+
+        .modal-close:hover {
+            color: var(--gray-800);
+            background: var(--gray-100);
+        }
+
+        .modal-body {
+            padding: 20px 24px;
+            overflow-y: auto;
+        }
+
+        .modal-body .form-group {
+            margin-bottom: 16px;
+        }
+
+        .modal-body .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .modal-body .form-group label {
+            display: block;
+            font-size: 13px;
+            color: var(--gray-700);
+            margin-bottom: 7px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 14px 24px;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        /* ===== Toast ===== */
+        .toast {
+            position: fixed;
+            top: 76px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-12px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #fff;
+            color: var(--gray-800, var(--gray-700));
+            padding: 10px 18px;
+            border-radius: var(--radius-lg);
+            font-size: 14px;
+            box-shadow: var(--shadow-lg);
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+
+        .toast-icon {
+            display: none;
+            flex-shrink: 0;
+            width: 17px;
+            height: 17px;
+        }
+
+        .toast.info .toast-icon-info {
+            display: block;
+            color: var(--primary);
+        }
+
+        .toast.success .toast-icon-success {
+            display: block;
+            color: var(--success);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* ===== 响应式降级（窄窗口） ===== */
+        @media (max-width: 1180px) {
+
+            .catalog-layout,
+            .config-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .config-aside {
+                position: static;
+                height: auto;
+            }
+
+            .form-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 760px) {
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .panel-head {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .panel-head .search-box {
+                width: 100%;
+                max-width: none;
+                order: 3;
+            }
+
+            .topbar-inner {
+                gap: 16px;
+                padding: 0 16px;
+            }
+
+            .workspace {
+                padding: 16px 14px 32px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ===================== 顶栏：品牌 + 步骤导航 + 操作 ===================== -->
+    <header class="topbar">
+        <div class="topbar-inner">
+            <div class="brand">
+                <span class="brand-logo">⚓</span>
+                <div>
+                    <div class="brand-name"> 客户定价</div>
+
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="workspace">
+
+        <!-- ===================== STEP 0：设备目录（主从双栏） ===================== -->
+        <section class="step-view" id="step0Section">
+            <div class="catalog-layout">
+                <aside class="panel">
+                    <div class="panel-head">
+                        <div class="panel-title">选择设备</div>
+                        <div class="search-box">
+                            <svg class="ts-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                                stroke-width="1.6" stroke-linecap="round">
+                                <circle cx="7" cy="7" r="4.5"></circle>
+                                <line x1="10.4" y1="10.4" x2="14" y2="14"></line>
+                            </svg>
+                            <input type="text" id="cascadeSearch" placeholder="搜索设备名称…" autocomplete="off">
+                            <button class="ts-clear" id="cascadeSearchClear" aria-label="清除">×</button>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="cascade-empty" id="cascadeEmpty">未找到匹配的设备</div>
+                        <div class="search-results" id="searchResults" style="display:none;"></div>
+                        <div class="catalog-split">
+                            <aside class="mall-left">
+                                <button type="button" class="hall-entry" id="hallEntry">全部分类</button>
+                                <div class="mall-left-roots" id="mallLeftRoots"></div>
+                            </aside>
+                            <div class="mall-wrap" id="mallWrap">
+                                <div class="mall-groups" id="mallGroups"></div>
+                                <div class="tree-view" id="treeView" style="display:none;"></div>
+                                <div class="product-view" id="productView" style="display:none;">
+                                    <div class="pv-head">
+                                        <nav class="pv-crumb" id="pvCrumb" aria-label="分类路径"></nav>
+                                    </div>
+                                    <div class="pv-grid" id="pvGrid"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </section>
+
+        <!-- ===================== STEP 1：维保需求（表单 + 明细表 + 实时报价） ===================== -->
+        <section class="step-view" id="step1Section">
+            <div class="config-layout" id="configLayout">
+                <div class="config-main">
+
+                    <div class="panel">
+                        <div class="panel-head">
+                            <div>
+                                <div class="panel-title">填写维保需求</div>
+                            </div>
+                            <button type="button" class="btn btn-outline" id="prevStepBtn">‹ 上一步</button>
+                        </div>
+                        <div class="panel-body">
+                            <div class="form-grid">
+                                <div class="field">
+                                    <label><span class="required-star">*</span>设备型号</label>
+                                    <div class="search-select" id="modelWrap">
+                                        <input type="text" class="form-control ss-input" id="modelInput"
+                                            placeholder="搜索或选择型号" autocomplete="off">
+                                        <button type="button" class="ss-clear" id="modelClear"
+                                            aria-label="清除">×</button>
+                                        <div class="ss-panel" id="modelPanel"></div>
+                                        <select class="form-control" id="model" style="display:none;">
+                                            <option value="">请选择设备型号</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <label><span class="required-star">*</span>设备缸数</label>
+                                    <div class="qty-cell">
+                                        <button type="button" class="cyl-dec" aria-label="减少缸数">−</button>
+                                        <input type="number" class="cyl-input" id="cylInput" min="1" max="20"
+                                            placeholder="请输入缸数" aria-label="设备缸数（1-20）">
+                                        <button type="button" class="cyl-inc" aria-label="增加缸数">＋</button>
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <label><span class="required-star">*</span>制造厂家</label>
+                                    <div class="search-select" id="manufacturerWrap">
+                                        <input type="text" class="form-control ss-input" id="manufacturerInput"
+                                            placeholder="搜索或选择厂家" autocomplete="off">
+                                        <button type="button" class="ss-clear" id="manufacturerClear"
+                                            aria-label="清除">×</button>
+                                        <div class="ss-panel" id="manufacturerPanel"></div>
+                                        <select class="form-control" id="manufacturer" style="display:none;">
+                                            <option value="">请选择制造厂家</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <label><span class="required-star">*</span>维保类型</label>
+                                    <div class="search-select" id="maintTypeWrap">
+                                        <input type="text" class="form-control ss-input" id="maintTypeInput"
+                                            placeholder="搜索或选择维保类型" autocomplete="off">
+                                        <button type="button" class="ss-clear" id="maintTypeClear"
+                                            aria-label="清除">×</button>
+                                        <div class="ss-panel" id="maintTypePanel"></div>
+                                        <select class="form-control" id="maintType" style="display:none;">
+                                            <option value="">请选择维保类型</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="field" id="cycleFieldGroup" style="display:none;">
+                                    <label><span class="required-star">*</span>设备保养周期</label>
+                                    <div class="search-select" id="maintCycleWrap">
+                                        <input type="text" class="form-control ss-input" id="maintCycleInput"
+                                            placeholder="请选择保养周期" autocomplete="off">
+                                        <button type="button" class="ss-clear" id="maintCycleClear"
+                                            aria-label="清除">×</button>
+                                        <div class="ss-panel" id="maintCyclePanel"></div>
+                                        <select class="form-control" id="maintCycleHours" style="display:none;">
+                                            <option value="">请选择设备保养周期</option>
+                                            <option value="5年保养">5年保养</option>
+                                            <option value="10年保养">10年保养</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-extra">
+                                <div class="field">
+                                    <label>船名 <span class="opt-tag">选填</span></label>
+                                    <input type="text" class="form-control" id="shipName" placeholder="请输入船名">
+                                </div>
+                            </div>
+                            <div class="form-svc">
+                                <div class="field" style="margin-bottom:8px">
+                                    <label style="margin-bottom:0">服务信息
+                                       
+                                    </label>
+                                </div>
+                                <div class="svc-grid">
+                                    <div class="field">
+                                        <label><span class="required-star">*</span>是否紧急</label>
+                                        <select class="form-control" id="svcUrg"></select>
+                                    </div>
+                                    <div class="field">
+                                        <label><span class="required-star">*</span>服务地点</label>
+                                        <div class="svc-loc">
+                                            <select class="form-control" id="svcRegion"></select>
+                                            <select class="form-control" id="svcCountry"></select>
+                                            <select class="form-control" id="svcSite"></select>
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label><span class="required-star">*</span>服务时间</label>
+                                        <input type="date" class="form-control" id="svcDate" placeholder="期望服务日期">
+                                    </div>
+                                </div>
+                                <div class="svc-hint" id="svcHint"></div>
+                            </div>
+                            <div class="panel-foot">
+                                <a class="text-link" id="addCustomLink" href="javascript:void(0)">没找到？联系我们</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel" id="itemsArea" hidden>
+                        <div class="panel-head">
+                            <div>
+                                <div class="panel-title">选择维保方案</div>
+                            </div>
+                            <div class="search-box items-search">
+                                <svg class="ts-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                                    stroke-width="1.6" stroke-linecap="round">
+                                    <circle cx="7" cy="7" r="4.5"></circle>
+                                    <line x1="10.4" y1="10.4" x2="14" y2="14"></line>
+                                </svg>
+                                <input type="text" id="itemSearch" placeholder="筛选维修项目…" autocomplete="off">
+                                <button class="ts-clear" id="itemSearchClear" aria-label="清除">×</button>
+                            </div>
+                        </div>
+                        <div class="panel-body" id="packageContainer"></div>
+                    </div>
+
+                </div>
+
+                <aside class="config-aside" id="configAside" hidden>
+                    <!-- 占位引导卡：必填未完成时展示，避免右侧大片空白 -->
+                    <div class="summary-card aside-locked" id="asideLocked">
+                        <div class="sum-head">
+                            <span class="sum-title">查看预算</span>
+                        </div>
+                        <div class="sum-device" id="lockDevice">尚未选择设备</div>
+                        <div class="lock-tip">填写左侧必填信息后，将在此自动生成预算明细。</div>
+                        <ul class="lock-todo" id="lockTodo"></ul>
+                    </div>
+                    <!-- 正式预算卡：必填完成后展示 -->
+                    <div class="summary-card aside-ready" id="asideReady" hidden>
+                        <div class="sum-head">
+                            <span class="sum-title">查看预算</span>
+                        </div>
+                        <div class="sum-device" id="sumDevice">尚未选择设备</div>
+      
+                        <div class="sum-grand-row" id="sumGrandRow" style="display:none;">
+                            <span>预算合计</span>
+                            <span class="sum-grand" id="sumGrand">$0</span>
+                        </div>
+                        <div class="sum-remarks">
+                            <label for="priceFeedbackInput">补充说明 <span class="opt">选填</span></label>
+                            <textarea class="form-control" id="priceFeedbackInput" rows="2"
+                                placeholder="特殊要求、交期、需含差旅等备注"></textarea>
+                        </div>
+                        <button type="button" class="btn btn-primary btn-lg btn-block is-locked" id="step2Push"
+                            aria-disabled="true">提交询价</button>
+
+                    </div>
+                </aside>
+            </div>
+        </section>
+
+
+    </main>
+
+    <!-- 自定义厂家/型号弹窗 -->
+    <div class="modal-overlay" id="customAddModal">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title">没找到？请联系我们</span>
+                <button type="button" class="modal-close" id="customAddClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>制造厂家</label>
+                    <input type="text" class="form-control" id="customManuInput" placeholder="请输入制造厂家名称">
+                </div>
+                <div class="form-group">
+                    <label>设备型号</label>
+                    <input type="text" class="form-control" id="customModelInput" placeholder="请输入设备型号">
+                </div>
+                <div class="form-group">
+                    <label>您的需求</label>
+                    <textarea class="form-control" id="customNeedInput" rows="4"
+                        placeholder="请描述您的设备情况与维保需求，便于我们为您报价"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" id="customAddCancel">取消</button>
+                <button type="button" class="btn btn-primary" id="customAddConfirm">提交需求</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <svg class="toast-icon toast-icon-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        <svg class="toast-icon toast-icon-success" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+        <span class="toast-text" id="toastText"></span>
+    </div>
+
+    <script src="../admin/assets/data.js"></script>
+    <script src="../admin/assets/dp.js"></script>
+    <script src="../admin/assets/sel.js"></script>
+    <script src="inquiry-store.js"></script>
+    <script>
+        (function () {
+            'use strict';
+
+            // ============================================================
+            // 业务逻辑与移动端 demov8 保持一致：
+            // 设备引导树 → 型号/厂家联动 → 缸数 → 标准套餐/子系统/数量
+            // → 预算（套餐明细 + 可选项勾选/数量）
+            // → 保底价托底 + 影响系数（D16/D17）：
+            //    最终报价 = Max(合计保底价, 明细合计) × 影响系数 K，K = Max(紧急, 地点, 时间)（取最大值，Q-9 已决）
+            // ============================================================
+
+            // ----- DOM refs -----
+            const step0El = document.getElementById('step0Section');
+            const step1El = document.getElementById('step1Section');
+            const itemsArea = document.getElementById('itemsArea');
+            const configAside = document.getElementById('configAside');
+            const configLayout = document.getElementById('configLayout');
+            const prevStepBtn = document.getElementById('prevStepBtn');
+
+            // 页切换：0=选择设备，1=填写维保需求（选完设备自动进入）
+            function goToStep(n) {
+                const showStep0 = n === 0;
+                step0El.hidden = !showStep0;
+                step1El.hidden = showStep0;
+                if (!showStep0) {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            }
+
+            prevStepBtn.addEventListener('click', function () {
+                goToStep(0);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            // 初始：仅显示第 1 步（选择设备）
+            step1El.hidden = true;
+
+            const step2Push = document.getElementById('step2Push');
+            const shipName = document.getElementById('shipName');
+            const deviceType = { value: '' }; // 设备逻辑值（由 STEP 0 引导树写入）
+            const maintType = document.getElementById('maintType');
+            const manufacturer = document.getElementById('manufacturer');
+            const model = document.getElementById('model');
+            const cylInput = document.getElementById('cylInput');
+            const maintTypeInput = document.getElementById('maintTypeInput');
+            const maintTypePanel = document.getElementById('maintTypePanel');
+            const manufacturerInput = document.getElementById('manufacturerInput');
+            const manufacturerPanel = document.getElementById('manufacturerPanel');
+            const modelInput = document.getElementById('modelInput');
+            const modelPanel = document.getElementById('modelPanel');
+            const maintCycleInput = document.getElementById('maintCycleInput');
+            const maintCyclePanel = document.getElementById('maintCyclePanel');
+            const maintCycleHours = document.getElementById('maintCycleHours');
+            const toast = document.getElementById('toast');
+            const toastText = document.getElementById('toastText');
+            const addCustomLink = document.getElementById('addCustomLink');
+            const customAddModal = document.getElementById('customAddModal');
+            const customManuInput = document.getElementById('customManuInput');
+            const customModelInput = document.getElementById('customModelInput');
+            const customNeedInput = document.getElementById('customNeedInput');
+            const customAddClose = document.getElementById('customAddClose');
+            const customAddCancel = document.getElementById('customAddCancel');
+            const customAddConfirm = document.getElementById('customAddConfirm');
+            const itemSearch = document.getElementById('itemSearch');
+            const itemSearchClear = document.getElementById('itemSearchClear');
+            const priceFeedbackInput = document.getElementById('priceFeedbackInput');
+            const lockDevice = document.getElementById('lockDevice');
+            const lockTodo = document.getElementById('lockTodo');
+            const asideLocked = document.getElementById('asideLocked');
+            const asideReady = document.getElementById('asideReady');
+            const sumDevice = document.getElementById('sumDevice');
+            const sumGrandRow = document.getElementById('sumGrandRow');
+            const sumGrand = document.getElementById('sumGrand');
+            const cycleFieldGroup = document.getElementById('cycleFieldGroup');
+            const svcUrgSel = document.getElementById('svcUrg');
+            const svcRegionSel = document.getElementById('svcRegion');
+            const svcCountrySel = document.getElementById('svcCountry');
+            const svcSiteSel = document.getElementById('svcSite');
+            const svcDateInp = document.getElementById('svcDate');
+            const svcHintEl = document.getElementById('svcHint');
+
+            // ----- State -----
+            let selectedItems = [];
+            let quoteExcluded = new Set();
+            let quoteQty = {};
+            let qtyTouched = new Set();   // 客户手动调过数量的项目（不随缸数等默认值回滚）
+            let cycleHours = '';
+            let customManufacturer = '';
+            let customModel = '';
+            let customNeed = '';
+            let selectedPackage = '';
+            let expandedPkg = ''; // 套餐明细默认收起，点“展开明细”打开
+            let noSchemeMode = false; // R-26 状态：套餐未命中，仍展示后台建议的可选项（独立计价）
+            let selectedLeaf = null;
+            let selectedDeviceName = '';
+            const collGrp = new Set();    // 折叠的子系统分组
+
+            // ===== 维保数据（与 v8 一致） =====
+            const EQUIPMENT_DATA = {
+                'Main diesel engine': {
+                    "base_info": { "equipment_name": "Main diesel engine" },
+                    "all_maintenance_types": ["液压和电控系统保养", "健康检查", "监工服务", "车间保养测试", "常规吊缸类", "故障排查维修", "部件翻新"],
+                    "equipment_series": [{
+                        "series_name": "MAN B&W系列",
+                        "manufacturers": ["HD HYUNDAI", "Hanwha(Doosan/HSD)", "HME(STX)", "HHM", "CSSC", "MITSUI",
+                            "Kawasaki", "Hitachi Zosen", "Makita"
+                        ],
+                        "model_list": ["6L35MC-C", "6S42MC", "6S46MC-C", "5S50MC-C", "6S50MC-C",
+                            "7S50MC-C", "5S60MC-C", "6S60MC-C", "7S60MC-C", "6S70MC-C",
+                            "7S80MC-C", "8K90MC-C", "12K98MC-C", "6S35ME-B9.3", "5S50ME-B9.3",
+                            "6S60ME-C10.5", "6G60ME-C9.5", "6G70ME-C9.5", "6G80ME-C9.5", "11G95ME-C9.5"
+                        ],
+                        "special_5year_maintenance": {
+                            "HCU": [
+                                { "item_name": "Accumulator overhaul", "unit": "EA", "base_qty": "缸数", "unit_price_usd": 300 },
+                                { "item_name": "F.O. booster overhaul", "unit": "EA", "base_qty": "缸数", "unit_price_usd": 450 },
+                                { "item_name": "Exhaust v/v Actuator overhaul", "unit": "EA", "base_qty": "缸数", "unit_price_usd": 300 },
+                                { "item_name": "Cylinder lubricator overhaul", "unit": "EA", "base_qty": "缸数", "unit_price_usd": 350 },
+                                { "item_name": "FIVA valve overhaul (on board)", "unit": "EA", "base_qty": "缸数", "unit_price_usd": 300 },
+                                { "item_name": "FIVA valve overhaul (workshop)", "unit": "EA", "base_qty": "缸数", "unit_price_usd": 1000 },
+                                { "item_name": "HCU block overhaul(shut-off valves, return oil block etc)", "unit": "set", "base_qty": 1, "unit_price_usd": 800 }
+                            ],
+                            "HPS": [
+                                { "item_name": "Engine driven hyd. pump: Renewal", "unit": "EA", "base_qty": 2, "unit_price_usd": 1000 },
+                                { "item_name": "Engine driven hyd. pump: workshop recondition", "unit": "EA", "base_qty": 2, "unit_price_usd": 2500 },
+                                { "item_name": "Pump shaft clean and inspection", "unit": "set", "base_qty": 1, "unit_price_usd": 300 },
+                                { "item_name": "Proportional directional control v/v renewal", "unit": "EA", "base_qty": 2, "unit_price_usd": 350 },
+                                { "item_name": "Hyd. rubber hose Replacement renewal", "unit": "set", "base_qty": 1, "unit_price_usd": 500 },
+                                { "item_name": "High pressure pipe of servo oil to HCU renewal", "unit": "set", "base_qty": 1, "unit_price_usd": 500 },
+                                { "item_name": "Accumulator overhaul", "unit": "EA", "base_qty": 2, "unit_price_usd": 300 },
+                                { "item_name": "Valve block: Option 1: renewal of sealing rings for cartridge valve&end cover&block of 310#,311# v/v", "unit": "set", "base_qty": 1, "unit_price_usd": 300 },
+                                { "item_name": "Valve block: Option-2 renewed cartridge valve&relief valve  for 310#; cartridge valve,relief valve&solenoid valve for 311# v/v", "unit": "set", "base_qty": 1, "unit_price_usd": 500 },
+                                { "item_name": "Valve block: Check and renewal of sealing ring for #304*3sets, #305*2 sets,#309*1set,#315*1 set,#316*1 set", "unit": "set", "base_qty": 1, "unit_price_usd": 800 },
+                                { "item_name": "Elec. Driven hyd. pump overhaul (on board)", "unit": "EA", "base_qty": 2, "unit_price_usd": 500 },
+                                { "item_name": "Elec. Driven hyd. pump overhaul (workshop recondition)", "unit": "EA", "base_qty": 2, "unit_price_usd": 1000 }
+                            ],
+                            "Mechanical control gear": [
+                                { "item_name": "Chain Tighten", "unit": "set", "base_qty": 1, "unit_price_usd": 1500 },
+                                { "item_name": "Main starting v/v Slow turning v/v & actuator", "unit": "set", "base_qty": 1, "unit_price_usd": 1500 },
+                                { "item_name": "Exhaust gas bypass valve", "unit": "EA", "base_qty": 1, "unit_price_usd": 500 }
+                            ],
+                            "Electric control system": [
+                                { "item_name": "MPC for EICU,CCU clean and inspection", "unit": "set", "base_qty": 1, "unit_price_usd": 300 },
+                                { "item_name": "Cables, 120ohm resistors, plug, electrical screw-terminals & terminal boards check", "unit": "set", "base_qty": 1, "unit_price_usd": 300 },
+                                { "item_name": "UPS, power supply A+B check", "unit": "set", "base_qty": 1, "unit_price_usd": 300 },
+                                { "item_name": "low insulation check", "unit": "set", "base_qty": 1, "unit_price_usd": 300 },
+                                { "item_name": "MOP, ESC, RCS check and function test", "unit": "set", "base_qty": 1, "unit_price_usd": 300 },
+                                { "item_name": "Junction box check", "unit": "set", "base_qty": 1, "unit_price_usd": 200 }
+                            ],
+                            "Tacho system": [
+                                { "item_name": "Angle Encoder check and calibration", "unit": "set", "base_qty": 1, "unit_price_usd": 1500 },
+                                { "item_name": "Trigger rings + Sensors MSA+MSBn calibration", "unit": "set", "base_qty": 1, "unit_price_usd": 1500 }
+                            ],
+                            "Pneumatic control system Overhaul": [
+                                { "item_name": "Pneumatic control system Overhaul", "unit": "set", "base_qty": 1, "unit_price_usd": 1500 }
+                            ],
+                            "Hydraulic system calibration and function test": [
+                                { "item_name": "Hydraulic system calibration and function test", "unit": "set", "base_qty": 1, "unit_price_usd": 1000 }
+                            ],
+                            "Sea trial": [
+                                { "item_name": "Sea trial", "unit": "set", "base_qty": 1, "unit_price_usd": 800 }
+                            ]
+                        }
+                    }, {
+                        "series_name": "WinGD系列",
+                        "manufacturers": ["HD HYUNDAI", "Hanwha(Doosan/HSD)", "HME(STX)", "CSSC", "Sulzer"],
+                        "model_list": ["6RTA48T-B", "6RT-flex58T-B", "7RT-flex60C", "7RT-flex84T-D", "12RTA96C",
+                            "6X62-S2.0", "7X72", "6X82-2.0"
+                        ]
+                    }, {
+                        "series_name": "J-ENG UEC系列",
+                        "manufacturers": ["J-ENG", "CSSC", "Akasaka"],
+                        "model_list": ["5UEC33LSE-C2", "6UEC33LSH-C2", "6UEC45LSE-Eco-B2", "6UEC50LSH-Eco-C2",
+                            "6UEC60LSH-Eco-C3", "8UEC60LSE-Eco-A2", "7UEC80LSE-Eco-A2"
+                        ]
+                    }]
+                },
+                'Aux. diesel generator aggregates, complete': {
+                    "base_info": { "equipment_name": "Aux. diesel generator aggregates, complete" },
+                    "all_maintenance_types": ["液压和电控系统保养", "健康检查", "监工服务", "车间保养测试", "常规吊缸类", "故障排查维修", "部件翻新"],
+                    "equipment_series": []
+                }
+            };
+
+            let EQUIPMENT_NAME = 'Main diesel engine';
+            // 设备 → 设备编码（dev）：主机柴油机=601.001，辅助柴油发电机组=651.001（与后台 CATALOG 一致）
+            const EQUIP_DEV = { 'Main diesel engine': '601.001', 'Aux. diesel generator aggregates, complete': '651.001' };
+            let MAINTENANCE_TYPES = [];
+            let MODEL_TO_SERIES = {};
+            let SERIES_INFO = {};
+            let ALL_MANUFACTURERS = [];
+            let SPECIAL_5Y_LEAVES = [];
+            let ITEM_MAP = {};
+            let DEMO_PACKAGES = [];   // demo 套餐，以后再台 PACKAGES（PKG-STD）为准重建
+            let SI_TO_KEY = {};       // 服务项编码 → demo 项 key（rebuildItemsFromBackend 填充）
+            let PKG_KEY_SET = new Set(); // 后台套餐 PKG-STD 精确命中的 demo 项 key 集合（严格以后台数据为准）
+            let SUG_SET = new Set();  // 后台 RULES.sug 建议加选项 key 集合（严格以后台数据为准）
+            let SUG_MAP = {};         // demo 项 key → { mode, qty }（后台建议的默认数量）
+
+            // resolveLaborStandard 在 data.js 全局作用域调用 groupCodeOfModel（后台 core.js 提供）；
+            // demo 未加载 core.js，故在此补齐一个 window 级实现，供 data.js 全局函数可见。
+            window.groupCodeOfModel = function (name) {
+                const g = (typeof groupOfModel === 'function') ? groupOfModel(name) : null;
+                return g ? g.code : null;
+            };
+
+            // 维保类型 → 编码（用于计价上下文）
+            function currentMaintType() {
+                return (typeof MTYPES !== 'undefined')
+                    ? MTYPES.find(function (x) { return x.name === maintType.value; }) || null : null;
+            }
+            function maintTypeCode() {
+                const t = currentMaintType();
+                return t ? t.code : null;
+            }
+            // R-28：周期只在类型启用周期时生效；未启用的类型不得带周期（IN-MC-09）
+            function maintCycleEnabled() {
+                const t = currentMaintType();
+                return !!(t && t.cycle);
+            }
+            function currentCycle() {
+                return maintCycleEnabled() ? ((maintCycleHours && maintCycleHours.value) || '') : '';
+            }
+            // R-07：维保类型按设备挂载；未配置挂载时退回全量
+            function mountedTypeCodes(dev) {
+                if (typeof CATALOG === 'undefined') return null;
+                let node = null;
+                (function walk(ns) {
+                    ns.forEach(function (n) {
+                        if (n.code === dev) node = node || n;
+                        if (n.children && n.children.length) walk(n.children);
+                    });
+                })(CATALOG);
+                if (!node || !Array.isArray(node.mts) || !node.mts.length) return null;
+                return node.mts.slice();
+            }
+
+            // 从后台领域模型重建维修项台账：SITEMS（mt=HYDELEC），数量 base_qty 按后台套餐 PKG-STD 反推
+            function rebuildItemsFromBackend() {
+                // 多套餐兼容：聚合全部后台套餐 PACKAGES 的 SI 编码 → 默认数量设定，
+                // 避免命中非首个套餐时其项遗漏（SI_TO_KEY 已覆盖全部 SITEMS，此处仅决定基础数量）
+                const pkgs = (typeof PACKAGES !== 'undefined') ? PACKAGES : [];
+                const pkgMap = {};
+                pkgs.forEach(function (bp) {
+                    (bp.items || []).forEach(function (it) {
+                        if (it && it.ref && typeof it.ref === 'string' && it.ref.indexOf('labor:') < 0) {
+                            if (pkgMap[it.ref] === undefined) pkgMap[it.ref] = { mode: it.mode, qty: it.qty };
+                        }
+                    });
+                });
+                SPECIAL_5Y_LEAVES = [];
+                ITEM_MAP = {};
+                SI_TO_KEY = {};
+                // 后台 RULES.sug：按当前设备(dev)+维保类型(mt)+周期(cycle) 给出的"建议加选"服务项
+                const sugDev = (typeof EQUIP_DEV !== 'undefined' && EQUIP_DEV[EQUIPMENT_NAME]) ? EQUIP_DEV[EQUIPMENT_NAME] : '601.001';
+                const sugMt = maintTypeCode();
+                const sugCycle = currentCycle();
+                const sugBySi = {};
+                if (typeof RULES !== 'undefined' && RULES.sug) {
+                    RULES.sug.forEach(function (r) {
+                        if (!r || !r.si) return;
+                        if (r.dev && r.dev !== sugDev) return;
+                        if (sugMt && r.mt && r.mt !== sugMt) return;
+                        if (r.cycle && r.cycle !== sugCycle) return;
+                        sugBySi[r.si] = { mode: r.mode, qty: r.qty, badge: !!r.badge };
+                    });
+                }
+                SUG_SET = new Set();
+                SUG_MAP = {};
+                SITEMS.forEach(function (s) {
+                    if (s.mt && s.mt !== 'HYDELEC') return;   // demo 仅展示液压和电控类（与 v8 一致）
+                    const key = siGroupOf(s) + '::' + s.name;
+                    if (ITEM_MAP[key]) return;
+                    const pm = pkgMap[s.code];
+                    let base_qty = pm ? (pm.mode === 'auto_cylinder' ? '缸数' : (parseInt(pm.qty, 10) || 1)) : 1;
+                    // 后台建议加选：以 RULES.sug 给出的数量作为该项默认数量（优先于通用默认）
+                    const su = sugBySi[s.code];
+                    const suggested = !!su;
+                    if (su) base_qty = (su.mode === 'auto_cylinder' ? '缸数' : (parseInt(su.qty, 10) || 1));
+                    ITEM_MAP[key] = {
+                        key: key, cat: siGroupOf(s), siCode: s.code, item_name: s.name,
+                        unit: s.unit || '', base_qty: base_qty, unit_price_usd: 0, suggested: suggested
+                    };
+                    SPECIAL_5Y_LEAVES.push(ITEM_MAP[key]);
+                    SI_TO_KEY[s.code] = key;
+                    if (su) { SUG_SET.add(key); SUG_MAP[key] = { mode: su.mode, qty: su.qty }; }
+                });
+            }
+
+            // 重算后台建议项集合（RULES.sug）：随维保类型(mt)/周期(cycle) 变化而刷新，
+            // 避免切换类型后沿用上一次 HYDELEC 的残留可选项（demo 仅展示 HYDELEC 类项）
+            function rebuildSugSet() {
+                const sugBySi = {};
+                if (typeof RULES !== 'undefined' && RULES.sug) {
+                    const sugDev = (typeof EQUIP_DEV !== 'undefined' && EQUIP_DEV[EQUIPMENT_NAME]) ? EQUIP_DEV[EQUIPMENT_NAME] : '601.001';
+                    const sugMt = maintTypeCode();
+                    const sugCycle = currentCycle();
+                    RULES.sug.forEach(function (r) {
+                        if (!r || !r.si) return;
+                        if (r.dev && r.dev !== sugDev) return;
+                        if (sugMt && r.mt && r.mt !== sugMt) return;
+                        if (r.cycle && r.cycle !== sugCycle) return;
+                        sugBySi[r.si] = { mode: r.mode, qty: r.qty, badge: !!r.badge };
+                    });
+                }
+                SUG_SET = new Set();
+                SUG_MAP = {};
+                SITEMS.forEach(function (s) {
+                    if (s.mt && s.mt !== 'HYDELEC') return;
+                    const key = siGroupOf(s) + '::' + s.name;
+                    if (!ITEM_MAP[key]) return; // 仅对当前已建项计算建议
+                    const su = sugBySi[s.code];
+                    if (su) { SUG_SET.add(key); SUG_MAP[key] = { mode: su.mode, qty: su.qty }; }
+                });
+            }
+
+            // 按展示规则（RULES.pkg）回溯套餐：命中顺序 型号级 > 设备级，返回命中套餐编码或 null（未命中 → R-26）
+            // demo 未加载 core.js（resolveRules 不可用），此处内联等价实现，与后台 rule.html 的命中逻辑保持一致
+            function resolvePkgRule() {
+                if (typeof RULES === 'undefined' || !RULES.pkg) return null;
+                const modelName = (model && model.value) || '';
+                const mtCode = maintTypeCode();
+                const cycle = currentCycle();
+                const m = MODELS.find(function (x) { return x.name === modelName; }) || null;
+                const dev = m ? m.dev : null;
+                const f = function (r) { return r.mt === mtCode && (r.cycle || null) === (cycle || null); };
+                const r = RULES.pkg.find(function (x) { return f(x) && x.level === '型号级' && x.ref === modelName; });
+                if (r) return r.pkg;
+                const rows = RULES.pkg.filter(function (x) { return f(x) && x.level === '设备级' && x.dev === dev; });
+                return rows.length ? rows[0].pkg : null;
+            }
+
+            // 从后台套餐 PACKAGES 重建 demo 套餐：每个后台套餐一个 demo 套餐，id 用套餐编码（与 RULES.pkg 命中结果一致，便于按展示规则选中）
+            function rebuildDemoPackages() {
+                const pkgs = (typeof PACKAGES !== 'undefined') ? PACKAGES : [];
+                DEMO_PACKAGES = pkgs.map(function (bp) {
+                    const pkgSiCodes = [];
+                    (bp.items || []).forEach(function (it) {
+                        if (it && it.ref && typeof it.ref === 'string' && it.ref.indexOf('labor:') < 0) pkgSiCodes.push(it.ref);
+                    });
+                    // 严格以后台数据为准：仅选中后台套餐里明确列出的 SI 编码对应的项
+                    const pkgKeys = pkgSiCodes.map(function (c) { return SI_TO_KEY[c]; }).filter(function (k) { return !!k; });
+                    // 展示分组（仅用于"套餐内项目"按子系统折叠展示）：取后台套餐覆盖到的分组
+                    const stdCats = {};
+                    pkgSiCodes.forEach(function (c) {
+                        const s = SITEMS.find(function (x) { return x.code === c; });
+                        if (s) stdCats[siGroupOf(s)] = true;
+                    });
+                    const stdSubIds = SUBSYSTEMS.filter(function (sub) { return sub.tier === 'std' && stdCats[sub.cat]; }).map(function (sub) { return sub.id; });
+                    return {
+                        id: bp.code,                  // 套餐编码（与 RULES.pkg 命中结果一致）
+                        code: bp.code,
+                        name: bp.name || '标准保养',
+                        desc: bp.desc || '',
+                        recommend: !!bp.rec,
+                        siCodes: pkgSiCodes,          // 后台套餐的 SI 编码（权威来源）
+                        keys: pkgKeys,               // 精确命中的 demo 项 key
+                        subsystems: stdSubIds.length ? stdSubIds : STANDARD_SUBSYSTEM_IDS.slice()
+                    };
+                });
+                // PKG_KEY_SET 初始指向第一个套餐（仅用于徽标），选中具体套餐后由 selectPackage 刷新
+                PKG_KEY_SET = DEMO_PACKAGES[0] ? new Set(DEMO_PACKAGES[0].keys) : new Set();
+            }
+
+            // 项目分组非必填（D2）：未分组服务项归入兜底分组「其他」
+            // 分组仅用于自由选择区归组展示，不参与计价——未分组不影响定价与引用
+            const SI_OTHER_GROUP = '其他';
+            function siGroupOf(s) { return (s && s.grp) ? s.grp : SI_OTHER_GROUP; }
+
+            function loadEquipmentData(name) {
+                EQUIPMENT_NAME = (name && EQUIPMENT_DATA[name]) ? name : 'Main diesel engine';
+                const dev = EQUIP_DEV[EQUIPMENT_NAME] || '601.001';
+                if (typeof setCurrentDev === 'function') setCurrentDev(dev);  // 注入当前设备，供无型号时设备级工时标准回溯
+                // 维保类型：以后台 MTYPES 为准，并按设备挂载过滤（R-07）
+                const mounted = mountedTypeCodes(dev);
+                MAINTENANCE_TYPES = MTYPES.filter(function (t) { return !mounted || mounted.indexOf(t.code) !== -1; })
+                    .map(function (t) { return t.name; });
+                // 型号 → 系列：以后台 MODELS 为准（按设备编码 dev 过滤、按默认厂家 dv 聚合展示）
+                MODEL_TO_SERIES = {};
+                SERIES_INFO = {};
+                MODELS.filter(function (m) { return m.dev === dev; }).forEach(function (m) {
+                    const brand = m.dv || (m.vendors && m.vendors[0]) || '其他';
+                    if (!SERIES_INFO[brand]) SERIES_INFO[brand] = { series_name: brand, manufacturers: [], model_list: [] };
+                    if (SERIES_INFO[brand].manufacturers.indexOf(brand) === -1) SERIES_INFO[brand].manufacturers.push(brand);
+                    if (SERIES_INFO[brand].model_list.indexOf(m.name) === -1) SERIES_INFO[brand].model_list.push(m.name);
+                    if (!MODEL_TO_SERIES[m.name]) MODEL_TO_SERIES[m.name] = brand;
+                });
+                ALL_MANUFACTURERS = [];
+                Object.keys(SERIES_INFO).forEach(function (sn) {
+                    (SERIES_INFO[sn].manufacturers || []).forEach(function (m) {
+                        if (ALL_MANUFACTURERS.indexOf(m) === -1) ALL_MANUFACTURERS.push(m);
+                    });
+                });
+                rebuildItemsFromBackend();
+                // 维保类型下拉（以后台 MTYPES 列表为准）
+                maintType.innerHTML = '<option value="">请选择维保类型</option>' + MAINTENANCE_TYPES.map(function (t) {
+                    return '<option value="' + escapeHtml(t) + '">' + escapeHtml(t) + '</option>';
+                }).join('');
+                // R-07：前端默认选中第一个；未选类型时 mt=null 会使设备级标准工时无法命中 → 价格 0
+                if (!maintType.value || MAINTENANCE_TYPES.indexOf(maintType.value) === -1) {
+                    maintType.value = MAINTENANCE_TYPES[0] || '';
+                }
+                if (maintType._syncInput) maintType._syncInput();
+                // 周期为空时默认选中第一个，否则周期与后台周期维度失配 → 价格取不到（IN-MC-09）
+                if (!maintCycleHours.value) maintCycleHours.value = ((typeof CYCLES !== 'undefined' && CYCLES[0]) || '5年保养');
+                if (maintCycleHours._syncInput) maintCycleHours._syncInput();
+                cycleFieldGroup.style.display = maintCycleEnabled() ? '' : 'none';
+            }
+            loadEquipmentData('Main diesel engine');
+
+            function getManufacturersForModel(modelVal) {
+                const series = modelVal ? MODEL_TO_SERIES[modelVal] : '';
+                return series ? (SERIES_INFO[series].manufacturers || []) : [];
+            }
+
+            // ===== 套餐 / 子系统（方案 A：直接以后台 SGROUPS 为唯一数据源生成，显示原值，与后台服务项 grp 完全一致）=====
+            // tier / desc 仅用于展示与「套餐内/可选项」归类，不参与分组名；通过 SUB_META 按 grp 码补齐，
+            // 未配置的分组默认 tier=opt、无描述。不再手写中文分组名，杜绝与后台对不上 / 孤儿分组的问题。
+            const SUB_META = {
+                'HCU': { id: 'hcu', tier: 'std', desc: '蓄能器、燃油增压器、排气阀执行器、缸套注油器、FIVA阀等' },
+                'HPS': { id: 'hps', tier: 'opt', desc: '液压泵、比例方向控制阀、高压管路、蓄能器、阀块等' },
+                'Electric control system': { id: 'elec', tier: 'std', desc: 'MPC控制器、线缆检查、UPS电源、绝缘检测、功能测试等' },
+                'Tacho system': { id: 'tacho', tier: 'std', desc: '角度编码器校准、触发环+传感器校准' },
+                'Pneumatic control system Overhaul': { id: 'pneu', tier: 'std', desc: '气动控制系统整体翻新' },
+                'Hydraulic system calibration and function test': { id: 'hydcal', tier: 'std', desc: '液压系统校准与功能测试' },
+                'Sea trial': { id: 'seatrial', tier: 'std', desc: '海试验证维保效果' },
+                'Mechanical control gear': { id: 'mech', tier: 'opt', desc: '链条张紧、主启动阀/慢转阀、排气旁通阀' }
+            };
+            const SUBSYSTEMS = (typeof SGROUPS !== 'undefined' ? SGROUPS : []).map(function (code) {
+                const m = SUB_META[code] || {};
+                return {
+                    id: m.id || ('grp_' + String(code).replace(/[^A-Za-z0-9]+/g, '_')),
+                    name: code,                  // 显示后台原值（与后台服务项 grp 一致）
+                    cat: code,                   // 精确匹配服务项 grp
+                    tier: m.tier || 'opt',
+                    desc: m.desc || ''
+                };
+            });
+            // 兜底分组：项目分组选填（D2），未归类的服务项归入「其他」
+            SUBSYSTEMS.push({ id: 'other', name: SI_OTHER_GROUP, cat: SI_OTHER_GROUP, tier: 'opt', desc: '未归类服务项（项目分组选填，可后补）' });
+
+            // 注：demo 套餐 DEMO_PACKAGES 不再硬编码，改由后台 PACKAGES（PKG-STD）在 rebuildDemoPackages() 中重建
+
+            // ===== 服务信息（D17，订单级必填）：是否紧急 / 服务地点 / 服务时间 =====
+            // 与设备无关：切换设备/型号不清空（TC-R06）；改动任一项只重算「影响系数 → 最终报价」
+            let svcInfo = null;   // {urg, region, country, site, date}；null = 默认（不紧急 / 第一个地区+国家）
+            function svcIsoOf(t) {
+                return t.getFullYear() + '-' + ('0' + (t.getMonth() + 1)).slice(-2) + '-' + ('0' + t.getDate()).slice(-2);
+            }
+            function svcDefault() {
+                const r0 = (typeof locRegions === 'function') ? (locRegions()[0] || '') : '';
+                const c0 = r0 && typeof locCountries === 'function' ? (locCountries(r0)[0] || '') : '';
+                return { urg: (typeof URGENT !== 'undefined' && URGENT[0] ? URGENT[0].key : 'no'), region: r0, country: c0, site: '', date: '' };
+            }
+            function svcEnsure() { if (!svcInfo) svcInfo = svcDefault(); return svcInfo; }
+            // 距询价天数 = 服务日期 − 今天（自然日，当天 = 0；IN-INQ-05：前台 min=今天，负值防御性按 0）
+            function svcLeadDays() {
+                const s = svcEnsure();
+                if (!s.date) return null;
+                const d = new Date(s.date + 'T00:00:00');
+                if (isNaN(d.getTime())) return null;
+                const now = new Date(); now.setHours(0, 0, 0, 0);
+                return Math.max(0, Math.round((d - now) / 86400000));
+            }
+            // 三维系数（R-41）：K = Max(紧急, 地点, 时间)，各未命中 = 1.0（取最大值，Q-9 已决）
+            function svcCoef() {
+                const s = svcEnsure();
+                const u = (typeof urgentOf === 'function') ? urgentOf(s.urg) : { label: '不紧急', c: 1 };
+                const l = (typeof locResolve === 'function') ? locResolve(s.region, s.country, s.site) : { c: 1, level: '未配置' };
+                const days = svcLeadDays();
+                const b = (days == null || typeof leadBandOf !== 'function') ? { c: 1, band: null } : leadBandOf(days);
+                return { u: u, l: l, days: days, b: b, k: Math.max(u.c, l.c, b.c) };
+            }
+            function svcLocTxt() {
+                const s = svcEnsure();
+                return s.region + (s.country ? ' · ' + s.country : '') + (s.site ? ' · ' + s.site : '');
+            }
+            function svcHintUpdate() {
+                if (!svcHintEl) return;
+                const s = svcEnsure();
+                // 客户侧不展示系数/构成：提示只做必填引导（R-36 口径扩展）
+            }
+            // 三级下拉渲染（后台配置联动：URGENT/LOCATIONS 变更后重画，保留已选值）
+            function svcRenderOptions() {
+                const s = svcEnsure();
+                if (svcUrgSel) svcUrgSel.innerHTML = (typeof URGENT !== 'undefined' ? URGENT : []).map(function (u) {
+                    return '<option value="' + u.key + '"' + (u.key === s.urg ? ' selected' : '') + '>' + u.label + '</option>';   // 系数不外显（R-36 口径扩展）
+                }).join('');
+                const regions = (typeof locRegions === 'function') ? locRegions() : [];
+                if (svcRegionSel) svcRegionSel.innerHTML = regions.length
+                    ? '<option value="">请选择地区</option>' + regions.map(function (r) {
+                        return '<option value="' + r + '"' + (r === s.region ? ' selected' : '') + '>' + r + '</option>';
+                    }).join('')
+                    : '<option value="">（暂无地区配置）</option>';
+                if (s.region && regions.indexOf(s.region) < 0) { s.region = regions[0] || ''; s.country = ''; s.site = ''; }
+                const countries = s.region && typeof locCountries === 'function' ? locCountries(s.region) : [];
+                if (svcCountrySel) svcCountrySel.innerHTML = '<option value="">请选择国家</option>' + countries.map(function (c) {
+                    return '<option value="' + c + '"' + (c === s.country ? ' selected' : '') + '>' + c + '</option>';
+                }).join('');
+                if (s.country && countries.indexOf(s.country) < 0) { s.country = ''; s.site = ''; }
+                const sites = (s.region && s.country && typeof locSites === 'function') ? locSites(s.region, s.country) : [];
+                if (svcSiteSel) svcSiteSel.innerHTML = '<option value="">请选择地点（选填）</option>' + sites.map(function (t) {
+                    return '<option value="' + t + '"' + (t === s.site ? ' selected' : '') + '>' + t + '</option>';
+                }).join('');
+                if (svcDateInp) { svcDateInp.min = svcIsoOf(new Date()); svcDateInp.value = s.date || ''; }
+                if (window.SEL) SEL.syncAll();   // 升级后的 Select：选项重建后同步触发器文案
+            }
+            function svcBindEvents() {
+                if (svcUrgSel) svcUrgSel.addEventListener('change', function () { svcEnsure().urg = this.value; svcHintUpdate(); updateLiveSummary(); });
+                if (svcRegionSel) svcRegionSel.addEventListener('change', function () {
+                    const s = svcEnsure(); s.region = this.value;
+                    s.country = (typeof locCountries === 'function' ? locCountries(this.value)[0] : '') || '';
+                    s.site = '';
+                    svcRenderOptions(); svcHintUpdate();
+                    renderItemsArea();   // 服务信息参与前置校验（R-21 扩展）：补齐后方案区/提交锁随动
+                });
+                if (svcCountrySel) svcCountrySel.addEventListener('change', function () {
+                    const s = svcEnsure(); s.country = this.value; s.site = '';
+                    svcRenderOptions(); svcHintUpdate();
+                    renderItemsArea();
+                });
+                if (svcSiteSel) svcSiteSel.addEventListener('change', function () { svcEnsure().site = this.value; svcHintUpdate(); updateLiveSummary(); });
+                if (svcDateInp) svcDateInp.addEventListener('change', function () { svcEnsure().date = this.value; svcHintUpdate(); renderItemsArea(); });
+            }
+
+            // ===== 工具函数 =====
+            function escapeHtml(s) {
+                return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+            }
+            const fmtNum = n => Number(n).toLocaleString('en-US');
+
+            function getCyl() {
+                const v = parseInt((cylInput && cylInput.value) || '0', 10);
+                return (isNaN(v) || v < 1) ? 1 : v;
+            }
+            // R-05 修订：缸数不再由型号自动带出，由客户手动填写（1–20 整数）
+            function baseQtyOf(it) {
+                return it.base_qty === '缸数' ? getCyl() : (parseInt(it.base_qty, 10) || 1);
+            }
+            // 客户手动调过的数量固定保留；未调过的随缸数等默认值实时变化
+            function qtyOf(key, it) {
+                return qtyTouched.has(key) ? quoteQty[key] : baseQtyOf(it);
+            }
+            function getSubsystemKeys(subId) {
+                const sub = SUBSYSTEMS.find(function (s) { return s.id === subId; });
+                if (!sub) return [];
+                return SPECIAL_5Y_LEAVES.filter(function (it) { return it.cat === sub.cat; }).map(function (it) { return it.key; });
+            }
+            const STANDARD_SUBSYSTEM_IDS = ['hcu', 'elec', 'tacho', 'pneu', 'hydcal', 'seatrial'];
+            // 严格以后台套餐 PKG-STD 的 SI 编码命中为准：命中即在套餐内（标准），否则为 Option
+            function isStandardItem(key) {
+                return PKG_KEY_SET.has(key);
+            }
+
+            // ===== 计价（以后台领域模型为准：标准工时 × 职级费率，D15/R-33；v1.14 去件数系数 D18） =====
+            function priceCtx() {
+                return {
+                    mt: maintTypeCode(),
+                    cycle: currentCycle(),
+                    modelName: (model && model.value) || customModel || '',
+                    cyl: getCyl()
+                };
+            }
+            // 单项单价（按 1 单位）：后台标准工时两级回溯（型号级>设备级） → 人员配置费率 × 工时
+            function itemUnitPrice(it) {
+                const c = priceCtx();
+                const r = resolveLaborStandard(it.siCode, c.modelName, c.mt, c.cycle);
+                if (!r) return 0;
+                const H = laborHoursOf(r.std, c.cyl);
+                if (!H) return 0;
+                return rateSumOf(r.std.crew, RATES.active.rates) * H;
+            }
+            // 单项行金额（v1.14 去件数系数，D18）：单价 × 数量（多件不再折减）
+            function itemLinePrice(it, qty) {
+                const unit = itemUnitPrice(it);
+                if (!unit) return 0;
+                return unit * qty;
+            }
+
+            // 项保底价（R-30，按一份计）：该项人员配置综合费率 × 最低计费工时（不乘数量/实际工时）
+            function itemFloorPrice(it) {
+                const c = priceCtx();
+                const r = resolveLaborStandard(it.siCode, c.modelName, c.mt, c.cycle);
+                if (!r) return 0;
+                return rateSumOf(r.std.crew, RATES.active.rates) * (typeof PPARAMS !== 'undefined' && PPARAMS ? PPARAMS.minH : 8);
+            }
+
+            // 汇总计算（订单级）：明细合计 → 合计保底价 → 计价基数 → × 影响系数 → 最终报价（D16/D17）
+            function calcTotals() {
+                let stdUnit = 0, stdCount = 0;
+                selectedItems.forEach(function (k) {
+                    const it = ITEM_MAP[k];
+                    if (it && isStandardItem(k)) {
+                        stdUnit += itemLinePrice(it, qtyOf(k, it));
+                        stdCount++;
+                    }
+                });
+                // 套餐不再有份数（2026-09-10 评审）：套餐小计 = Σ(勾选明细行金额)
+                const stdTotal = stdUnit;
+                const optRows = [];
+                let optTotal = 0;
+                selectedItems.forEach(function (k) {
+                    const it = ITEM_MAP[k];
+                    if (it && !isStandardItem(k)) {
+                        const inc = !quoteExcluded.has(k);
+                        const q = qtyOf(k, it);
+                        const line = itemLinePrice(it, q);
+                        optRows.push({ key: k, it: it, inc: inc, qty: q, line: line });
+                        if (inc) optTotal += line;
+                    }
+                });
+                const detail = stdTotal + optTotal;
+                /* 合计保底价：Σ(各已勾选且可计价服务项的项保底价)——套餐项 + 已勾选可选项 */
+                const floorOn = (typeof PPARAMS !== 'undefined' && PPARAMS) ? !!PPARAMS.floorOn : true;
+                let floorTotal = 0, floorN = 0;
+                selectedItems.forEach(function (k) {
+                    const it = ITEM_MAP[k];
+                    if (!it) return;
+                    if (!isStandardItem(k) && quoteExcluded.has(k)) return;   // 未勾选可选项不计入保底（R-30）
+                    const f = itemFloorPrice(it);
+                    if (f > 0) { floorTotal += f; floorN++; }
+                });
+                if (!floorOn) floorTotal = 0;
+                const floorShortfall = Math.max(0, floorTotal - detail);
+                const pricingBase = Math.max(floorTotal, detail);
+                const co = svcCoef();
+                const grand = Math.round(pricingBase * co.k * 100) / 100;
+                return {
+                    stdUnit: stdUnit, stdTotal: stdTotal, stdCount: stdCount,
+                    optRows: optRows, optTotal: optTotal, optCount: optRows.length,
+                    detail: detail,
+                    floorOn: floorOn, floorTotal: floorTotal, floorN: floorN,
+                    floorHours: (typeof PPARAMS !== 'undefined' && PPARAMS) ? PPARAMS.minH : 8,
+                    floorShortfall: floorShortfall, pricingBase: pricingBase,
+                    coef: co, grand: grand
+                };
+            }
+
+            // ----- 文本取值 -----
+            function getManufacturerText() {
+                if (customManufacturer) return customManufacturer;
+                return (manufacturer.selectedOptions[0] && manufacturer.value) ? manufacturer.selectedOptions[0].text : '';
+            }
+            function getModelText() {
+                if (customModel) return customModel;
+                return (model.selectedOptions[0] && model.value) ? model.selectedOptions[0].text : '';
+            }
+            function getMaintText() {
+                return (maintType.selectedOptions[0] && maintType.value) ? maintType.selectedOptions[0].text : '';
+            }
+            function getDeviceLabel() {
+                return selectedDeviceName || deviceType.value || '设备';
+            }
+
+            // ============================================================
+            // 下拉搜索组合框（PC：键盘 ↑↓ 选择、回车确认、ESC 关闭）
+            // ============================================================
+            const _allPanels = [];
+
+            function setupSearchSelect(selectEl, inputEl, panelEl, clearEl, beforeRender) {
+                _allPanels.push(panelEl);
+                const wrap = inputEl.closest('.search-select');
+                let items = [];   // [{option, el}]
+                let activeIdx = -1;
+
+                function closeOtherPanels() {
+                    _allPanels.forEach(function (p) {
+                        if (p !== panelEl) {
+                            p.style.display = 'none';
+                            const w = p.closest('.search-select');
+                            if (w) w.classList.remove('ss-open');
+                        }
+                    });
+                }
+
+                function setActive(i) {
+                    activeIdx = i;
+                    items.forEach(function (it, idx) {
+                        it.el.classList.toggle('active', idx === i);
+                        if (idx === i) it.el.scrollIntoView({ block: 'nearest' });
+                    });
+                }
+
+                function pick(o) {
+                    selectEl.value = o.value;
+                    inputEl.value = o.textContent;
+                    hidePanel();
+                    syncInput();
+                    selectEl.dispatchEvent(new Event('change'));
+                }
+
+                function buildItems(queryOverride) {
+                    items = [];
+                    panelEl.innerHTML = '';
+                    // focus 打开面板时传 '' 显示全部；输入时按输入值过滤
+                    const q = (queryOverride !== undefined ? queryOverride : (inputEl.value || '')).trim().toLowerCase();
+                    function addOption(o) {
+                        if (o.value === '') return;
+                        if (q && o.textContent.toLowerCase().indexOf(q) === -1) return;
+                        const div = document.createElement('div');
+                        div.className = 'ss-option' + (o.value === selectEl.value ? ' selected' : '');
+                        div.textContent = o.textContent;
+                        div.addEventListener('mousedown', function (e) {
+                            e.preventDefault();
+                            pick(o);
+                        });
+                        div.addEventListener('mouseenter', function () {
+                            setActive(items.findIndex(function (x) { return x.el === div; }));
+                        });
+                        panelEl.appendChild(div);
+                        items.push({ option: o, el: div });
+                    }
+                    Array.prototype.forEach.call(selectEl.children, function (child) {
+                        if (child.tagName === 'OPTGROUP') {
+                            const gl = document.createElement('div');
+                            gl.className = 'ss-group';
+                            gl.textContent = child.label;
+                            panelEl.appendChild(gl);
+                            Array.prototype.forEach.call(child.children, addOption);
+                        } else if (child.tagName === 'OPTION') {
+                            addOption(child);
+                        }
+                    });
+                    if (!items.length) {
+                        const empty = document.createElement('div');
+                        empty.className = 'ss-empty';
+                        if (selectEl.id === 'manufacturer') empty.textContent = '请先选择设备型号';
+                        else if (selectEl.id === 'model') empty.textContent = '暂无可选型号';
+                        else empty.textContent = '无匹配结果';
+                        panelEl.appendChild(empty);
+                    }
+                }
+
+                function showPanel() {
+                    if (selectEl.id === 'model' && selectEl.options.length <= 1) {
+                        rebuildModelOptions();
+                    }
+                    if (beforeRender) beforeRender();
+                    closeOtherPanels();
+                    buildItems('');
+                    setActive(items.findIndex(function (x) { return x.option.value === selectEl.value; }));
+                    panelEl.style.display = 'block';
+                    if (wrap) wrap.classList.add('ss-open');
+                }
+
+                function hidePanel() {
+                    panelEl.style.display = 'none';
+                    if (wrap) wrap.classList.remove('ss-open');
+                }
+
+                function syncInput() {
+                    const sel = selectEl.selectedOptions[0];
+                    inputEl.value = (sel && selectEl.value) ? sel.textContent : '';
+                    const has = !!inputEl.value;
+                    if (clearEl) clearEl.style.display = has ? 'flex' : 'none';
+                    if (wrap) wrap.classList.toggle('has-value', has);
+                }
+
+                inputEl.addEventListener('focus', function () {
+                    showPanel();
+                    inputEl.select();
+                });
+                inputEl.addEventListener('input', function () {
+                    if (beforeRender) beforeRender();
+                    buildItems(inputEl.value);
+                    setActive(items.length === 1 ? 0 : activeIdx);
+                    panelEl.style.display = 'block';
+                    if (wrap) wrap.classList.add('ss-open');
+                });
+                inputEl.addEventListener('blur', function () {
+                    setTimeout(function () {
+                        hidePanel();
+                    }, 120);
+                    syncInput();
+                });
+                inputEl.addEventListener('keydown', function (e) {
+                    if (panelEl.style.display !== 'block') return;
+                    if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        if (items.length) setActive(Math.min(activeIdx + 1, items.length - 1));
+                    } else if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        if (items.length) setActive(Math.max(activeIdx - 1, 0));
+                    } else if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (activeIdx >= 0 && items[activeIdx]) pick(items[activeIdx].option);
+                        else if (items.length === 1) pick(items[0].option);
+                    } else if (e.key === 'Escape') {
+                        e.preventDefault();
+                        hidePanel();
+                        syncInput();
+                    }
+                });
+                if (clearEl) {
+                    clearEl.addEventListener('mousedown', function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        selectEl.value = '';
+                        hidePanel();
+                        syncInput();
+                        selectEl.dispatchEvent(new Event('change'));
+                    });
+                }
+                selectEl._syncInput = syncInput;
+                syncInput();
+            }
+
+            // 点击面板外任意位置：关闭所有搜索面板（全局委托，避免每个实例重复注册监听）
+            document.addEventListener('click', function (e) {
+                _allPanels.forEach(function (p) {
+                    const w = p.closest('.search-select');
+                    if (w && !w.contains(e.target)) {
+                        p.style.display = 'none';
+                        w.classList.remove('ss-open');
+                    }
+                });
+            });
+
+            // ----- 型号 / 厂家联动（与 v8 一致） -----
+            function rebuildModelOptions() {
+                model.innerHTML = '<option value="">请选择设备型号</option>';
+                const seen = {};
+                Object.keys(SERIES_INFO).forEach(function (sn) {
+                    (SERIES_INFO[sn].model_list || []).forEach(function (m) {
+                        if (seen[m]) return; // 跨系列重名型号去重
+                        seen[m] = true;
+                        const o = document.createElement('option');
+                        o.value = m;
+                        o.textContent = m;
+                        model.appendChild(o);
+                    });
+                });
+                model.value = '';
+                if (model._syncInput) model._syncInput();
+                customModel = '';
+                customModelInput.value = '';
+            }
+
+            function rebuildManufacturerByModel(preserve) {
+                const modelVal = model.value || customModel;
+                let manus = getManufacturersForModel(modelVal);
+                if (!manus.length) manus = ALL_MANUFACTURERS.slice(); // 自定义/未知型号兜底
+                const prev = manufacturer.value;
+                manufacturer.innerHTML = '<option value="">请选择制造厂家</option>';
+                manus.forEach(function (m) {
+                    const o = document.createElement('option');
+                    o.value = m;
+                    o.textContent = m;
+                    manufacturer.appendChild(o);
+                });
+                if (preserve && prev && manus.indexOf(prev) !== -1) {
+                    manufacturer.value = prev;
+                } else {
+                    manufacturer.value = manus.length ? manus[0] : '';
+                }
+                if (manufacturer._syncInput) manufacturer._syncInput();
+            }
+
+            function refreshDeviceDependentDropdowns() {
+                rebuildModelOptions();
+                manufacturer.innerHTML = '<option value="">请选择制造厂家</option>';
+                manufacturer.value = '';
+                if (manufacturer._syncInput) manufacturer._syncInput();
+                resetCustomFields();
+            }
+
+            function resetCustomFields() {
+                customManufacturer = '';
+                customModel = '';
+                customNeed = '';
+                customNeedInput.value = '';
+                customManuInput.value = '';
+                customModelInput.value = '';
+                customAddModal.classList.remove('open');
+            }
+
+            function updateAddLinkVisibility() {
+                addCustomLink.style.display = deviceType.value ? '' : 'none';
+            }
+
+            // ----- 缸数 -----
+            function clampCyl() {
+                if (cylInput.value === '') { renderItemsArea(); return; }
+                let v = parseInt(cylInput.value, 10);
+                if (isNaN(v)) { cylInput.value = ''; renderItemsArea(); return; }
+                if (v < 1) v = 1;
+                if (v > 20) v = 20;
+                cylInput.value = v;
+                renderItemsArea();
+            }
+            let cylTimer = null;
+            cylInput.addEventListener('input', function () {
+                clearTimeout(cylTimer);
+                cylTimer = setTimeout(clampCyl, 300);
+            });
+            cylInput.addEventListener('blur', function () {
+                clearTimeout(cylTimer);
+                clampCyl();
+            });
+            document.querySelectorAll('.qty-cell button').forEach(btn => {
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    let v = parseInt(cylInput.value, 10);
+                    if (isNaN(v) || v < 0) v = 0;
+                    if (this.classList.contains('cyl-inc')) {
+                        v += 1;
+                    } else {
+                        v -= 1;
+                        if (v < 1) {
+                            cylInput.value = '';
+                            cylInput.dispatchEvent(new Event('input'));
+                            return;
+                        }
+                    }
+                    if (v < 1) v = 1;
+                    if (v > 20) v = 20;
+                    cylInput.value = v;
+                    cylInput.dispatchEvent(new Event('input'));
+                });
+            });
+
+            // ============================================================
+            // 前置校验 / 待办清单
+            // ============================================================
+            function computeFormMissing() {
+                const list = [];
+                if (!(model.value || customModel)) list.push('选择设备型号');
+                if (!(manufacturer.value || customManufacturer)) list.push('选择制造厂家');
+                if (!maintType.value) list.push('选择维保类型');
+                if (maintCycleEnabled() && !maintCycleHours.value) list.push('选择保养周期');
+                if (!(cylInput.value && String(cylInput.value).trim() !== '')) list.push('填写设备缸数');
+                // R-21 扩展（D17）：服务信息三项齐备（地点到地区+国家；日期不早于当天）
+                const s = svcEnsure();
+                if (!s.region || !s.country) list.push('选择服务地点（地区 + 国家）');
+                if (!s.date) list.push('选择服务时间');
+                return list;
+            }
+            function hasPackagePrereqs() {
+                return !!deviceType.value && computeFormMissing().length === 0;
+            }
+            function isFormValid() {
+                return hasPackagePrereqs() && selectedItems.length > 0;
+            }
+
+            // ============================================================
+            // STEP 1：维保方案渲染（套餐条 + 分组明细表）
+            // ============================================================
+            const pkgContainer = document.getElementById('packageContainer');
+
+            // 根据必填项是否完成，控制「选择维保方案」面板、「查看预算」侧栏及整体布局
+            function refreshSchemePanel() {
+                const ready = hasPackagePrereqs();
+                itemsArea.hidden = !ready;
+                configAside.hidden = false; // 右侧始终展示：未就绪显示占位引导卡，避免大片空白
+                updateAsideLocked();
+                // 未就绪：显示占位引导卡；就绪：显示正式预算卡
+                asideLocked.hidden = ready;
+                asideReady.hidden = !ready;
+            }
+
+            // 刷新占位引导卡：已选设备 + 待办清单
+            function updateAsideLocked() {
+                if (lockDevice) lockDevice.textContent = getDeviceLabel();
+                if (!lockTodo) return;
+                const missing = computeFormMissing();
+                if (missing.length === 0) {
+                    lockTodo.innerHTML = '<li class="done">必填信息已完整 ✓</li>';
+                } else {
+                    lockTodo.innerHTML = missing.map(function (m) {
+                        return '<li>' + escapeHtml(m) + '</li>';
+                    }).join('');
+                }
+            }
+
+            function renderItemsArea() {
+                refreshSchemePanel();
+                if (!hasPackagePrereqs()) {
+                    renderLockedHint();
+                    updateItemCount();
+                    return;
+                }
+                // 展示规则回溯：命中则选中对应套餐；型号级/设备级均未命中 → 提示暂无维保方案数据（R-26），但仍展示后台建议的可选项
+                const pkgCode = resolvePkgRule();
+                if (pkgCode && DEMO_PACKAGES.some(function (p) { return p.id === pkgCode; })) {
+                    noSchemeMode = false;
+                    if (selectedPackage !== pkgCode) { selectPackage(pkgCode); return; }
+                    renderPackageTable();
+                    applyItemFilter();
+                    updateItemCount();
+                } else {
+                    selectedPackage = '';
+                    selectedItems = [];
+                    PKG_KEY_SET = new Set();
+                    noSchemeMode = true;
+                    renderNoSchemeHint();
+                    updateItemCount();
+                }
+            }
+
+            function renderLockedHint() {
+                pkgContainer.innerHTML =
+                    '<div class="items-locked">' +
+                    '完成上方必填信息后，维保方案将在此自动生成。</div>';
+            }
+
+            // 展示规则未命中（R-26）：当前型号/维保类型/周期没有匹配的套餐，引导客户咨询，而非默认展示兜底套餐
+            // 若后台有可配置的可选项（RULES.sug 命中），仍展示「自由组合·Option」让客户单独勾选
+            function renderNoSchemeHint() {
+                if (!pkgContainer) return;
+                const optKeySet = new Set();
+                SUG_SET.forEach(function (k) { if (!PKG_KEY_SET.has(k)) optKeySet.add(k); });
+                let html = '';
+                if (optKeySet.size === 0) {
+                    html = '<div class="items-locked">暂无维保方案数据，可咨询服务顾问为您报价。</div>';
+                } else {
+                    html = '<div class="items-locked">暂无标准维保套餐，您可单独勾选下列项目。</div>';
+                    const optGrpKeys = {};
+                    optKeySet.forEach(function (k) {
+                        const it = ITEM_MAP[k];
+                        if (!it) return;
+                        (optGrpKeys[it.cat] = optGrpKeys[it.cat] || []).push(k);
+                    });
+                    const freeSubs = Object.keys(optGrpKeys).map(function (cat) {
+                        return SUBSYSTEMS.find(function (s) { return s.cat === cat; }) || { id: 'opt_' + cat, name: cat, cat: cat, tier: 'opt', desc: '' };
+                    });
+                    html += '<div class="items-section">';
+                    html += '<div class="items-sec-title">可选项目</div>';
+                    html += '<table class="items-table"><thead><tr>';
+                    html += '<th class="col-chk"></th><th>维修项目</th><th class="num">数量</th><th class="col-unit">单位</th>';
+                    html += '</tr></thead>';
+                    freeSubs.forEach(function (sub) { html += groupRowsHtml(sub, new Set(optGrpKeys[sub.cat])); });
+                    html += '</table></div>';
+                }
+                pkgContainer.innerHTML = html;
+            }
+
+            function selectPackage(pkgId) {
+                selectedPackage = pkgId;
+                expandedPkg = pkgId;   // 默认展开明细，客户一眼看清套餐包含哪些项目
+                selectedItems = [];
+                if (pkgId) {
+                    const pkg = DEMO_PACKAGES.find(function (p) { return p.id === pkgId; });
+                    if (pkg) {
+                        // 严格按后台套餐 PKG-STD 的 SI 编码命中的 key 选中
+                        pkg.keys.forEach(function (k) {
+                            if (selectedItems.indexOf(k) === -1) selectedItems.push(k);
+                        });
+                        PKG_KEY_SET = new Set(pkg.keys);   // 套餐内项目徽标随选中套餐刷新
+                    }
+                }
+                renderPackageTable();
+                applyItemFilter();
+                updateItemCount();
+            }
+
+            function updatePackageSelection() {
+                if (DEMO_PACKAGES.length === 0) return;
+                // 多套餐下取"被选中 key 最多"的套餐作为当前选中套餐
+                let best = null, bestCount = -1;
+                DEMO_PACKAGES.forEach(function (pkg) {
+                    const allKeys = pkg.keys.slice();
+                    const selCount = allKeys.filter(function (k) { return selectedItems.indexOf(k) !== -1; }).length;
+                    if (selCount > bestCount) { bestCount = selCount; best = pkg; }
+                });
+                selectedPackage = (best && bestCount > 0) ? best.id : '';
+            }
+
+            function changeQty(key, delta) {
+                const it = ITEM_MAP[key];
+                if (!it) return;
+                if (quoteQty[key] == null) quoteQty[key] = baseQtyOf(it);
+                quoteQty[key] = Math.max(1, quoteQty[key] + delta);
+                qtyTouched.add(key);
+                renderPackageTable();
+                applyItemFilter();
+                updateItemCount();
+            }
+
+            function groupRowsHtml(sub, onlyKeys) {
+                let keys = getSubsystemKeys(sub.id);
+                if (onlyKeys) keys = keys.filter(function (k) { return onlyKeys.has(k); });
+                if (keys.length === 0) return '';   // 无可见项则跳过整组（严格分区：套餐项/Option 项不串组）
+                const checkedKeys = keys.filter(function (k) { return selectedItems.indexOf(k) !== -1; });
+                const allSel = keys.length > 0 && checkedKeys.length === keys.length;
+                const partial = !allSel && checkedKeys.length > 0;
+                const collapsed = collGrp.has(sub.id);
+                const optOff = sub.tier === 'opt' && checkedKeys.length === 0;
+
+                let h = '<tbody class="grp' + (collapsed ? ' collapsed' : '') + (optOff ? ' grp-opt-off' : '') + '" data-sub="' + sub.id + '" data-keys="' + escapeHtml(keys.join('|')) + '">';
+                h += '<tr class="grp-head"><td colspan="4"><div class="grp-head-in">';
+                h += '<span class="chk' + (allSel ? ' checked' : (partial ? ' partial' : '')) + (keys.length ? '' : ' disabled') + '"></span>';
+                h += '<span class="grp-name" title="' + escapeHtml(sub.name + (sub.desc ? '：' + sub.desc : '')) + '">' + escapeHtml(sub.cat) + '</span>';
+              
+                h += '<span class="grp-count">' + checkedKeys.length + '/' + keys.length + '</span>';
+                h += '<span class="grp-twist">' + (collapsed ? '▸' : '▾') + '</span>';
+                h += '</div></td></tr>';
+                keys.forEach(function (key) {
+                    const it = ITEM_MAP[key];
+                    if (!it) return;
+                    const checked = selectedItems.indexOf(key) !== -1;
+                    const qty = qtyOf(key, it);
+                    h += '<tr class="it' + (checked ? ' checked' : '') + (optOff ? ' it-opt-off' : '') + '" data-item="' + escapeHtml(key) + '">';
+                    h += '<td class="col-chk"><span class="chk' + (checked ? ' checked' : '') + '"></span></td>';
+                    h += '<td class="col-name">' + escapeHtml(it.item_name);
+                    if (SUG_SET.has(key)) h += '<span class="sug-badge" title="建议加选">建议加选</span>';
+                    h += '</td>';
+                    h += '<td class="num"><span class="qty-stepper">';
+                    h += '<button type="button" class="qs-btn" data-qty-key="' + escapeHtml(key) + '" data-delta="-1"' + (optOff ? ' disabled' : '') + '>−</button>';
+                    h += '<span class="qs-val">' + qty + '</span>';
+                    h += '<button type="button" class="qs-btn" data-qty-key="' + escapeHtml(key) + '" data-delta="1"' + (optOff ? ' disabled' : '') + '>+</button>';
+                    h += '</span></td>';
+                    h += '<td class="muted-td col-unit">' + escapeHtml(it.unit) + '</td>';
+                    h += '</tr>';
+                });
+                h += '</tbody>';
+                return h;
+            }
+
+            function renderPackageTable() {
+                if (!pkgContainer) return;
+                if (SPECIAL_5Y_LEAVES.length === 0) {
+                    renderNoSchemeHint();
+                    return;
+                }
+                // R-26 状态：套餐未命中但已展示可选项，按 R-26 渲染（避免回退到 DEMO_PACKAGES[0] 误显示套餐）
+                if (noSchemeMode) {
+                    renderNoSchemeHint();
+                    return;
+                }
+                const pkg = DEMO_PACKAGES.find(function (p) { return p.id === selectedPackage; }) || DEMO_PACKAGES[0];
+                const sel = selectedPackage === pkg.id;
+
+                const allKeys = pkg.keys.slice();   // 严格按后台套餐 PKG-STD 命中的 key 计数
+                const checkedCount = allKeys.filter(function (k) { return selectedItems.indexOf(k) !== -1; }).length;
+                const tableOpen = expandedPkg === pkg.id;
+
+                let html = '';
+                // 套餐选择条
+                html += '<div class="pkg-strip' + (sel ? ' selected' : '') + '" id="pkgStrip">';
+                html += '<span class="pkg-radio"></span>';
+                html += '<div class="pkg-info">';
+                html += '<div class="pkg-line1"><span class="pkg-name">' + escapeHtml(pkg.name) + '</span>';
+                if (pkg.recommend) html += '<span class="badge badge-blue">推荐</span>';
+                html += '<span class="pkg-count">已选 ' + checkedCount + '/' + allKeys.length + ' 项</span></div>';
+                html += '<div class="pkg-desc">' + escapeHtml(pkg.desc) + '</div>';
+                html += '</div>';
+                html += '<button type="button" class="btn btn-outline btn-sm" id="pkgToggleBtn">' + (tableOpen ? '套餐收起' : '套餐展开') + '</button>';
+                html += '</div>';
+
+                if (tableOpen) {
+                    // 套餐内项目（仅此区块受“收起/展开明细”控制）
+                    html += '<div class="items-section">';
+                    html += '<div class="items-sec-title">套餐内项目</div>';
+                    html += '<table class="items-table"><thead><tr>';
+                    html += '<th class="col-chk"></th><th>维修项目</th><th class="num">数量</th><th class="col-unit">单位</th>';
+                    html += '</tr></thead>';
+                    // 套餐内项目：仅渲染后台套餐PKG-STD命中的项（按子系统折叠展示）
+                    const pkgKeySet = PKG_KEY_SET;
+                    SUBSYSTEMS.forEach(function (sub) {
+                        const ks = getSubsystemKeys(sub.id);
+                        if (ks.some(function (k) { return pkgKeySet.has(k); })) html += groupRowsHtml(sub, pkgKeySet);
+                    });
+                    html += '</table></div>';
+                }
+
+                // 自由组合 Option：严格以后台「建议项规则(RULES.sug)」配置的可选项为准
+                // 只展示后台命中的建议项（已含在标准套餐内的除外），不自行扩展其他项
+                const optKeySet = new Set();
+                SUG_SET.forEach(function (k) { if (!PKG_KEY_SET.has(k)) optKeySet.add(k); });
+                const optGrpKeys = {};
+                optKeySet.forEach(function (k) {
+                    const it = ITEM_MAP[k];
+                    if (!it) return;
+                    (optGrpKeys[it.cat] = optGrpKeys[it.cat] || []).push(k);
+                });
+                // 按服务项分组归类；SUBSYSTEMS 未覆盖的分组用兜底子系统（tier=opt）渲染，确保一定显示
+                const freeSubs = Object.keys(optGrpKeys).map(function (cat) {
+                    return SUBSYSTEMS.find(function (s) { return s.cat === cat; }) || { id: 'opt_' + cat, name: cat, cat: cat, tier: 'opt', desc: '' };
+                });
+                if (freeSubs.length > 0) {
+                    html += '<div class="items-section">';
+                    html += '<div class="items-sec-title">可选项目</div>';
+                    html += '<table class="items-table"><thead><tr>';
+                    html += '<th class="col-chk"></th><th>维修项目</th><th class="num">数量</th><th class="col-unit">单位</th>';
+                    html += '</tr></thead>';
+                    freeSubs.forEach(function (sub) { html += groupRowsHtml(sub, new Set(optGrpKeys[sub.cat])); });
+                    html += '</table></div>';
+                }
+
+                pkgContainer.innerHTML = html;
+            }
+
+            // 维修项筛选（与 v8 applyItemFilter 一致）
+            function applyItemFilter() {
+                const keyword = (itemSearch.value || '').trim().toLowerCase();
+                const cats = pkgContainer.querySelectorAll('tbody.grp');
+                cats.forEach(function (catEl) {
+                    const rows = catEl.querySelectorAll('tr.it');
+                    let anyVisible = false;
+                    rows.forEach(function (rowEl) {
+                        const name = (rowEl.querySelector('.col-name') || {}).textContent || '';
+                        if (!keyword || name.toLowerCase().indexOf(keyword) !== -1) {
+                            rowEl.classList.remove('hidden');
+                            anyVisible = true;
+                        } else {
+                            rowEl.classList.add('hidden');
+                        }
+                    });
+                    if (anyVisible || (!keyword && rows.length > 0)) {
+                        catEl.classList.remove('hidden');
+                    } else {
+                        catEl.classList.add('hidden');
+                    }
+                });
+                itemSearchClear.classList.toggle('show', !!keyword);
+            }
+            itemSearch.addEventListener('input', applyItemFilter);
+            itemSearchClear.addEventListener('click', function () {
+                itemSearch.value = '';
+                applyItemFilter();
+                itemSearch.focus();
+            });
+
+            // 明细表事件（委托，重渲染后依然有效）
+            pkgContainer.addEventListener('click', function (e) {
+                const qtyBtn = e.target.closest('.qs-btn');
+                if (qtyBtn) {
+                    e.stopPropagation();
+                    changeQty(qtyBtn.getAttribute('data-qty-key'), parseInt(qtyBtn.getAttribute('data-delta'), 10));
+                    return;
+                }
+                const toggleBtn = e.target.closest('#pkgToggleBtn');
+                if (toggleBtn) {
+                    e.stopPropagation();
+                    expandedPkg = expandedPkg === selectedPackage ? '' : selectedPackage;
+                    renderPackageTable();
+                    applyItemFilter();
+                    return;
+                }
+                const strip = e.target.closest('#pkgStrip');
+                if (strip) {
+                    const pkgId = selectedPackage || (DEMO_PACKAGES[0] && DEMO_PACKAGES[0].id) || 'standard';
+                    if (selectedPackage === pkgId) {
+                        selectedPackage = '';
+                        selectedItems = [];
+                    } else {
+                        selectPackage(pkgId);
+                        return;
+                    }
+                    renderPackageTable();
+                    applyItemFilter();
+                    updateItemCount();
+                    return;
+                }
+                const grpHead = e.target.closest('.grp-head-in');
+                if (grpHead) {
+                    if (e.target.classList.contains('grp-twist')) {
+                        const tbody = grpHead.closest('tbody.grp');
+                        const sid = tbody.getAttribute('data-sub');
+                        if (collGrp.has(sid)) collGrp.delete(sid); else collGrp.add(sid);
+                        renderPackageTable();
+                        applyItemFilter();
+                        return;
+                    }
+                    const tbodyEl = grpHead.closest('tbody.grp');
+                    const keys = (tbodyEl.getAttribute('data-keys') || '').split('|').filter(function (x) { return !!x; });
+                    const allSel = keys.length > 0 && keys.every(function (k) { return selectedItems.indexOf(k) !== -1; });
+                    if (allSel) {
+                        selectedItems = selectedItems.filter(function (k) { return keys.indexOf(k) === -1; });
+                    } else {
+                        keys.forEach(function (k) { if (selectedItems.indexOf(k) === -1) selectedItems.push(k); });
+                    }
+                    updatePackageSelection();
+                    renderPackageTable();
+                    applyItemFilter();
+                    updateItemCount();
+                    return;
+                }
+                const itemRow = e.target.closest('tr.it');
+                if (itemRow) {
+                    const key = itemRow.getAttribute('data-item');
+                    if (selectedItems.indexOf(key) !== -1) {
+                        selectedItems = selectedItems.filter(function (v) { return v !== key; });
+                    } else {
+                        selectedItems.push(key);
+                    }
+                    updatePackageSelection();
+                    renderPackageTable();
+                    applyItemFilter();
+                    updateItemCount();
+                }
+            });
+
+            // ============================================================
+            // 右侧实时报价（STEP 1 吸顶侧栏）
+            // ============================================================
+            function updateItemCount() {
+                setSubmitLock();
+                updateLiveSummary();
+            }
+
+            // 锁定态保留禁用外观但可点击，点击时给出引导反馈（真 disabled 无法触发任何事件）
+            function setSubmitLock() {
+                const locked = !isFormValid();
+                step2Push.classList.toggle('is-locked', locked);
+                step2Push.setAttribute('aria-disabled', locked ? 'true' : 'false');
+            }
+
+            function isSubmitLocked() {
+                return step2Push.classList.contains('is-locked');
+            }
+
+            // 点击锁定按钮时，让右侧占位卡脉冲提示待办位置
+            function pulseLockedCard() {
+                const card = document.getElementById('asideLocked');
+                if (!card || card.hidden) return;
+                card.classList.remove('pulse');
+                void card.offsetWidth; // 重排以重启动画
+                card.classList.add('pulse');
+                setTimeout(function () { card.classList.remove('pulse'); }, 1100);
+            }
+
+            function updateLiveSummary() {
+                const t = calcTotals();
+                const ship = (shipName.value || '').trim();
+                let deviceLine = getDeviceLabel() + (ship ? '（' + ship + '）' : '');
+                if (!deviceType.value) deviceLine = '尚未选择设备';
+                sumDevice.innerHTML = '<b>' + escapeHtml(deviceLine) + '</b>' +
+                    (getModelText() ? '<br>' + escapeHtml([getManufacturerText(), getModelText()].filter(Boolean).join(' · ') +
+                        (cylInput.value ? ' · ' + getCyl() + ' 缸' : '') + (getMaintText() ? ' · ' + getMaintText() : '')) : '');
+
+                const hasSel = selectedItems.length > 0;
+                sumGrandRow.style.display = hasSel ? '' : 'none';
+                if (!hasSel) return;
+                // 客户侧仅展示最终报价（R-36 口径扩展）：明细合计/保底价/影响系数不外显，构成冻结进快照供后台与销售视图
+                sumGrand.textContent = '$' + fmtNum(Math.round(t.grand));
+            }
+
+            // ============================================================
+            // 事件绑定（与 v8 语义一致）
+            // ============================================================
+            function onDeviceChange() {
+                selectedItems = [];
+                selectedPackage = '';
+                expandedPkg = '';
+                quoteExcluded.clear();
+                quoteQty = {};
+                qtyTouched.clear();
+                collGrp.clear();
+                cycleFieldGroup.style.display = 'none';
+                loadEquipmentData(deviceType.value);
+                refreshDeviceDependentDropdowns();
+                renderItemsArea();
+                updateAddLinkVisibility();
+            }
+
+            maintType.addEventListener('change', function () {
+                cycleFieldGroup.style.display = maintCycleEnabled() ? '' : 'none';
+                rebuildSugSet();   // 维保类型变化 → 建议项集合随之刷新
+                renderItemsArea();
+                updateAddLinkVisibility();
+            });
+
+            maintCycleHours.addEventListener('change', function () {
+                rebuildSugSet();   // 保养周期变化 → 建议项集合随之刷新
+                renderItemsArea();
+            });
+
+            manufacturer.addEventListener('change', function () {
+                renderItemsArea();
+            });
+
+            model.addEventListener('change', function () {
+                rebuildManufacturerByModel(false);
+                selectedItems = [];
+                selectedPackage = '';
+                quoteExcluded.clear();
+                quoteQty = {};
+                qtyTouched.clear();
+                renderItemsArea();
+                updateAddLinkVisibility();
+            });
+
+            // ----- 自定义厂家/型号弹窗 -----
+            function openCustomAdd() {
+                customManuInput.value = customManufacturer;
+                customModelInput.value = customModel;
+                customNeedInput.value = customNeed;
+                customAddModal.classList.add('open');
+                setTimeout(() => customManuInput.focus(), 50);
+            }
+            function closeCustomAdd() {
+                customAddModal.classList.remove('open');
+            }
+            function confirmCustomAdd() {
+                const manuVal = customManuInput.value.trim();
+                const modelVal = customModelInput.value.trim();
+                const needVal = customNeedInput.value.trim();
+                if (!manuVal && !modelVal) { customManuInput.focus(); return; }
+                customManufacturer = manuVal;
+                customModel = modelVal;
+                customNeed = needVal;
+                closeCustomAdd();
+                renderItemsArea();
+                updateAddLinkVisibility();
+                showToast('需求已提交，我们会尽快与您联系。', 'success');
+            }
+            addCustomLink.addEventListener('click', openCustomAdd);
+            customAddConfirm.addEventListener('click', confirmCustomAdd);
+            customAddCancel.addEventListener('click', closeCustomAdd);
+            customAddClose.addEventListener('click', closeCustomAdd);
+            customAddModal.addEventListener('click', function (e) {
+                if (e.target === customAddModal) closeCustomAdd();
+            });
+            customModelInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') confirmCustomAdd();
+            });
+
+            // ----- Toast -----
+            let toastTimer = null;
+            function showToast(message, type, duration) {
+                type = type || 'info';
+                duration = duration || 3000;
+                toastText.textContent = message;
+                toast.classList.remove('info', 'success');
+                toast.classList.add(type);
+                toast.classList.add('show');
+                if (toastTimer) clearTimeout(toastTimer);
+                toastTimer = setTimeout(function () {
+                    toast.classList.remove('show');
+                }, duration);
+            }
+
+            // ============================================================
+            // 提交冻结（R-23）：组装询价单快照，写入共享存储供后台「客户定价单」展示
+            // ============================================================
+            function freezeInquiryRecord() {
+                const c = priceCtx();
+                const t0 = calcTotals();
+                function laborOf(it) {
+                    try {
+                        const r = resolveLaborStandard(it.siCode, c.modelName, c.mt, c.cycle);
+                        if (!r || !r.std) return null;
+                        const H = laborHoursOf(r.std, c.cyl);
+                        if (!H) return null;
+                        const rates = (typeof RATES !== 'undefined' && RATES.active) ? RATES.active.rates : null;
+                        const crew = r.std.crew || {};
+                        const crewTxt = Object.keys(crew).map(function (k) { return k + '×' + crew[k]; }).join('+');
+                        return { level: r.level, crew: crewTxt, rateSum: rateSumOf(crew, rates), hours: H };
+                    } catch (e) { return null; }
+                }
+                const lines = [];
+                selectedItems.forEach(function (k) {
+                    const it = ITEM_MAP[k];
+                    if (!it) return;
+                    const std = isStandardItem(k);
+                    if (!std && quoteExcluded.has(k)) return;   // 未勾选的可选项不进快照
+                    const qty = qtyOf(k, it);
+                    lines.push({
+                        type: std ? 'package' : 'optional',
+                        name: it.item_name, unit: it.unit || '',
+                        unitPrice: Math.round(itemUnitPrice(it)),
+                        qty: qty,
+                        amount: Math.round(itemLinePrice(it, qty)),
+                        labor: laborOf(it)
+                    });
+                });
+                const pkgName = (typeof PACKAGES !== 'undefined'
+                    ? ((PACKAGES.find(function (p) { return p.code === 'PKG-STD'; }) || {}).name) : '') || '标准保养';
+                // 服务信息与新价格构成随快照冻结（R-23 / IN-INQ-06）：调系数不影响历史单
+                const co = t0.coef;
+                const s = svcEnsure();
+                return {
+                    no: '', at: 0, atTxt: '', src: 'PC',
+                    customer: null,   // demo 无登录态；正式系统取登录快照（表设计 inquiry）
+                    shipName: (shipName.value || '').trim(),
+                    deviceName: getDeviceLabel(),
+                    deviceCode: (typeof EQUIPMENT_NAME !== 'undefined' && typeof EQUIP_DEV !== 'undefined' && EQUIP_DEV[EQUIPMENT_NAME]) || '',
+                    modelName: getModelText(), modelCustom: !!customModel,
+                    cyl: getCyl(),
+                    manufacturer: getManufacturerText(), manufacturerCustom: !!customManufacturer,
+                    maintTypeCode: maintTypeCode() || '', maintTypeName: getMaintText(),
+                    cycle: currentCycle() || null,
+                    currency: 'USD', remarks: (priceFeedbackInput.value || '').trim(),
+                    stdPkg: t0.stdCount ? { name: pkgName, subtotal: Math.round(t0.stdTotal) } : null,
+                    lines: lines,
+                    svc: {
+                        urgKey: s.urg, urgency: co.u.label, urgC: co.u.c,
+                        region: s.region, country: s.country, site: s.site,
+                        locC: co.l.c, locLevel: co.l.level, locTxt: svcLocTxt(),
+                        serviceDate: s.date, leadDays: co.days == null ? 0 : co.days, leadC: co.b.c,
+                        leadNote: co.b && co.b.band ? (co.b.band.note || '') : ''
+                    },
+                    detailTotal: Math.round(t0.detail),
+                    floorHours: t0.floorHours, floorTotal: Math.round(t0.floorTotal), floorN: t0.floorN,
+                    floorShortfall: Math.round(t0.floorShortfall), pricingBase: Math.round(t0.pricingBase),
+                    coefficient: co.k,
+                    grand: Math.round(t0.grand)
+                };
+            }
+
+            // ----- 步骤按钮 -----
+            step2Push.addEventListener('click', function () {
+                if (isSubmitLocked()) {
+                    if (!hasPackagePrereqs()) {
+                        showToast('请先完成左侧必填信息（见右侧待办清单）', 'info', 3000);
+                        pulseLockedCard();
+                    } else {
+                        showToast('请至少勾选一项维保项目后再提交', 'info', 3000);
+                    }
+                    return;
+                }
+                let rec = null;
+                try { rec = freezeInquiryRecord(); } catch (e) { rec = null; }   // 冻结失败不阻断提交主流程
+                if (rec) {
+                    INQStore.list().then(function (list) {
+                        rec.no = INQStore.nextNo(list);
+                        const st = INQStore.stamp();
+                        rec.at = st.at; rec.atTxt = st.atTxt;
+                        return INQStore.save(rec);
+                    }).then(function (saved) {
+                        showToast('提交成功！询价单号 ' + saved.no + '，我们会尽快回复您。', 'success', 4000);
+                    }).catch(function () {
+                        showToast('提交成功！我们会尽快回复您。', 'success', 4000);
+                    });
+                } else {
+                    showToast('提交成功！我们会尽快回复您。', 'success', 4000);
+                }
+                resetAll();
+            });
+
+            // ----- Reset（与 v8 resetAll 语义一致）-----
+            function resetAll() {
+                selectedItems = [];
+                quoteExcluded.clear();
+                quoteQty = {};
+                qtyTouched.clear();
+                priceFeedbackInput.value = '';
+                shipName.value = '';
+                deviceType.value = '';
+                selectedDeviceName = '';
+                maintType.value = '';
+                if (maintType._syncInput) maintType._syncInput();
+                cylInput.value = '';
+                resetCustomFields();
+                selectedPackage = '';
+                expandedPkg = '';
+                collGrp.clear();
+                cycleFieldGroup.style.display = 'none';
+                svcInfo = null;            // 服务信息回默认（不紧急 / 第一个地区+国家；日期清空）
+                svcRenderOptions();
+                svcHintUpdate();
+                refreshDeviceDependentDropdowns();
+                updateAddLinkVisibility();
+                pkgContainer.innerHTML = '';
+                updateItemCount();
+                clearSelection();
+                cascadeSearch.value = '';
+                cascadeSearchClear.classList.remove('show');
+                cascadeEmpty.classList.remove('show');
+                searchResults.style.display = 'none';
+                searchResults.innerHTML = '';
+                restoreCatalogView();
+                goToStep(0);
+            }
+
+            // ============================================================
+            // STEP 0：设备目录（分类数据 = v8 标准目录；展示：电商分类视图，左侧一级分类导航 + 右侧层级缩进分组）
+            // ============================================================
+            // 分类数据 = demov8 原始目录结构（机械设备主要部件：推进用柴油机 / 发电用电动机装置）
+            // 设备分类树（4 级：一级 → 二级 → 三级 → 四级叶子）。与参考站分类大厅一致，多一级分组扁平平铺。
+            function T(code, cn, en, children) {
+                return { level: 1, code: code, cn_name: cn, en_name: en, children: children };
+            }
+
+            function S(code, cn, en, children) {
+                return { level: 2, code: code, cn_name: cn, en_name: en, children: children };
+            }
+
+            function G(code, cn, en, children) {
+                return { level: 3, code: code, cn_name: cn, en_name: en, children: children };
+            }
+
+            function L(code, cn, en, eq) {
+                const leaf = { level: 4, code: code, cn_name: cn, en_name: en };
+                if (eq) {
+                    leaf.equipment_name = eq;
+                    leaf.all_maintenance_types = (EQUIPMENT_DATA[eq] || {}).all_maintenance_types || [];
+                    leaf.equipment_series = (EQUIPMENT_DATA[eq] || {}).equipment_series || [];
+                }
+                return leaf;
+            }
+
+            const TREE = [
+                T("6", "机械设备主要部件", "MACHINERY MAIN COMPONENTS", [
+                    S("60", "推进用柴油机", "DIESEL ENGINES FOR PROPULSION", [
+                        G("601", "柴油机", "DIESEL ENGINES", [
+                            L("601.001", "主机柴油机", "Main diesel engine", "Main diesel engine")
+                        ])
+                    ]),
+                    S("65", "发电用电动机装置", "MOTOR AGGREGATES FOR MAIN ELECTRIC POWER PRODUCTION", [
+                        G("651", "电动机装置", "MOTOR AGGREGATES", [
+                            L("651.001", "辅助柴油发电机组", "Aux. diesel generator aggregates, complete", "Aux. diesel generator aggregates, complete")
+                        ])
+                    ])
+                ])
+            ];
+
+
+
+            const cascadeSearch = document.getElementById('cascadeSearch');
+            const cascadeSearchClear = document.getElementById('cascadeSearchClear');
+            const cascadeEmpty = document.getElementById('cascadeEmpty');
+            const searchResults = document.getElementById('searchResults');
+            const mallWrap = document.getElementById('mallWrap');
+            const mallGroups = document.getElementById('mallGroups');
+            const productView = document.getElementById('productView');
+            const pvGrid = document.getElementById('pvGrid');
+            const pvCrumb = document.getElementById('pvCrumb');
+            const treeView = document.getElementById('treeView');
+            const mallLeftRoots = document.getElementById('mallLeftRoots');
+            const hallEntry = document.getElementById('hallEntry');
+            const catalogSplit = document.querySelector('.catalog-split');
+            // 当前商品展示视图所属的三级分类（level 3 节点）
+            let pvGroupNode = null;
+
+            function collectLeaves(nodes, trail) {
+                let result = [];
+                nodes.forEach(function (n) {
+                    const t = trail.concat(n);
+                    if (!n.children || !n.children.length) {
+                        result.push({ node: n, path: t });
+                    } else {
+                        result = result.concat(collectLeaves(n.children, t));
+                    }
+                });
+                return result;
+            }
+            const ALL_LEAVES = collectLeaves(TREE, []);
+
+            function buildPathText(leaf, field) {
+                const f = field || 'cn_name';
+                const names = [];
+                (function find(nodes, trail) {
+                    for (const n of nodes) {
+                        const t = trail.concat(n[f] || n.cn_name);
+                        if (n === leaf) { names.push(...t); return true; }
+                        if (n.children && find(n.children, t)) return true;
+                    }
+                    return false;
+                })(TREE, []);
+                return names;
+            }
+
+            // 统一选择入口：同步 电商视图 chip / 商品卡片 高亮 + 联动下方维保需求
+            function selectLeafNode(node) {
+                selectedLeaf = node;
+                mallGroups.querySelectorAll('.selected').forEach(function (c) { c.classList.remove('selected'); });
+                pvGrid.querySelectorAll('.selected').forEach(function (c) { c.classList.remove('selected'); });
+                const chipEl = mallGroups.querySelector('[data-code="' + node.code + '"]');
+                if (chipEl) {
+                    chipEl.classList.add('selected');
+                    chipEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+                const cardEl = pvGrid.querySelector('[data-code="' + node.code + '"]');
+                if (cardEl) {
+                    cardEl.classList.add('selected');
+                    cardEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+                applySelectedDevice(node);
+            }
+
+            // 选中设备后立即联动：填充表单 + 更新实时报价（单页模式无需"填写维保需求"按钮）
+            function applySelectedDevice(node) {
+                if (!node) return;
+                const eqName = node.equipment_name;
+                if (!eqName || !EQUIPMENT_DATA[eqName]) {
+                    // 该设备暂无维保数据：引导人工报价，不进入表单
+                    showToast('「' + node.cn_name + '」的维保数据整理中，可提交需求由人工报价。', 'info', 3500);
+                    openCustomAdd();
+                    return;
+                }
+                selectedDeviceName = node.en_name || node.cn_name || eqName;
+                deviceType.value = eqName;
+                onDeviceChange();
+                renderItemsArea();
+                updateItemCount();
+                // 选中设备后自动进入第二页（填写维保需求）
+                goToStep(1);
+            }
+
+            function clearSelection() {
+                mallGroups.querySelectorAll('.selected').forEach(function (c) { c.classList.remove('selected'); });
+                selectedLeaf = null;
+            }
+
+            // 恢复目录区可见性（分类大厅视图，隐藏 悬浮树 / 商品展示）
+            function restoreCatalogView() {
+                catalogSplit.style.display = '';
+                mallWrap.style.display = '';
+                productView.style.display = 'none';
+                treeView.style.display = 'none';
+                mallGroups.style.display = '';
+                mallLeftRoots.querySelectorAll('.ml-root').forEach(function (r) { r.classList.remove('active'); });
+            }
+
+            // 商品展示视图：渲染商品卡片网格（仅展示设备名称，每行 4 个）
+
+            function pvCard(node) {
+                const card = document.createElement('div');
+                card.className = 'pv-card' + (selectedLeaf === node ? ' selected' : '');
+                card.dataset.code = node.code;
+                card.setAttribute('role', 'button');
+                card.setAttribute('tabindex', '0');
+                card.setAttribute('aria-label', node.cn_name + ' ' + (node.en_name || ''));
+                const name = document.createElement('div');
+                name.className = 'pv-name';
+                const ne = document.createElement('div');
+                ne.className = 'pv-name-en';
+                ne.textContent = node.en_name || node.cn_name;
+                name.appendChild(ne);
+                const nc = document.createElement('div');
+                nc.className = 'pv-name-cn';
+                nc.textContent = node.cn_name || '';
+                name.appendChild(nc);
+                card.appendChild(name);
+                function pick() {
+                    selectLeafNode(node);
+                }
+                card.addEventListener('click', pick);
+                card.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); }
+                });
+                return card;
+            }
+
+            // 进入商品展示视图（点击三级分类 DIESEL ENGINES 等）
+            function openProductView(sec, group) {
+                pvGroupNode = group;
+                const leaves = flattenLeaves(group);
+                pvGrid.innerHTML = '';
+                leaves.forEach(function (lf) { pvGrid.appendChild(pvCard(lf)); });
+                // 分类层级路径：全部分类 › 一级 › 二级 › 三级（三级高亮为当前位置）
+                renderPvCrumb(rootOf(group), sec, group);
+                mallGroups.style.display = 'none';
+                treeView.style.display = 'none';
+                productView.style.display = 'flex';
+                // 若当前已选中叶子且属于该三级分类，高亮对应卡片
+                if (selectedLeaf) {
+                    const cardEl = pvGrid.querySelector('[data-code="' + selectedLeaf.code + '"]');
+                    if (cardEl) cardEl.classList.add('selected');
+                }
+            }
+
+            // 商品展示顶部：可点击面包屑（全部分类 › 一级 › 二级 › 当前三级）
+            // 上级层级点击后回到对应层级的分类树，当前层级高亮不可点
+            function renderPvCrumb(root, sec, group) {
+                pvCrumb.innerHTML = '';
+                const mkSep = function () {
+                    const sep = document.createElement('span');
+                    sep.className = 'pc-sep';
+                    sep.textContent = '/';
+                    pvCrumb.appendChild(sep);
+                };
+                const mkCrumb = function (label, onClick, current) {
+                    const item = document.createElement('button');
+                    item.type = 'button';
+                    item.className = 'pc-item' + (current ? ' pc-current' : '');
+                    item.textContent = label;
+                    item.title = label; // 被收缩出省略号时悬停可看全名
+                    if (onClick) item.addEventListener('click', onClick);
+                    pvCrumb.appendChild(item);
+                };
+                mkCrumb('全部分类', function () { backToHall(group); });
+                mkSep();
+                mkCrumb(root.en_name || root.cn_name, function () { openTreeViewOf(root); });
+                mkSep();
+                mkCrumb(sec.en_name || sec.cn_name, function () { openTreeViewOf(sec); });
+                mkSep();
+                mkCrumb(group.en_name || group.cn_name, null, true);
+            }
+
+            // 面包屑逐级返回：退出商品展示，显示该层级（一级/二级）下的分类树，左侧栏同步高亮
+            function openTreeViewOf(node) {
+                productView.style.display = 'none';
+                pvGroupNode = null;
+                const root = rootOf(node);
+                const rootBtn = mallLeftRoots.querySelector('[data-code="' + root.code + '"]');
+                showTreeOf(node, rootBtn, true);
+            }
+
+            function backToHall(targetNode) {
+                restoreCatalogView();
+                if (targetNode) {
+                    const el = mallGroups.querySelector('[data-code="' + targetNode.code + '"]');
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+
+            // ===== 面板左侧一级分类：悬停右侧浮现树；点击三级进入商品展示 =====
+            // 渲染左侧竖排一级分类
+            function renderLeftRoots() {
+                mallLeftRoots.innerHTML = '';
+                TREE.forEach(function (root) {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'ml-root';
+                    btn.dataset.code = root.code;
+                    const en = document.createElement('span');
+                    en.className = 'ml-en';
+                    en.textContent = root.en_name || root.cn_name;
+                    btn.appendChild(en);
+                    const cn = document.createElement('span');
+                    cn.className = 'ml-cn';
+                    cn.textContent = root.cn_name || '';
+                    btn.appendChild(cn);
+                    const arrow = document.createElement('span');
+                    arrow.className = 'ml-arrow';
+                    arrow.textContent = '>';
+                    btn.appendChild(arrow);
+                    btn.addEventListener('mouseenter', function () { showLeftTree(root, btn); });
+                    mallLeftRoots.appendChild(btn);
+                });
+            }
+
+            // 显示分类树视图：node 为一级（渲染其下全部二级+三级）或二级（仅渲染该二级下的三级）
+            // fromLeft=true 表示来自左侧栏（高亮左侧按钮）；否则来自分类大厅标题按钮
+            function showTreeOf(node, btn, fromLeft) {
+                if (productView.style.display === 'flex') return; // 商品展示中不覆盖
+                if (fromLeft) {
+                    mallLeftRoots.querySelectorAll('.ml-root').forEach(function (r) { r.classList.remove('active'); });
+                    btn.classList.add('active');
+                }
+                mallGroups.style.display = 'none';
+                treeView.style.display = '';
+                treeView.innerHTML = '';
+
+                const secs = (node.level === 2) ? [node] : (node.children || []);
+                secs.forEach(function (sec) {
+                    const secEl = document.createElement('div');
+                    secEl.className = 'tv-sec';
+                    const secTitle = document.createElement('div');
+                    secTitle.className = 'tv-sec-title';
+                    const se = document.createElement('span');
+                    se.textContent = sec.en_name || sec.cn_name;
+                    secTitle.appendChild(se);
+                    const sc = document.createElement('span');
+                    sc.className = 'tv-sec-cn';
+                    sc.textContent = sec.cn_name || '';
+                    secTitle.appendChild(sc);
+                    secEl.appendChild(secTitle);
+                    const groups = document.createElement('div');
+                    groups.className = 'tv-groups';
+                    (sec.children || []).forEach(function (grp) {
+                        const chip = document.createElement('button');
+                        chip.type = 'button';
+                        chip.className = 'tv-link';
+                        chip.dataset.code = grp.code;
+                        const ge = document.createElement('span');
+                        ge.className = 'tv-group-en';
+                        ge.textContent = grp.en_name || grp.cn_name;
+                        chip.appendChild(ge);
+                        const gc = document.createElement('span');
+                        gc.className = 'tv-group-cn';
+                        gc.textContent = grp.cn_name || '';
+                        chip.appendChild(gc);
+                        // 选了分类后统一进入商品展示（设备页面），由用户在设备页面选择具体设备
+                        chip.addEventListener('click', function () {
+                            openProductView(sec, grp);
+                        });
+                        groups.appendChild(chip);
+                    });
+                    secEl.appendChild(groups);
+                    treeView.appendChild(secEl);
+                });
+            }
+
+            // 悬停左侧一级分类：右侧浮现该分类的树（fromLeft 高亮左侧按钮）
+            function showLeftTree(root, btn) {
+                showTreeOf(root, btn, true);
+            }
+
+            // 左侧「全部商品分类」→ 进入分类大厅
+            hallEntry.addEventListener('click', function () {
+                restoreCatalogView();
+                // 若搜索态，清空恢复
+                if (cascadeSearch.value) {
+                    cascadeSearch.value = '';
+                    cascadeSearchClear.classList.remove('show');
+                    searchResults.style.display = 'none';
+                    searchResults.innerHTML = '';
+                    cascadeEmpty.classList.remove('show');
+                }
+            });
+
+            renderLeftRoots();
+
+            function applyCascadeSearch(rawQuery) {
+                const query = (rawQuery || '').trim();
+                if (!query) {
+                    searchResults.style.display = 'none';
+                    cascadeEmpty.classList.remove('show');
+                    cascadeSearchClear.classList.remove('show');
+                    restoreCatalogView();
+                    return;
+                }
+                cascadeSearchClear.classList.add('show');
+                catalogSplit.style.display = 'none';
+                searchResults.innerHTML = '';
+                const q = query.toLowerCase();
+                const matched = ALL_LEAVES.filter(function (item) {
+                    return (item.node.cn_name || '').toLowerCase().indexOf(q) >= 0 ||
+                        (item.node.en_name || '').toLowerCase().indexOf(q) >= 0;
+                });
+                if (!matched.length) {
+                    cascadeEmpty.classList.add('show');
+                    searchResults.style.display = 'none';
+                    return;
+                }
+                cascadeEmpty.classList.remove('show');
+                searchResults.style.display = 'flex';
+                matched.forEach(function (item) {
+                    const div = document.createElement('div');
+                    div.className = 'sr-item';
+                    const info = document.createElement('div');
+                    info.className = 'sr-info';
+                    const name = document.createElement('div');
+                    name.className = 'sr-name';
+                    const en = item.node.en_name || '';
+                    const enIdx = en.toLowerCase().indexOf(q);
+                    if (enIdx >= 0) {
+                        name.textContent = '';
+                        name.appendChild(document.createTextNode(en.slice(0, enIdx)));
+                        const h = document.createElement('span');
+                        h.className = 'hl';
+                        h.textContent = en.slice(enIdx, enIdx + query.length);
+                        name.appendChild(h);
+                        name.appendChild(document.createTextNode(en.slice(enIdx + query.length)));
+                    } else {
+                        name.textContent = en;
+                    }
+                    info.appendChild(name);
+                    const path = document.createElement('div');
+                    path.className = 'sr-path';
+                    path.textContent = (item.node.cn_name || '') + '  ·  ' +
+                        buildPathText(item.node, 'en_name').join('  ›  ');
+                    info.appendChild(path);
+                    div.appendChild(info);
+                    const btn = document.createElement('span');
+                    btn.className = 'sr-select';
+                    btn.textContent = '选择';
+                    div.appendChild(btn);
+                    div.addEventListener('click', function () {
+                        cascadeSearch.value = '';
+                        cascadeSearchClear.classList.remove('show');
+                        searchResults.style.display = 'none';
+                        searchResults.innerHTML = '';
+                        restoreCatalogView();
+                        cascadeEmpty.classList.remove('show');
+                        // 扁平列表已全量渲染，直接选中并滚动定位
+                        selectLeafNode(item.node);
+                    });
+                    searchResults.appendChild(div);
+                });
+            }
+
+            // ===== 电商分类视图（参照参考网站 gb.marinsmart.pro「分类大厅」：扁平分组列表，全量平铺，无悬浮 panel） =====
+            function rootOf(node) {
+                for (const r of TREE) {
+                    let found = false;
+                    (function contain(n) {
+                        if (n === node) { found = true; return; }
+                        if (n.children) n.children.forEach(contain);
+                    })(r);
+                    if (found) return r;
+                }
+                return TREE[0];
+            }
+
+            function flattenLeaves(node) {
+                if (!node.children || !node.children.length) return [node];
+                let result = [];
+                node.children.forEach(function (c) { result = result.concat(flattenLeaves(c)); });
+                return result;
+            }
+
+            // 扁平分组列表：一级分类 = 分组标题；二级分类 = 小节标题；三级分类 = 可点击入口（点击进入商品展示）
+            function renderMall() {
+                mallGroups.innerHTML = '';
+                TREE.forEach(function (root) {
+                    const group = document.createElement('div');
+                    group.className = 'mg-group';
+                    const head = document.createElement('div');
+                    head.className = 'mg-head';
+                    head.dataset.code = root.code;
+                    const hen = document.createElement('span');
+                    hen.className = 'mg-en';
+                    hen.textContent = root.en_name || root.cn_name;
+                    head.appendChild(hen);
+                    const hcn = document.createElement('span');
+                    hcn.className = 'mg-cn';
+                    hcn.textContent = root.cn_name || '';
+                    head.appendChild(hcn);
+                    group.appendChild(head);
+
+                    (root.children || []).forEach(function (sec) {
+                        const secEl = document.createElement('div');
+                        secEl.className = 'mg-sec';
+                        const st = document.createElement('div');
+                        st.className = 'mg-sec-title';
+                        st.dataset.code = sec.code;
+                        const sen = document.createElement('span');
+                        sen.className = 'ms-en';
+                        sen.textContent = sec.en_name || sec.cn_name;
+                        st.appendChild(sen);
+                        const scn = document.createElement('span');
+                        scn.className = 'ms-cn';
+                        scn.textContent = sec.cn_name || '';
+                        st.appendChild(scn);
+                        secEl.appendChild(st);
+
+                        const body = document.createElement('div');
+                        body.className = 'mg-sec-body';
+                        const chips = document.createElement('div');
+                        chips.className = 'mg-sec-chips';
+                        (sec.children || []).forEach(function (c) {
+                            const subt = document.createElement('button');
+                            subt.type = 'button';
+                            subt.className = 'tv-link';
+                            subt.dataset.code = c.code;
+                            const suben = document.createElement('span');
+                            suben.className = 'tv-group-en';
+                            suben.textContent = c.en_name || c.cn_name;
+                            subt.appendChild(suben);
+                            const subcn = document.createElement('span');
+                            subcn.className = 'tv-group-cn';
+                            subcn.textContent = c.cn_name || '';
+                            subt.appendChild(subcn);
+                            // 同左树：点击三级分类统一进入设备页面（商品展示）选择
+                            subt.addEventListener('click', function () { openProductView(sec, c); });
+                            chips.appendChild(subt);
+                        });
+                        body.appendChild(chips);
+                        secEl.appendChild(body);
+                        group.appendChild(secEl);
+                    });
+                    mallGroups.appendChild(group);
+                });
+            }
+
+            cascadeSearch.addEventListener('input', function () { applyCascadeSearch(this.value); });
+            cascadeSearchClear.addEventListener('click', function () {
+                cascadeSearch.value = '';
+                applyCascadeSearch('');
+                cascadeSearch.focus();
+            });
+
+            // ============================================================
+            // 初始化
+            // ============================================================
+            renderMall();
+            updateAddLinkVisibility();
+            refreshDeviceDependentDropdowns();
+            rebuildDemoPackages();   // 套餐改由后台 PACKAGES 重建（核心：以后台数据为准）
+            updateItemCount();
+            svcRenderOptions();      // 服务信息（D17）：三级下拉 + 紧急下拉 + 日期下限
+            svcBindEvents();
+            svcHintUpdate();
+            if (window.DP) DP(svcDateInp);   // 服务时间：antd 风格 DatePicker（替换原生 date 控件）
+            if (window.SEL) [svcUrgSel, svcRegionSel, svcCountrySel, svcSiteSel].forEach(function (el) {
+                if (el) SEL.mount(el, { allowClear: false });  // 服务信息下拉：antd 风格 Select（前台客户侧不显示清除按钮）
+            });
+            setupSearchSelect(maintType, maintTypeInput, maintTypePanel, document.getElementById('maintTypeClear'));
+            setupSearchSelect(manufacturer, manufacturerInput, manufacturerPanel, document.getElementById('manufacturerClear'), function () {
+                rebuildManufacturerByModel(true);
+            });
+            setupSearchSelect(model, modelInput, modelPanel, document.getElementById('modelClear'));
+            setupSearchSelect(maintCycleHours, maintCycleInput, maintCyclePanel, document.getElementById('maintCycleClear'));
+
+            // ===== 联动后台管理数据（核心：以后台数据为准） =====
+            // 加载后台 IndexedDB 持久化状态（后台管理页的编辑结果），重建 demo 全部派生数据
+            function refreshFromBackend() {
+                try {
+                    loadEquipmentData(EQUIPMENT_NAME);
+                    rebuildDemoPackages();
+                    rebuildModelOptions();
+                    rebuildManufacturerByModel(true);
+                    svcRenderOptions();   // 紧急/地点/系数与保底参数以后台为准（保留已选值，失效则回默认）
+                    svcHintUpdate();
+                    if (selectedLeaf) renderItemsArea();
+                    updateItemCount();
+                } catch (e) { /* 出错则沿用当前（种子）数据，不影响页面 */ }
+            }
+            if (typeof initState === 'function') {
+                initState().then(refreshFromBackend).catch(function () { refreshFromBackend(); });
+            }
+            // 多标签页联动：后台管理页保存后通过 BroadcastChannel 通知，本页自动同步最新数据
+            window.pcOnRemoteUpdate = function () {
+                if (typeof loadState !== 'function') { refreshFromBackend(); return; }
+                loadState().then(function (loaded) {
+                    try { if (loaded && loaded.state) restoreState(loaded.state, loaded.audit); } catch (e) {}
+                    refreshFromBackend();
+                    showToast('已同步后台管理数据的最新变更', 'info', 2500);
+                }).catch(function () { refreshFromBackend(); });
+            };
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' && !isSubmitLocked() && e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'INPUT') {
+                    step2Push.click();
+                }
+            });
+
+        })();
+    </script>
+
+</body>
+
+</html>

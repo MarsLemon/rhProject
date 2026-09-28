@@ -1,0 +1,68 @@
+# api_call_mismatch B-1 审核报告
+
+**对话时间**: 2026-8-26 10:35
+**会话序号**: 1
+**审核方**: Claude(本次会话)
+**审核对象**: 02-plan-1-8-26-10-23-api_call_audit.txt
+
+---
+
+## 审核结论
+
+✅ **通过**(附带 1 项澄清 + 1 项建议)
+
+---
+
+## 详细审查
+
+### ✅ 做得好的地方
+
+1. **证据链完整** — 报告第 99-110 行提供 v2 + v3 import 路径对比,有代码片段
+2. **判定有依据** — 7 个文件都给出"namespace 扩展"原因(`/course/file` → `/admin/course/file`)
+3. **结论明确** — "dynamic URL 全是误报"判断与代码证据一致
+4. **风险识别** — 提到 AST 无法解析 mixin 中的 axios,有意义
+
+### ⚠️ 需要澄清
+
+**DataTable.vue / WebSocket.vue / Recorder.vue 不在 api_call_mismatch 范围**
+
+实测 JSON 数据,这 3 个文件的 issues 数组只含:
+
+| 文件 | 实际 issues |
+|---|---|
+| `DataTable.vue` | lifecycle_hook_missing, branch_count_mismatch |
+| `WebSocket.vue` | lifecycle_hook_missing, branch_count_mismatch |
+| `Recorder.vue` | lifecycle_hook_missing, branch_count_mismatch |
+
+**无 api_call_mismatch**。Plan 报告把它们列 ❓ "需确认" 是不准确 — 应明确"不在本任务范围"或直接删除。
+
+### 💡 建议改进
+
+**不要凑 Top 10 数量**
+
+实际只有 **7 个文件**有 api_call_mismatch。报告应:
+- 写"Top 7"(不要凑 10)
+- 或扩展到 api_call_mismatch + vuex_not_migrated 合并 Top 10
+
+---
+
+## 证据材料
+
+实测 grep `vue2-v3-migration-audit.json` 中 `severity_breakdown.p1_logic_deviation`:
+- 过滤 `issues[].type == "api_call_mismatch"` → 共 **7 条**(不是 50+)
+- Plan 报告"约 50+ 个受影响文件"可能误把全部 P1 都算进去,实际 api_call_mismatch 类型只有 7 个
+
+---
+
+## 后续行动
+
+1. **本次通过** — B-1 可关闭
+2. **下一轮启动 B-2** — Vuex→Pinia 映射检查(预计 80 个 actions)
+3. **B-3 后置** — branch_count_mismatch 涉及 ~250 个文件,工作量最大,排最后
+
+---
+
+**提交时间**: 2026-8-26 10:35
+**审核耗时**: ~3 分钟
+**下次动作**: 等主人/实行方启动 B-2
+**责任人**: 实行方准备 B-2 数据,审核方继续审核

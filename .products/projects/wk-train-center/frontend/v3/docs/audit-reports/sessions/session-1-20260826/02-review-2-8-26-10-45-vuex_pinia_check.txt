@@ -1,0 +1,138 @@
+# B-2 Vuex→Pinia 审核报告
+
+**对话时间**: 2026-8-26 10:45
+**会话序号**: 1 第 2 轮交互
+**审核方**: Claude
+**审核对象**: 02-plan-1-8-26-10-23-api_call_audit.txt §"B-2 任务"
+
+---
+
+## 审核结论
+
+⚠️ **需修正** — 工作量估算偏高,目标数应基于实测 JSON 数据
+
+---
+
+## 详细审查
+
+### ✅ 计划方向正确
+
+- 从 JSON 提取 vuex_not_migrated 条目
+- 对比 v3 Pinia stores/modules
+- 分类标记 ✅已迁 / ❌未迁 / 🟡未使用
+- 三步流程合理
+
+### ❌ 实测工作量与计划不符
+
+| 项 | 计划估 | JSON 实测 | 偏差 |
+|---|---|---|---|
+| 受影响文件 | ~80 | **27** | -66% |
+| Vuex actions | ~80 | **44** | -45% |
+| 预计耗时 | 2-3h | **1-1.5h**(估) | 砍半 |
+
+### ✅ v3 Pinia store 现状(已存在)
+
+`wk-train-center-ui-v3/src/stores/modules/`:
+- ai.ts / app.ts / knowledge.ts / permission.ts / settings.ts / tagsView.ts / user.ts
+
+**7 个 store 已落地**,对应 v2 Vuex modules(`app / user / settings / tagsView / knowledge / permission`)。多数 Vuex actions 应该已在 Pinia store 中。
+
+### ⚠️ 高风险点
+
+**报告说"未迁移"≠ 实际未迁移**
+
+vuex_not_migrated 检测逻辑(`logic-extractor.js`):
+- 检测 v2 文件里有 `dispatch('storeName/actionName')` → 标记
+- v3 文件里没找到 `useStore().actionName()` 调用 → 报"未迁移"
+
+但 v3 可能:
+- 用 `import { useXxxStore }` 直接调用 action(工具识别不到)
+- action 已迁到不同 store 文件(跨 store 重组)
+
+**建议先做一轮 grep 验证**(实测迁移率),再分类。
+
+---
+
+## 改进建议
+
+### 1. 工作量估算改用实测
+
+```bash
+# 取 vuex_not_migrated 全集(已在本次实测完成)
+vuex_not_migrated 文件: 27 个
+Vuex actions: 44 个
+v3 Pinia stores: 7 个已存在
+```
+
+### 2. B-2 前置:快速迁移率验证(~15 分钟)
+
+```bash
+# 对每个 action 名,grep v3 stores/modules 找匹配
+for action in <44 actions>; do
+  v3_has=$(grep -r "$action" wk-train-center-ui-v3/src/stores/)
+  echo "$action: ${v3_has:+已迁}${v3_has:-未迁}"
+done
+```
+
+输出可能:
+- 真未迁(需补 Pinia action):预期 ~5-10 个
+- 误报(已迁但工具漏识别):预期 ~30+
+- 工具能力问题:值得修 logic-extractor
+
+### 3. B-2 阶段分两段
+
+- **B-2a(快速验证,~15 分钟)**:grep 全 44 个 actions,实测迁移率
+- **B-2b(补缺,~30-60 分钟)**:只针对真未迁的 actions 写 Pinia 修复
+
+### 4. 工作量重新估算
+
+| 段 | 内容 | 耗时 |
+|---|---|---|
+| B-2a | grep 验证 44 个 actions | ~15 分钟 |
+| B-2b | 补真未迁 actions(预估 5-10 个) | ~30-60 分钟 |
+| **合计** | | **~1-1.5 小时**(vs 计划 2-3h) |
+
+---
+
+## 证据材料
+
+### 实测 JSON 数据(2026-8-26 10:45)
+
+```
+vuex_not_migrated 文件数: 27
+Vuex actions 总数: 44
+actions 示例:
+  - user/fetchMsg
+  - knowledge/explainFunction
+  - knowledge/getSimilarKnowledge
+  - app/closeSideBar
+  - user/logout
+  - tagsView/addView
+  - tagsView/addVisitedView
+  - tagsView/delAllViews
+  - tagsView/delCachedView
+  - tagsView/delOthersViews
+v3 Pinia stores/modules/: 7 个 .ts 文件已存在
+```
+
+### plan 估算偏差源
+
+plan 报告原文:"计划步骤: 1. 从 JSON 报告提取所有 vuex_not_migrated 条目 → 预计工作量: 2-3 小时 (~80 个 Vuex actions)"
+
+**"~80 个 Vuex actions" 是估算,实测 44 个**。
+
+---
+
+## 后续行动
+
+1. **本次:计划需修正** — 建议实行方调整 B-2 工作量估算为 1-1.5 小时
+2. **下一步: 启动 B-2a**(grep 验证,~15 分钟) — 比直接进入分类更高效
+3. **B-2b 视 a 结果** — 真未迁 < 10 个就不需要独立文档,合并到工具修复建议
+4. **B-3 后置不变**
+
+---
+
+**提交时间**: 2026-8-26 10:45
+**审核耗时**: ~5 分钟
+**下次动作**: 实行方根据本次反馈调整 B-2 计划
+**责任人**: 实行方修正工作量,审核方继续跟进 B-2a 验证结果

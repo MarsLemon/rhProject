@@ -1004,3 +1004,128 @@ void setUp() {
 **复用计数**: 1(wk-train-center-service `el_msg_tmpl_prop`)
 
 **状态**: 🟡 待验证(SQL 已写好,等主人贴 SHOW CREATE 贴结果 + 执行 ALTER + 业务冒烟)
+
+## [2026-09-28] [📝 工作区规则] — 写文档前必须先问主公放在哪个项目下
+
+
+**能力维度**: 工作流规范 + 文件位置治理
+
+**触发**: 准备用 Write/Edit 创建"文档类文件"(报告 / 草稿 / 交接 / 教学 / 速查表 / 流程图 / Word / PDF 等)
+
+**位置铁律**:
+- ✅ 项目文档 → `E:\rhProject\.products\projects\{项目名}\{reports|handoff|teach|decisions|reference}\`
+- ❌ 绝不放到 `E:\rhProject\.products\docs\` 顶层(顶层只放跨项目的元规则,如 CLAUDE.md)
+- ❌ 绝不混放不同项目的文档
+
+**正模式**:
+- ✅ 落笔前**先问主公**:"放哪个项目?具体路径?"
+- ✅ 项目目录命名规范:与代码项目同名(全小写,短横线连接)
+- ✅ 已有项目:`customer-pricing` / `wk-train-center` / `wk-train-center-service` / `wk-mhc-ui` / `wk-mhc-mobile` / `wk-user` / `wk-PPTist-ui`
+- ✅ 例外:修缮已有文件(不创建新文件)、主人明确指定位置 — 可自行写
+
+**反模式**:
+- ❌ 凭印象直接写到 `.products/docs/` 顶层 — 主公 2026-09-28 批评:"放的位置都不对"
+- ❌ 把多份不同项目的报告混在一个目录 — 后续难查找
+- ❌ 跳过"先问"步骤直接写 — 浪费返工时间
+
+**适用**: 任何 AI 助手 / agent 在 rhProject 工作区写文档
+
+**复用计数**: 1(2026-09-28 customer-pricing 借鉴项目,3 份报告 + 1 个 handoff + 21 个 teaching 文件全部错位,后迁移)
+
+**状态**: 🟢 已落地(主公全局 CLAUDE.md §8 + 项目级 .products/CLAUDE.md + customer-pricing 项目 README)
+
+
+## [2026-09-28] [🔧 工作区治理] — wk-train-center 5 个组件迁入为子目录
+
+
+**能力维度**: 项目目录治理 + 大规模迁移
+
+**触发**: wk-train-center 集合下 5 个组件项目(wk-train-center-service / wk-train-center-ui / wk-train-center-ui-v3 / wk-mhc-mobile / wk-PPTist-ui)原本平级 ,**主公决定**物理迁入 wk-train-center/ 下作为子目录(backend/frontend/frontend-v3/mobile/ppt/)
+
+**操作**:
+1. mkdir 5 个新子目录
+2. cp -r 5 个原项目到对应子目录
+3. rm -rf 原 5 个项目
+4. 修 wk-train-center/README.md 的"关联仓"表路径(`../xxx/` → `xxx/`)
+5. 追加"目录重组(2026-09-28)"章节,含版本号架构(v1.5/.../latest 别名,预留)
+6. 更新 .products/README.md 和 .products/CLAUDE.md 项目列表(4 独立 + 1 集合)
+
+**问题**:
+- ⚠️ **断链 56 个文件**:迁移后,50+ 个文档里仍引用旧路径(`../wk-train-center-service/` 等),全部失效
+- 教训:集合目录重构时,**先 grep 统计断链数量**,再决定是否批量修复,不要只看 README
+
+**正模式**:
+- ✅ 大规模迁移前,先 grep `\.\./wk-train-center-(service|ui|ui-v3)|wk-mhc-mobile|wk-PPTist-ui` 统计断链数
+- ✅ 一次性 cp -r 复制(原子性比逐文件安全)
+- ✅ 主集合 README 先于子目录更新(否则子目录更新时找不到归属)
+- ✅ 版本号架构**预留**不实施(单一版本 = 直接放根 = latest 等效)
+- ✅ 更新 .products/CLAUDE.md 项目列表(避免新会话找不到)
+
+**反模式**:
+- ❌ 直接 mv 不先 cp 验证 — 中途断电会丢文件
+- ❌ 只更新 README 不 grep 其他断链 — 用户点链接 404
+- ❌ 不写迁移记录 — 后续接手人不知道这结构是迁移来的
+
+**适用**: rhProject 工作区任何"项目目录重构"任务
+
+**复用计数**: 1(wk-train-center 5 组件物理迁移)
+
+**状态**: 🟡 进行中(目录已重组,56 个断链待修复)
+
+
+## [2026-09-28] [🔧 大规模迁移 + 📝 工作区治理] — 6 个项目目录大迁移(组件+版本号二级结构落地)
+
+
+**能力维度**: 项目目录治理 + 大规模迁移 + 反向索引
+
+**触发**: 主公拍板"集合 → 组件 → 版本号 → 文档类型"二级结构 + 4 个代码仓文档归档
+
+**操作链路(渐进式)**:
+1. 备份原目录为 `-backup/`(保留可回退)
+3. 新建空目录树(mkdir,先建框架)
+4. 批量迁移(组件级 docs/plans/tasks/db + 集合级 plans/1.5 → 各组件 1.5/plans)
+5. 写 README(集合级 + _index + 每个组件 README,共 15 个)
+6. 建 origin/1.0/(跨版本不变:PRD/strategy/index/user-guide)
+7. 更新反向索引(47 条)
+9. 归档 4 个代码仓的文档到对应位置
+10. 全局规范声明(主公 CLAUDE.md §9 + .products/CLAUDE.md)
+
+**关键发现**:
+- ⚠️ **db 双源矛盾**:Backend/wk-train-center-service/db/README.md 说"源真相是 .products/",但又说代码仓是副本 → 实际是**代码仓是源真相,.products/ 是归档**。主公明确"db 以代码仓为准"
+- ⚠️ **mobile1.1 SQL** 是给 mobile 组件用的,但物理位置在 backend/wk-train-center-service/db/ → 归档到 mobile/1.5/db/mobile1.1/(跨组件归属)
+- ⚠️ **版本号目录可能不够**:之前 mkdir 只建了 1.0/1.5,实际归档需要 1.1-1.5.1 全建 → 先 grep 实际版本号,再批量 mkdir
+- ⚠️ **CWD 锁目录**:Windows bash 下,如果 cwd 在被 mv 的目录里,mv/cp/rm 都报"Device or resource busy" → 先 cd 到上级或 cp + rm(不要 mv)
+
+**正模式**:
+- ✅ **先备份再新建**:cp -r → -backup/,rm -rf 原目录(避免 cp 单边失败丢数据)
+- ✅ **渐进式迁移**:备份 → mkdir 框架 → 迁组件 → 迁集合级 → 写 README → 建 origin → 写反向索引 → 归档代码仓(每步可中断)
+- ✅ **架构预留**:版本号目录先建空,内容按需从 backup/ 代码仓抽取
+- ✅ **反向索引是迁移的"灵魂"**:迁移后必须更新 origin/1.0/index.md,否则后人找不到文档(主公强调"注意能够反向索引")
+- ✅ **db 例外处理**:跨组件的 db(mobile SQL 在 backend 仓)→ 归档到目标组件 + 在 index.md 说明
+- ✅ **全局规范要先落地**:迁移完在主公 CLAUDE.md §9 + .products/CLAUDE.md 声明,新会话自动遵守
+- ✅ **代码仓不动**:迁移是 cp(代码仓保留,作为源真相),不是 mv(避免 git 历史丢失)
+
+**反模式**:
+- ❌ 直接 mv 不先备份 — 中途断电会丢数据
+- ❌ 只更新顶层 README 不迁移子目录内容 — 用户打开新结构还是空的
+- ❌ 一次性完成所有迁移无阶段验证 — 出错难定位
+- ❌ 把跨组件 db(mobile1.1 SQL)归错位置 — 语义错位
+- ❌ 不更新反向索引就认为完成 — 后人无法 reverse-link
+- ❌ CWD 在目标目录时 mv/cp/rm(Windows bash "Device or resource busy")
+- ❌ 改完代码仓 README 后忘记指向 .products/(造成文档两套不同步)
+
+**关键决策(主公拍板)**:
+- 版本号 = 产品级对齐(但 bug 可单开分支)
+- 归档策略 B = 版本号 + `_archive` 后缀
+- frontend v2 = 1.1-1.5(不建 v2 目录)
+- origin/ = 跨版本不变的原始资料 + 反向索引
+- 反向索引用 **Obsidian** 管理(主公指定)
+- 代码仓 = 不写新文档(主公拍板)
+- customer-pricing 单独走 reports/handoff/teach 标准(其他项目不动)
+
+**适用**: rhProject 工作区任何"项目目录重构 + 代码仓文档归档"任务
+
+**复用计数**: 1(2026-09-28 wk-train-center 5 组件 + customer-pricing + 4 代码仓文档归档)
+
+**状态**: 🟢 完成(目录已迁移,反向索引已建,全局规范已声明)
+

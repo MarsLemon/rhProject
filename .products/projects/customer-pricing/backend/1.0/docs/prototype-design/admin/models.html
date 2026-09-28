@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>后台管理 · 设备与型号</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="models">
+<aside>
+  <div class="logo"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5v-9Z"/><path d="M4 7.5 12 12l8-4.5M12 12v9"/></svg></span><div><b>客户定价后台</b></div></div>
+  <nav id="nav"></nav>
+</aside>
+<main>
+  <div class="topbar">
+    <h1 id="viewTitle">设备与型号</h1>
+
+    <span class="sp"></span>
+  </div>
+  <div class="content" id="content"></div>
+</main>
+
+<div class="mask" id="mask"></div>
+<div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="配置面板"></div>
+<div class="toast" id="toastEl" role="status" aria-live="polite"></div>
+<div class="cfmask" id="cfMask" onclick="if(event.target===this)cfClose()"><div class="cfbox" role="alertdialog" aria-modal="true" aria-labelledby="cfTitle"><h3 id="cfTitle">确认删除</h3><div class="cfmsg" id="cfMsg"></div><div class="cfacts"><button class="btn" type="button" id="cfCancel">取消</button><button class="btn danger" type="button" id="cfOk">确认删除</button></div></div></div>
+<div class="cfmask" id="modelMask" onclick="if(event.target===this)modelModalClose()"><div class="cfbox" role="dialog" aria-modal="true" aria-labelledby="modelModalTitle" style="width:560px;max-width:calc(100vw - 32px)">
+  <h3><span id="modelModalTitle">新增型号</span><button type="button" class="cfclose" aria-label="关闭" onclick="modelModalClose()">×</button></h3>
+  <div id="modelModalBody"></div>
+  <div class="cfacts"><button class="btn" type="button" onclick="modelModalClose()">取消</button><button class="btn pri" type="button" id="modelOk" onclick="modelSave()">保存</button></div>
+</div></div>
+<script src="assets/data.js"></script>
+<script src="assets/core.js"></script>
+<script src="js/models.js"></script>
+<script>boot();</script>
+</body>
+</html>

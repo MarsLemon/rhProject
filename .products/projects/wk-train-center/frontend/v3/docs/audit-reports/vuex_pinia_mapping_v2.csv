@@ -1,0 +1,25 @@
+Vuex Module,Vuex Action,v3 Pinia Store,v3 Pinia Action,Status,Evidence,Notes,Fix Needed
+user,fetchMsg,user,fetchMsg,✅,store.line114-127,"No suffix",False
+user,login,user,loginAction,🟡,store.line47-51,"Suffix added (loginAction)",False
+user,logout,user,logoutAction,🟡,store.line88-100,"Suffix added (logoutAction)",False
+user,faceLogin,user,faceLoginAction,🟡,store.line39-45,"Suffix added (faceLoginAction)",False
+user,mobileLogin,user,mobileLoginAction,🟡,store.line53-57,"Suffix added (mobileLoginAction)",False
+user,reg,user,regAction,🟡,store.line59-62,"Suffix added (regAction)",False
+user,sync,user,sync,✅,store.line34-37,"No suffix",False
+knowledge,explainFunction,knowledge,explainFunction,✅,store.explains,"Same name",False
+knowledge,getSimilarKnowledge,knowledge,getSimilarKnowledge,✅,store.getSimilarKnowledge,"Same name",False
+app,closeSideBar,app,closeSideBar,✅,store.closeSideBar,"Same name",False
+app,setExamMode,app,setExamMode,✅,store.setExamMode,"Same name",False
+settings,changeSetting,settings,changeSetting,✅,store.line44-59,"Just added on 2026-8-26",False
+settings,getBanners,settings,getBanners,✅,store.line70-87,"Same name",False
+settings,getSite,settings,getSite,✅,store.line61-69,"Same name",False
+tagsView,addView,tagsView,addCachedView,🟠,store.addCachedView,"Renamed (addView→addCachedView)",False
+tagsView,addVisitedView,tagsView,addVisitedView,✅,store.addVisitedView,"Same name",False
+tagsView,delAllViews,tagsView,delAllViews,✅,store.delAllViews,"Same name",False
+tagsView,delView,tagsView,delCachedView,🟠,store.delCachedView,"Renamed (delView→delCachedView)",False
+tagsView,delOthers,tagsView,delOthersView,🟠,store.delOthersView,"Renamed (delOthers→delOthersView)",False
+tagsView,delLefts,tagsView,delLeftViews,🟠,store.delLeftViews,"Renamed (delLefts→delLeftViews)",False
+tagsView,delRighths,tagsView,delRightViews,🟠,store.delRightViews,"Renamed (delRighths→delRightViews)",False
+tagsView,updateVisitedView,tagsView,updateVisitedView,✅,store.updateVisitedView,"Same name",False
+permission,setRoutes,permission,setRoutes,✅,store.setRoutes,"Same name (v3 新增)",False
+ai,callback,ai,callback,✅,store.callback,"Same name (v3 新增)",False

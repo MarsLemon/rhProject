@@ -59,6 +59,13 @@
         "DEFAULT_PARAMETERS": "${DEFAULT_PARAMETERS}"
       }
     },
+    "apifox-mcp": {
+      "url": "https://apifox.com/api/v1/mcp",
+      "headers": {
+        "Authorization": "Bearer afxp_f5aa42jz6P3rMrA0FOT6WJlC5rrsg5IqCi4Q",
+        "X-Apifox-Api-Version": "2025-09-01"
+      }
+    },
     "MiniMax": {
       "type": "stdio",
       "command": "npx",

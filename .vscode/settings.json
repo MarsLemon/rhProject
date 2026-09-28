@@ -12,5 +12,6 @@
     "rhProject/.vscode/mcp.json: mysql-prod": {
       "allowedModels": ["customendpoint/minimax/minimax"]
     }
-  }
+  },
+  "git.repositoryScanMaxDepth": 10
 }

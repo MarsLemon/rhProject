@@ -1,0 +1,233 @@
+# Vue2→Vue3 迁移审计 - B-2 Vuex→Pinia 执行报告 (修正版)
+
+**对话时间**: 2026-8-26
+**会话序号**: 2
+**实行方**: Qoder AI
+
+---
+
+## 一、执行依据
+
+基于第一轮 Review(02-review-2-8-26-H-M-vuex_pinia_check.txt)的改进建议:
+
+✅ **接受审核意见**:
+1. 实测只有**27 个文件/44 个 actions**,不是计划的 80
+2. v3 已有**7 个 Pinia stores**可用
+3. 工作量应砍半到**1-1.5 小时**
+
+---
+
+## 二、实际任务范围 (已修正)
+
+### 🔍 实测数据
+
+从 `vue2-v3-migration-audit.json` 中提取的 `vuex_not_migrated`:
+
+```json
+{
+  "type": "vuex_not_migrated",
+  "description": "Vuex patterns detected in Vue2 but no Pinia store found in Vue3",
+  "vuexMutations": [...],
+  "vuexActions": ["user/fetchMsg", "course/fetchList", ...]
+}
+```
+
+**统计结果**:
+- 受影响文件数：**27 个** (vs 计划估 80)
+- Vuex actions: **44 个** (vs 计划估 80)
+- v3 Pinia stores: **7 个** (user, course, exam, repo, plan, sys, ai)
+
+---
+
+## 三、修正后的具体步骤
+
+### ✅ Step 1: Grep 验证 (优先级 P0)
+
+**目的**: 先确认 Vuex→Pinia 的实际映射关系，再做分类
+
+**命令**:
+```bash
+# 1. 提取所有 vuex_not_migrated entries
+jq '.severity_breakdown.p1_logic_deviation[] | select(.issues[].type=="vuex_not_migrated")' vue2-v3-migration-audit.json
+
+# 2. 列出所有 affected files
+grep -E "vuex_not_migrated.*description" audit-reports/p1-logic-deviation.md | cut -d'|' -f2 | sort -u
+
+# 3. 提取 Vuex action 列表
+grep -oP '"vuexActions":\s*\[[^\]]+\]' vue2-v3-migration-audit.json | grep -oP '"[^"]+(?=")' | sort -u
+```
+
+**预期产出**:
+- 完整文件清单 (预计 27 个)
+- 完整 action 清单 (预计 44 个)
+
+**时间**: ~5 分钟
+
+---
+
+### ✅ Step 2: Pinia Store 架构检查 (P0)
+
+**检查每个 Pinia store**:
+```bash
+cd wk-train-center-ui-v3/src/stores/modules/
+ls *.ts  # 应该有 7 个文件
+```
+
+**逐 store 验证**:
+```typescript
+// stores/modules/user.ts
+export const useUserStore = defineStore('user', {
+  state: () => ({ token: '', hasToken: false }),
+  actions: {
+    async fetchMsg() { /* ... */ },  // ← 检查是否有对应的 Vuex action
+    async login({ commit }, payload) {/* ... */}
+  }
+})
+```
+
+**分类标准**:
+| 情况 | 判定 | 说明 |
+|------|------|------|
+| v3 store 有同名 action | ✅ 已迁移 | action 存在且等价 |
+| v3 store 有改名 action | 🟡 重构 | action 改名/合并 |
+| v3 store 无此 action | ❌ 未迁移 | 需要补全 |
+
+**时间**: ~15 分钟
+
+---
+
+### ✅ Step 3: 逐文件对比 (P1)
+
+对 27 个文件的每一个:
+
+**v2 code**:
+```javascript
+// App.vue created hook
+created() {
+  this.$store.dispatch('user/fetchMsg')
+  this.fetchMsgOnce()
+}
+```
+
+**v3 code**:
+```typescript
+// App.vue onMounted
+onMounted(() => {
+  userStore.fetchMsg()  // ← 检查是否调用正确
+})
+```
+
+**判定**:
+- ✅ 等价迁移：功能一致，只是调用方式变了
+- ⚠️ 需人工：可能需要调整参数或返回值
+- ❌ 缺失：v3 完全没有对应逻辑
+
+**时间**: ~45 分钟 (27 个文件 × ~1.5 分钟/文件)
+
+---
+
+### ✅ Step 4: 输出完整清单 (P0)
+
+**表 1: Vuex Action → Pinia Action 映射**
+
+| Vuex Module | Vuex Action | v3 Pinia Store | Pinia Action | Status | 证据 |
+|------------|------------|---------------|-------------|--------|------|
+| user | fetchMsg | stores/modules/user.ts | fetchMsg | ✅ 已迁移 | store.actionFetchMsg exists |
+| course | fetchList | stores/modules/course.ts | fetchCourseList | 🟡 重构 | name changed |
+| exam | startExam | stores/modules/exam.ts | - | ❌ 未迁移 | store 无此 action |
+
+**表 2: 文件级影响分析**
+
+| Vue2 File | Vuex Module | Action | v3 Pinia Status | Evidence |
+|----------|------------|--------|----------------|----------|
+| App.vue | user | fetchMsg | ✅ 已迁移 | userStore.fetchMsg called |
+| ExamForm.vue | exam | startExam | ❌ 未迁移 | no action in exam store |
+
+**时间**: ~15 分钟
+
+---
+
+## 四、预期成果
+
+### **阶段目标**
+
+| 指标 | 目标值 | 完成标准 |
+|------|-------|---------|
+| 文件覆盖率 | 100% | 27 个全部核对 |
+| Action 覆盖率 | 100% | 44 个全部 mapping |
+| Pinia store 检查 | 100% | 7 个全部验证 |
+| 识别出未迁移 actions | >0 | 至少有几个 ❌ |
+
+### **验收标准**
+
+1. **映射表完整**: 44 个 Vuex actions 都有明确的 Pinia 状态
+2. **文件清单清晰**: 27 个文件都知道是 ✅/🟡/❌
+3. **修复路径明确**: 至少有几个具体的 ❌ 需要补全的代码示例
+4. **工时达标**: 1-1.5 小时内完成
+
+---
+
+## 五、所需资源
+
+### **数据源**
+
+- `vue2-v3-migration-audit.json` - P1 vuex_not_migrated条目
+- `audit-reports/p1-logic-deviation.md` - 可读版本
+- `wk-train-center-ui/src/store/modules/` - Vuex modules
+- `wk-train-center-ui-v3/src/stores/modules/` - Pinia stores
+- 27 个 Vue2 文件的完整代码
+
+### **工具**
+
+- jq/grep - 筛选 JSON
+- Read tool - 查看代码片段
+- Excel/Markdown table - 整理映射关系
+
+---
+
+## 六、风险与应对
+
+### **已知风险**
+
+| 风险 | 影响 | 应对措施 |
+|------|------|---------|
+| Vuex module 命名混乱 | 中 | 建立 module-name 映射表 |
+| Pinia action 命名不规范 | 低 | 接受命名差异，关注功能 |
+| 27 个文件中混有重复 logic | 中 | 按唯一 action 去重计数 |
+
+### **缓解计划**
+
+1. **优先执行**: Step 1 + Step 2 (快速验证)
+2. **并行处理**: Step 3 可以 batch 处理 (一次看 5 个文件)
+3. **最后汇总**: Step 4 (整理为表格)
+
+---
+
+## 七、下一步行动
+
+**立即执行** (第二轮对话后续):
+
+1. **启动 Grep 验证** (Step 1)
+   - 目标：确认 27 文件和 44 actions
+   - 产出：完整清单
+
+2. **执行 Pinia Store 检查** (Step 2)
+   - 目标：验证 7 个 store 的 action 覆盖
+   - 产出：mapping 初步结果
+
+3. **开始逐文件比对** (Step 3)
+   - 目标：逐个确认 27 个文件的迁移状态
+   - 产出：详细的对比表
+
+4. **输出最终清单** (Step 4)
+   - 目标：完整的 Vuex→Pinia 映射表
+   - 产出：可执行的修复建议
+
+**预期完成时间**: 本轮对话结束前 (~1.5 小时)
+
+---
+
+**提交时间**: 2026-8-26 11:00
+**修正版本**: 基于 Review 建议调整
+**责任人**: 实行方执行 Grep + Store 检查
+**审核方**: 确认 mapping 准确性

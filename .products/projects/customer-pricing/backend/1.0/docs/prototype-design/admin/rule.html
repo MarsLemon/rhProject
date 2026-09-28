@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>后台管理 · 展示规则</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="rule">
+<aside>
+  <div class="logo"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5v-9Z"/><path d="M4 7.5 12 12l8-4.5M12 12v9"/></svg></span><div><b>客户定价后台</b></div></div>
+  <nav id="nav"></nav>
+</aside>
+<main>
+  <div class="topbar">
+    <h1 id="viewTitle">展示规则</h1>
+
+    <span class="sp"></span>
+  </div>
+  <div class="content" id="content"></div>
+</main>
+
+<div class="mask" id="mask"></div>
+<div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="配置面板"></div>
+<div class="toast" id="toastEl" role="status" aria-live="polite"></div>
+<div class="cfmask" id="cfMask" onclick="if(event.target===this)cfClose()"><div class="cfbox" role="alertdialog" aria-modal="true" aria-labelledby="cfTitle"><h3 id="cfTitle">确认删除</h3><div class="cfmsg" id="cfMsg"></div><div class="cfacts"><button class="btn" type="button" id="cfCancel">取消</button><button class="btn danger" type="button" id="cfOk">确认删除</button></div></div></div>
+<div class="cfmask" id="ruleMask" onclick="if(event.target===this)ruleModalClose()"><div class="cfbox" role="dialog" aria-modal="true" aria-labelledby="ruleModalTitle">
+  <h3 id="ruleModalTitle"><span id="ruleModalTitleText">新增套餐规则</span><button type="button" class="cfclose" aria-label="关闭" onclick="ruleModalClose()">×</button></h3>
+  <div class="form">
+  <div class="form-item"><label>适用范围</label><select class="select" id="nrLevel" title="型号级仅对该型号生效；设备级对该设备全部型号生效" onchange="ruleRefSync()"><option>设备级</option><option>型号级</option></select></div>
+  <div class="form-item"><label>设备/型号</label><select class="select" id="nrRef"></select></div>
+  <div class="form-item"><label>维保类型</label><select class="select" id="nrMt" onchange="ruleCycleSync()"></select></div>
+  <div class="form-item" id="nrCycleGrp"><label>保养周期</label><select class="select" id="nrCycle"></select></div>
+  <div class="form-item"><label id="nrTargetLbl">套餐</label><select class="select" id="nrTarget"></select></div>
+  <div class="form-item" id="nrQtyModeGrp"><label>数量来源</label><select class="select" id="nrQtyMode"><option value="fixed">固定数量</option><option value="auto_cylinder">按缸数自动</option><option value="auto_per_2cylinder">每2缸自动</option></select></div>
+  <div class="form-item" id="nrQtyGrp"><label>默认数量</label><input class="txt" id="nrQty" type="number" min="1" value="1" style="width:160px"></div>
+  </div>
+  <div class="cfacts"><button class="btn" type="button" onclick="ruleModalClose()">取消</button><button class="btn pri" type="button" id="ruleOk" onclick="saveRule()">保存</button></div>
+</div></div>
+<script src="assets/data.js"></script>
+<script src="assets/core.js"></script>
+<script src="js/rule.js"></script>
+<script>boot();</script>
+</body>
+</html>

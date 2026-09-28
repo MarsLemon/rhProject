@@ -1,0 +1,549 @@
+{
+  "info": {
+    "_postman_id": "0c59ff54-8b5a-40fa-b0c7-6d0d6b327cbd",
+    "name": "厂家字典接口（wk-customer-pricing）",
+    "description": "厂家字典 6 个接口的 Postman 集合，与《docs/api/manufacturer/厂家接口对接文档.md》同步维护。\n\n**使用说明**\n\n1. 先在集合 Variables 中按环境修改 `baseUrl`（默认 `http://localhost:8031`）；\n2. 鉴权已统一预置：集合级 Authorization 头直接携带裸 token（无 Bearer 前缀），取变量 `{{token}}`，全部请求自动继承；token 过期（401/无权限）时，只需在集合 Variables 中替换 `token` 一个变量；\n3. 每个请求已内置测试脚本：断言 HTTP 200 且 `code=00000000`；\n4. 建议顺序：新增 → 列表 → 重命名 → 停用/启用 → 删除。\n\n业务规则速记：编码 M+4位系统生成不可传参；中文名精确唯一；停用只影响下拉可见性；删除为逻辑删除（型号关联校验待型号模块）。",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "key",
+        "value": "Authorization",
+        "type": "string"
+      },
+      {
+        "key": "value",
+        "value": "{{token}}",
+        "type": "string"
+      },
+      {
+        "key": "in",
+        "value": "header",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "1. 厂家列表（含停用）",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/web/manufacturer/list?keyword=man",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "web",
+            "manufacturer",
+            "list"
+          ],
+          "query": [
+            {
+              "key": "keyword",
+              "value": "man",
+              "description": "关键词：编码/中文名/英文名，不区分大小写；不传返回全量"
+            }
+          ]
+        },
+        "description": "后台字典维护视图：全量厂家（含停用，置灰标识），按编码升序，平铺列表。"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"业务成功 code=00000000\", function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.code).to.eql(\"00000000\");",
+              "});"
+            ]
+          }
+        }
+      ],
+      "response": [
+        {
+          "name": "成功示例-含停用项",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/web/manufacturer/list?keyword=man",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "web",
+                "manufacturer",
+                "list"
+              ],
+              "query": [
+                {
+                  "key": "keyword",
+                  "value": "man",
+                  "description": "关键词：编码/中文名/英文名，不区分大小写；不传返回全量"
+                }
+              ]
+            },
+            "description": "后台字典维护视图：全量厂家（含停用，置灰标识），按编码升序，平铺列表。"
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"code\": \"00000000\",\n  \"msg\": \"success\",\n  \"data\": [\n    {\n      \"id\": 1,\n      \"code\": \"M0001\",\n      \"name\": \"HD HYUNDAI\",\n      \"nameEn\": \"HYUNDAI HEAVY INDUSTRIES\",\n      \"status\": 1,\n      \"updateTime\": \"2026/09/03 10:30:00\",\n      \"updateBy\": \"张三\"\n    },\n    {\n      \"id\": 2,\n      \"code\": \"M0002\",\n      \"name\": \"MAN B&W\",\n      \"nameEn\": \"MAN B&W\",\n      \"status\": 0,\n      \"updateTime\": \"2026/09/03 11:00:00\",\n      \"updateBy\": \"张三\"\n    }\n  ]\n}"
+        }
+      ]
+    },
+    {
+      "name": "2. 新增厂家",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/web/manufacturer/add",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "web",
+            "manufacturer",
+            "add"
+          ]
+        },
+        "description": "新增厂家：中文名必填 1~100 字且精确唯一；编码系统生成（返回 code）。失败：803120202 中文名重复 / 803120201 编码冲突。",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"CSSC\",\n  \"nameEn\": \"CHINA STATE SHIPBUILDING\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"业务成功 code=00000000\", function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.code).to.eql(\"00000000\");",
+              "});"
+            ]
+          }
+        }
+      ],
+      "response": [
+        {
+          "name": "成功示例",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/web/manufacturer/add",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "web",
+                "manufacturer",
+                "add"
+              ]
+            },
+            "description": "新增厂家：中文名必填 1~100 字且精确唯一；编码系统生成（返回 code）。失败：803120202 中文名重复 / 803120201 编码冲突。",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"CSSC\",\n  \"nameEn\": \"CHINA STATE SHIPBUILDING\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"code\": \"00000000\",\n  \"msg\": \"success\",\n  \"data\": {\n    \"id\": 3,\n    \"code\": \"M0003\"\n  }\n}"
+        }
+      ]
+    },
+    {
+      "name": "3. 重命名",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/web/manufacturer/rename",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "web",
+            "manufacturer",
+            "rename"
+          ]
+        },
+        "description": "重命名：仅改中英文名；name 不得与其他厂家重复；nameEn 传空清空；编码不可改。",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": 2,\n  \"name\": \"MAN Energy Solutions\",\n  \"nameEn\": \"MAN ENERGY SOLUTIONS\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"业务成功 code=00000000\", function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.code).to.eql(\"00000000\");",
+              "});"
+            ]
+          }
+        }
+      ],
+      "response": [
+        {
+          "name": "成功示例（data 为 null）",
+          "originalRequest": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/web/manufacturer/rename",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "web",
+                "manufacturer",
+                "rename"
+              ]
+            },
+            "description": "重命名：仅改中英文名；name 不得与其他厂家重复；nameEn 传空清空；编码不可改。",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 2,\n  \"name\": \"MAN Energy Solutions\",\n  \"nameEn\": \"MAN ENERGY SOLUTIONS\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"code\": \"00000000\",\n  \"msg\": \"success\",\n  \"data\": null\n}"
+        }
+      ]
+    },
+    {
+      "name": "4. 启用/停用",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/web/manufacturer/change-status",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "web",
+            "manufacturer",
+            "change-status"
+          ]
+        },
+        "description": "启用/停用：status 仅 1/0；停用后从 /list-enabled 消失（下拉不可选），已关联型号不受影响；可重新启用。",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": 2,\n  \"status\": 0\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"业务成功 code=00000000\", function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.code).to.eql(\"00000000\");",
+              "});"
+            ]
+          }
+        }
+      ],
+      "response": [
+        {
+          "name": "成功示例（data 为 null）",
+          "originalRequest": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/web/manufacturer/change-status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "web",
+                "manufacturer",
+                "change-status"
+              ]
+            },
+            "description": "启用/停用：status 仅 1/0；停用后从 /list-enabled 消失（下拉不可选），已关联型号不受影响；可重新启用。",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 2,\n  \"status\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"code\": \"00000000\",\n  \"msg\": \"success\",\n  \"data\": null\n}"
+        }
+      ]
+    },
+    {
+      "name": "5. 删除厂家",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/web/manufacturer/delete/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "web",
+            "manufacturer",
+            "delete",
+            ":id"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "3",
+              "description": "待删除厂家 id"
+            }
+          ]
+        },
+        "description": "逻辑删除。「被型号关联不可删」校验待型号模块补充，删除前请人工确认无型号引用。失败：803120200 不存在。"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"业务成功 code=00000000\", function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.code).to.eql(\"00000000\");",
+              "});"
+            ]
+          }
+        }
+      ],
+      "response": [
+        {
+          "name": "成功示例（data 为 null）",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/web/manufacturer/delete/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "web",
+                "manufacturer",
+                "delete",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "3",
+                  "description": "待删除厂家 id"
+                }
+              ]
+            },
+            "description": "逻辑删除。「被型号关联不可删」校验待型号模块补充，删除前请人工确认无型号引用。失败：803120200 不存在。"
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"code\": \"00000000\",\n  \"msg\": \"success\",\n  \"data\": null\n}"
+        }
+      ]
+    },
+    {
+      "name": "6. 前台启用厂家列表",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/web/portal/manufacturer/list-enabled",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "web",
+            "portal",
+            "manufacturer",
+            "list-enabled"
+          ]
+        },
+        "description": "启用厂家列表：型号维护「制造厂家」多选与询价页厂家下拉共用（R-03/R-04），按中文名升序，无状态/操作人字段。"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"业务成功 code=00000000\", function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.code).to.eql(\"00000000\");",
+              "});"
+            ]
+          }
+        }
+      ],
+      "response": [
+        {
+          "name": "成功示例-仅启用",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/web/portal/manufacturer/list-enabled",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "web",
+                "portal",
+                "manufacturer",
+                "list-enabled"
+              ]
+            },
+            "description": "启用厂家列表：型号维护「制造厂家」多选与询价页厂家下拉共用（R-03/R-04），按中文名升序，无状态/操作人字段。"
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"code\": \"00000000\",\n  \"msg\": \"success\",\n  \"data\": [\n    {\n      \"id\": 1,\n      \"code\": \"M0001\",\n      \"name\": \"HD HYUNDAI\",\n      \"nameEn\": \"HYUNDAI HEAVY INDUSTRIES\"\n    },\n    {\n      \"id\": 3,\n      \"code\": \"M0003\",\n      \"name\": \"CSSC\",\n      \"nameEn\": \"CHINA STATE SHIPBUILDING\"\n    }\n  ]\n}"
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8031",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyQ29kZSI6IlVDMDAwMDAwMDA1OCIsInRva2VuVmVyc2lvbiI6IjE3ODg0MjIzNTEyOTQiLCJwbGF0Zm9ybSI6InBjIiwiYXBwIjoid2stYml6LW1pZGRsZSIsInVzZXJPcmlnaW4iOiJpbnRlcm5hbC11c2VyIiwiZXhwIjoxNzg5Mjg2MzUxfQ.t1CVsmUiTth5QL5oDiLgrT6eYBg1FC6MgVwv8tHwO0Y",
+      "type": "string",
+      "description": "平台登录 JWT，直接作为 Authorization 头原始值（无 Bearer 前缀）。过期后仅需替换本变量值。"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>客户定价 · 站点入口</title>
+<link rel="stylesheet" href="admin/assets/style.css">
+<style>
+  .entry-wrap{flex:1;min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg-layout)}
+  .entry-card{background:#fff;border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-card);padding:40px 48px;width:520px}
+  .entry-card h1{font-size:20px;margin:0 0 6px}
+  .entry-card .sub{color:var(--text-3);font-size:13px;margin-bottom:28px}
+  .entry-list{display:flex;flex-direction:column;gap:12px}
+  .entry-item{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border:1px solid var(--border);border-radius:var(--r);text-decoration:none;color:var(--text);transition:border-color .2s,box-shadow .2s}
+  .entry-item:hover{border-color:var(--p);box-shadow:0 0 0 2px rgba(22,119,255,.08)}
+  .entry-item .name{font-weight:600}
+  .entry-item .desc{color:var(--text-3);font-size:12px;margin-top:2px;display:block}
+  .entry-item .go{color:var(--p);font-size:13px}
+</style>
+</head>
+<body>
+<div class="entry-wrap">
+  <div class="entry-card">
+    <h1>客户定价</h1>
+    <div class="sub">前台客户演示（H5 / PC）与后台管理系统入口</div>
+    <div class="entry-list">
+      <a class="entry-item" href="front/客户定价demo-h5-v8.html">
+        <span><span class="name">前台 · H5 演示</span><span class="desc">客户视角 · 移动端</span></span>
+        <span class="go">进入 →</span>
+      </a>
+      <a class="entry-item" href="front/客户定价demo-PC-v2.html">
+        <span><span class="name">前台 · PC 演示</span><span class="desc">客户视角 · 桌面端</span></span>
+        <span class="go">进入 →</span>
+      </a>
+      <a class="entry-item" href="admin/preview.html">
+        <span><span class="name">后台管理系统</span><span class="desc">运营配置 · 定价管理</span></span>
+        <span class="go">进入 →</span>
+      </a>
+    </div>
+  </div>
+</div>
+</body>
+</html>

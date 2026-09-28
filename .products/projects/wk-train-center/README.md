@@ -1,133 +1,154 @@
 # wk-train-center(产品层主项目)
 
-> **产品代号**:wk-train-center
+> **项目代号**:wk-train-center
 > **职责**:跨代码仓的产品需求、用户故事、决策、变更日志
 > **Owner**:产品经理 agent
-> **最后更新**:2026-07-22(版本归集)
+> **最后更新**:2026-09-28(目录重构:组件 + 版本号二级结构)
 
 ---
 
 ## 当前状态
 
-| 维度         | 值                                                             |
-| ------------ | -------------------------------------------------------------- |
-| 当前发布版本 | `mobile1.1`(已发)                                            |
-| 当前开发版本 | `mobile1.2`(在途)                                            |
-| 主仓 git     | wk-train-center-service:`local/mobile1.2/fix`                |
-| 同期前端仓   | wk-train-center-ui:`local/mobile1.2/fix`                     |
-| 移动端仓     | wk-mhc-mobile:`train/mobile-v1.1/dev` ⚠️ 跟后端 1.2 不同步 |
+| 维度 | 值 |
+|---|---|
+| 最新发布版本 | v3(Vue3,持续补充中) + 1.5(Vue2 当前活跃) |
+| 主仓 git | `local/mobile1.2/fix`(后端) |
+| 前端 Vue2 | 1.5 活跃 |
+| 前端 Vue3 | v3 独立版本,持续补充 |
+| 移动端 | 1.5 跟随 |
 
-> ⚠️ 2026-07-22 摸底发现:**wk-mhc-mobile 实际在 mobile-v1.1**,主人说"current 是 mobile1.2"是训中心仓的口径。后续 wk-mhc-mobile 切 1.2 需主人单独确认。
+---
 
-## 文档结构(2026-07-22 归集后)
+## 版本跟踪表
+
+> 每次开新版本/更新版本,必须更新此表。
+> **归档** = 旧版本号 + `_archive` 后缀(如 `1.5_archive/`)
+
+### 当前活跃版本
+
+| 版本 | 状态 | 类型 | 组件 | git 分支 | 备注 |
+|---|---|---|---|---|---|
+| **1.5** | **当前活跃** | 产品 | backend / frontend (Vue2) / mobile | `local/mobile1.2/fix` | 对齐 mobile1.2 节奏 |
+| **v3** | **当前活跃** | 代号 | frontend (Vue3) | `master` | 持续补充,尚未完全顶替 v2 |
+
+### 历史版本(从 wk-train-center-backup 提取)
+
+| 版本 | 状态 | 类型 | 组件 | 备注 |
+|---|---|---|---|---|
+| 1.0 | 历史 | 产品 | backend / frontend (PC) | PC 端初始版 |
+| 1.1 | 历史 | 产品 | frontend (Vue2) | Vue2 早期 |
+| 1.2 | 历史 | 产品 | frontend (Vue2) | Vue2 中期 |
+| 1.3 | 历史 | 产品 | frontend (Vue2) | Vue2 后期 |
+| 1.4 | 历史 | 产品 | frontend (Vue2) | Vue2 末 |
+| mobile-v1.0 | 历史 | 产品 | mobile | 移动端初始 |
+| mobile-v1.1 | 历史 | 产品 | mobile | 移动端 (2026-07 中旬已发) |
+
+> ⚠️ v3 是**代号版本**(不是产品级 1.x 序列),与 1.1-1.5 并存。
+> ⚠️ 旧版本内容暂未迁移(按需从 backup 抽取)。
+
+---
+
+## 目录结构
 
 ```
 wk-train-center/
-├── README.md                       # 本文件
-├── PRD.md → docs/PRD.md           # 产品需求文档(跨版本,留根)
-├── changelog.md → docs/changelog.md
-├── design/                         # 短期:按版本归集
-│   ├── README.md                   # 🆕 命名规则 + 索引
-│   ├── mobile1.1/
-│   │   └── 2026-07-14-self-ai-gateway(claude)/   # 7-14 self-ai-gateway 完整设计包
-│   ├── mobile1.2/
-│   │   └── 2026-07-15-student-frontend-migration(claude).md
-│   └── _legacy/                    # 7-14 之前的散落设计(暂存,后续归档判定)
-│       └── 2026-07-14-self-ai-gateway(qoder)/
-├── docs/                           # 长期:跨版本产物,留根
-│   ├── PRD.md
-│   ├── changelog.md
-│   ├── architecture/               # 架构文档
-│   ├── decisions/                  # ADR
-│   └── user-stories/               # 用户故事
-├── iterations/                     # 短期:按版本归集
-│   └── README.md                   # 🆕 命名规则(空目录,等填)
-├── plans/                           # 后续项目计划统一入口
-│   └── README.md                   # 计划命名、版本归集与写作规范
-├── reviews/                        # 短期:按版本归集
-│   ├── README.md                   # 🆕 命名规则 + 归集判定原则
-│   ├── mobile1.1/                  # 7-15 ~ 7-17 评审
-│   ├── mobile1.2/                  # 7-22 评审
-│   └── _archive/                   # 7-10 之前历史
-└── tasks/                          # 短期:按版本归集
-    ├── README.md                   # 🆕 命名规则
-    ├── task_plan.md                # 跨版本调研产物
-    ├── mobile1.1/                  # 7-17 起,AI 模块改造 7 任务
-    ├── mobile1.2/                  # 7-14 起,自建 AI 网关统一计划
-    └── 2026-07-09-tech-debt-*.{md,json}   # 留根(待主人 confirm 归 mobile1.2)
+├── README.md                # 本文件(集合说明 + 版本跟踪表)
+├── _index.md                # 组件索引(快速导航)
+│
+├── backend/                 # 组件 1:后端
+│   ├── README.md
+│   ├── 1.0/                 # 版本号目录(组件下先跟版本号)
+│   ├── 1.5/                 # 当前版本
+│   │   ├── docs/            # 文档类型
+│   │   ├── plans/
+│   │   ├── reviews/
+│   │   ├── tasks/
+│   │   ├── db/              # 后端专属:SQL 资产
+│   │   └── *.md
+│   └── 1.5_archive/         # 历史版本(归档 B 策略)
+│
+├── frontend/                # 组件 2:前端(Vue2 + Vue3)
+│   ├── README.md
+│   ├── 1.1/                 # Vue2 早期版本
+│   ├── 1.2/                 # Vue2 中期
+│   ├── 1.5/                 # Vue2 当前
+│   └── v3/                  # Vue3 独立版本(代号)
+│
+├── mobile/                  # 组件 3:移动端
+│   ├── README.md
+│   └── 1.5/
+│
+├── pptist/                  # 组件 4:PPT 工具(注意:pptist 不是 ppt)
+│   ├── README.md
+│   └── 1.0/
+│
+└── origin/                  # 组件 5:原始资料(跨版本不变)
+    ├── README.md
+    └── 1.0/
+        ├── PRD.md           # 原始 PRD
+        ├── strategy.md      # 产品定位/战略
+        ├── index.md         # 反向索引(哪个版本改了什么)
+        └── user-guide.md    # 用户说明书
 ```
 
 ---
 
-## 命名规范(主人 2026-07-22 拍板)
+## 命名规范
 
-### 版本子目录命名
+### 版本号
 
-| 节奏                | 子目录命名                         | 示例                  | Git 分支                  |
-| ------------------- | ---------------------------------- | --------------------- | ------------------------- |
-| PC/web 端           | `1.x/`                           | `tasks/1.2/`        | `local/1.2/dev`         |
-| **Mobile 端** | **`mobile1.x/`(无连字符)** | `tasks/mobile1.2/`  | `local/mobile-v1.2/dev` |
-| 旧/历史             | `_archive/`                      | `reviews/_archive/` | 任意                      |
-| 跨版本/长期         | 留根                               | `docs/PRD.md`       | —                        |
+| 类型 | 命名 | 示例 | 备注 |
+|---|---|---|---|
+| 产品级版本 | `{主}.{次}` | 1.0 / 1.5 / 2.0 | 全产品对齐 |
+| 代号版本 | `v{代号}` | v3 (Vue3) | 单组件代号,持续补充 |
+| 历史归档 | `{版本号}_archive/` | 1.5_archive/ | **B 策略**:加后缀 |
 
-**禁用**:
+### 文档类型
 
-- ❌ `mobile-1.x/`(db/ 老命名,2026-07-22 改完)
-- ❌ `mobile-v1.x/`(只用于 Git 分支)
-- ❌ `v1.x/`(VERSION_GUIDE 老规范,已废)
+每个版本号目录下,文档分类型:
 
-### 归集判定原则(给 reviews/tasks/design 写)
+| 类型 | 用途 |
+|---|---|
+| `docs/` | 长期:跨版本产物 |
+| `plans/` | 项目计划 |
+| `reviews/` | 评审报告 |
+| `tasks/` | 任务清单 |
+| `db/` | 后端专属:SQL 资产 |
 
-> 同一时间窗口 → 一个版本
-> 主体归属 = 子仓 `git branch --show-current` 在该窗口的实际值
+### 组件代码代号
 
-具体:
-
-- 7-15 ~ 7-17 期间 wk-train-center-service 是 `local/mobile-v1.1/dev` → 归 `mobile1.1/`
-- 7-22 起 wk-train-center-service 切到 `local/mobile1.2/fix` → 归 `mobile1.2/`
-- 跨多版本的整体性任务 → 跟当前版本走
-- 时间线判定不确定 → 留根,主人后续 review
-
----
-
-## 长期 vs 短期产物(放哪)
-
-| 类型               | 放哪                                             | 例子                                 |
-| ------------------ | ------------------------------------------------ | ------------------------------------ |
-| PRD                | docs/ 根                                         | docs/PRD.md                          |
-| 架构文档           | docs/architecture/                               | docs/architecture/cqrs.md            |
-| ADR                | docs/decisions/                                  | docs/decisions/2026-06-24-*.md       |
-| 长期变更日志       | docs/changelog.md                                | docs/changelog.md                    |
-| 用户故事           | docs/user-stories/                               | docs/user-stories/2026-07-15-*.md    |
-| **设计稿**   | **design/{version}/**                      | design/mobile1.2/2026-07-15-*.md     |
-| **评审报告** | **reviews/{version}/**                     | reviews/mobile1.2/2026-07-22-*.md    |
-| **项目计划** | **plans/{version}/**；跨版本留 `plans/` 根 | plans/mobile1.2/2026-07-22-*.md       |
-| 历史任务资料       | tasks/{version}/                                 | tasks/mobile1.2/2026-07-14-*.md      |
-| **迭代记录** | **iterations/{version}/**                  | iterations/mobile1.2/2026-07-22-*.md |
-
-**判定铁律**:**跨版本仍有效 → 留根;只服务某一版本 → 入版本子目录**。
+- `backend` ← 原 wk-train-center-service
+- `frontend` ← 原 wk-train-center-ui(Vue2) + wk-train-center-ui-v3(Vue3 合并)
+- `mobile` ← 原 wk-mhc-mobile
+- `pptist` ← 原 wk-PPTist-ui(全名,不是 ppt)
+- `origin` ← 原始资料(产品说明/战略/反向索引)
 
 ---
 
-## 关联仓(技术层)
+## bug 版本分支(临时)
 
-| 仓                      | 角色         | 当前                           | docs/ 入口                                                                |
-| ----------------------- | ------------ | ------------------------------ | ------------------------------------------------------------------------- |
-| wk-train-center-service | 后端 Java    | `local/mobile1.2/fix`        | [.products/projects/wk-train-center-service/](../wk-train-center-service/) |
-| wk-train-center-ui      | PC 前端 Vue2 | `local/mobile1.2/fix`        | [.products/projects/wk-train-center-ui/](../wk-train-center-ui/)           |
-| wk-train-center-ui-v3   | PC 前端 Vue3 | `master`                     | [.products/projects/wk-train-center-ui-v3/](../wk-train-center-ui-v3/)     |
-| wk-mhc-mobile           | H5 移动端    | `train/mobile-v1.1/dev` ⚠️ | [.products/projects/wk-mhc-mobile/](../wk-mhc-mobile/)                     |
+> 产品级版本号对齐,但 bug 可能单开分支:
+> - 例:`1.5_bugfix-001/` 临时目录(归档后合并回主版本)
+
+---
+
+## 反向索引(origin/1.0/index.md)
+
+> 关键:**哪个版本改了前后端**,由 `origin/1.0/index.md` 统一索引。
+> 读时定位:`origin/1.0/index.md` → 看"v1.5 改了 backend 的 docs/,frontend 的 plans/..."
+
+---
+
+## 历史回退
+
+| 状态 | 文件 |
+|---|---|
+| 重构前 wk-train-center | `.products/projects/wk-train-center-backup/` |
 
 ---
 
 ## 引用
 
-- 整体规范:[.products/README.md](../../README.md)
-- 设计稿归集规则:[design/README.md](design/README.md)
-- 评审归集规则:[reviews/README.md](reviews/README.md)
-- 项目计划规范:[plans/README.md](plans/README.md)
-- 历史任务归集规则:[tasks/README.md](tasks/README.md)
-- 版本号权威源:子仓 `git branch --show-current`(2026-07-14 主人铁律)
-- version-registry:[docs/version-registry.json](docs/version-registry.json) 🆕
-- SPEC 文档:[.products/specs/2026-07-22-products-projects-version-aggregation-design.md](../../specs/2026-07-22-products-projects-version-aggregation-design.md)
-- 链接断裂报告:[LINK-BREAKAGE.md](LINK-BREAKAGE.md) 🆕
+- 主公全局硬约束:`C:\Users\RUHAI\.claude\CLAUDE.md` §8
+- 项目级 hook:`E:\rhProject\.products\CLAUDE.md`
+- 工作区总览:`E:\rhProject\.products\README.md`

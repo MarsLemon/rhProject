@@ -1,0 +1,863 @@
+{
+  "info": {
+    "_postman_id": "bbe2ae1d-6303-4fa1-b8ce-b9b32269defe",
+    "name": "设备分类树接口（wk-customer-pricing）",
+    "description": "设备分类树 9 个接口的 Postman 集合，与《docs/api/equipment-category/设备分类接口对接文档.md》同步维护。\n\n**使用说明**\n\n1. 先在集合 Variables 中按环境修改 `baseUrl`（默认 `http://localhost:8031`）；\n2. 鉴权已统一预置：集合级 Authorization 头直接携带裸 token（无 Bearer 前缀），取变量 `{{token}}`，全部请求自动继承；token 过期（401/无权限）时，只需在集合 Variables 中替换 `token` 一个变量；\n3. 每个请求已内置测试脚本：断言 HTTP 200 且 `code=00000000`；\n4. 建议按顺序执行：新增一级分类 → 新增子分类 → 重命名 → 排序 → 停用/启用 → 详情 → 删除；tree/nav-tree/search 可随时执行。\n\n业务规则速记：编码/层级服务端生成不可传参；停用传递隐藏子孙；删除仅空节点；层级上限 5。",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "后台管理 /web/equipment-category",
+      "description": "PC 后台维护接口，需要登录态 + 方法级权限点（pricing:web:equipment-category:*）。",
+      "item": [
+        {
+          "name": "1. 后台分类树（含停用）",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/web/equipment-category/tree",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "web",
+                "equipment-category",
+                "tree"
+              ]
+            },
+            "description": "后台维护主视图：返回全量分类（含停用节点，前端置灰标识），同级按 sortOrder 升序，children 嵌套、叶子为 []。"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"业务成功 code=00000000\", function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.code).to.eql(\"00000000\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "成功示例-含停用节点",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/web/equipment-category/tree",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "web",
+                    "equipment-category",
+                    "tree"
+                  ]
+                },
+                "description": "后台维护主视图：返回全量分类（含停用节点，前端置灰标识），同级按 sortOrder 升序，children 嵌套、叶子为 []。"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"00000000\",\n  \"msg\": \"success\",\n  \"data\": [\n    {\n      \"id\": 6,\n      \"parentId\": null,\n      \"code\": \"6\",\n      \"name\": \"机械设备主要部件\",\n      \"nameEn\": \"MECHANICAL EQUIPMENT MAIN COMPONENTS\",\n      \"level\": 1,\n      \"sortOrder\": 0,\n      \"status\": 1,\n      \"children\": [\n        {\n          \"id\": 61,\n          \"parentId\": 6,\n          \"code\": \"6.001\",\n          \"name\": \"推进用柴油机\",\n          \"nameEn\": \"PROPULSION DIESEL ENGINE\",\n          \"level\": 2,\n          \"sortOrder\": 0,\n          \"status\": 1,\n          \"children\": [\n            {\n              \"id\": 611,\n              \"parentId\": 61,\n              \"code\": \"6.001.001\",\n              \"name\": \"主机柴油机\",\n              \"nameEn\": \"MAIN DIESEL ENGINE\",\n              \"level\": 3,\n              \"sortOrder\": 0,\n              \"status\": 1,\n              \"children\": []\n            }\n          ]\n        },\n        {\n          \"id\": 62,\n          \"parentId\": 6,\n          \"code\": \"6.002\",\n          \"name\": \"发电机组\",\n          \"nameEn\": \"GENERATOR SET\",\n          \"level\": 2,\n          \"sortOrder\": 1,\n          \"status\": 0,\n          \"children\": []\n        }\n      ]\n    },\n    {\n      \"id\": 7,\n      \"parentId\": null,\n      \"code\": \"7\",\n      \"name\": \"管路及阀件系统\",\n      \"nameEn\": \"PIPING AND VALVES\",\n      \"level\": 1,\n      \"sortOrder\": 1,\n      \"status\": 1,\n      \"children\": []\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "2. 新增分类",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/web/equipment-category/add",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "web",
+                "equipment-category",
+                "add"
+              ]
+            },
+            "description": "新增分类：parentId 为空/null=新增一级分类；编码与层级由服务端生成（返回 code）；sortOrder 不传自动追加同级末尾。\n\n失败：803120102 父级不存在 / 803120103 层级超上限(5) / 803120101 编码冲突。",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"parentId\": null,\n  \"name\": \"电气设备\",\n  \"nameEn\": \"ELECTRICAL EQUIPMENT\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"业务成功 code=00000000\", function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.code).to.eql(\"00000000\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "示例1-新增一级分类",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/web/equipment-category/add",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "web",
+                    "equipment-category",
+                    "add"
+                  ]
+                },
+                "description": "新增分类：parentId 为空/null=新增一级分类；编码与层级由服务端生成（返回 code）；sortOrder 不传自动追加同级末尾。\n\n失败：803120102 父级不存在 / 803120103 层级超上限(5) / 803120101 编码冲突。",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"parentId\": null,\n  \"name\": \"电气设备\",\n  \"nameEn\": \"ELECTRICAL EQUIPMENT\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"00000000\",\n  \"msg\": \"success\",\n  \"data\": {\n    \"id\": 8,\n    \"code\": \"8\"\n  }\n}"
+            },
+            {
+              "name": "示例2-新增子分类",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/web/equipment-category/add",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "web",
+                    "equipment-category",
+                    "add"
+                  ]
+                },
+                "description": "新增子分类",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"parentId\": 61,\n  \"name\": \"喷油器\",\n  \"nameEn\": \"FUEL INJECTOR\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"00000000\",\n  \"msg\": \"success\",\n  \"data\": {\n    \"id\": 612,\n    \"code\": \"6.001.002\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "3. 重命名",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/web/equipment-category/rename",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "web",
+                "equipment-category",
+                "rename"
+              ]
+            },
+            "description": "重命名：仅改中英文名；name 必填 1~100 字；nameEn 传空即清空；编码/层级/父级不可改。",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 7,\n  \"name\": \"管路及阀件系统\",\n  \"nameEn\": \"PIPING AND VALVE SYSTEM\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"业务成功 code=00000000\", function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.code).to.eql(\"00000000\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "成功示例（data 为 null）",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/web/equipment-category/rename",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "web",
+                    "equipment-category",
+                    "rename"
+                  ]
+                },
+                "description": "重命名：仅改中英文名；name 必填 1~100 字；nameEn 传空即清空；编码/层级/父级不可改。",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": 7,\n  \"name\": \"管路及阀件系统\",\n  \"nameEn\": \"PIPING AND VALVE SYSTEM\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"00000000\",\n  \"msg\": \"success\",\n  \"data\": null\n}"
+            }
+          ]
+        },
+        {
+          "name": "4. 启用/停用",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/web/equipment-category/change-status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "web",
+                "equipment-category",
+                "change-status"
+              ]
+            },
+            "description": "启用/停用：status 仅 1/0；停用后前台导航隐藏该节点及其全部子孙（后端查询侧传播）；可重新启用。",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 7,\n  \"status\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"业务成功 code=00000000\", function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.code).to.eql(\"00000000\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "成功示例（data 为 null）",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/web/equipment-category/change-status",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "web",
+                    "equipment-category",
+                    "change-status"
+                  ]
+                },
+                "description": "启用/停用：status 仅 1/0；停用后前台导航隐藏该节点及其全部子孙（后端查询侧传播）；可重新启用。",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": 7,\n  \"status\": 0\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"00000000\",\n  \"msg\": \"success\",\n  \"data\": null\n}"
+            }
+          ]
+        },
+        {
+          "name": "5. 同级排序",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/web/equipment-category/sort",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "web",
+                "equipment-category",
+                "sort"
+              ]
+            },
+            "description": "同级排序：拖拽结束后提交该父级下全部节点 id 的目标顺序（第 n 个 sort_order=n）。\n\n失败：803120106 节点不属于该父级 / 803120100 节点不存在。orderedIds 空数组=无操作直接成功。",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"parentId\": 6,\n  \"orderedIds\": [\n    62,\n    61\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"业务成功 code=00000000\", function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.code).to.eql(\"00000000\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "成功示例（data 为 null）",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/web/equipment-category/sort",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "web",
+                    "equipment-category",
+                    "sort"
+                  ]
+                },
+                "description": "同级排序：拖拽结束后提交该父级下全部节点 id 的目标顺序（第 n 个 sort_order=n）。\n\n失败：803120106 节点不属于该父级 / 803120100 节点不存在。orderedIds 空数组=无操作直接成功。",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"parentId\": 6,\n  \"orderedIds\": [\n    62,\n    61\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"00000000\",\n  \"msg\": \"success\",\n  \"data\": null\n}"
+            }
+          ]
+        },
+        {
+          "name": "6. 删除分类（仅空节点）",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/web/equipment-category/delete/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "web",
+                "equipment-category",
+                "delete",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "62",
+                  "description": "待删除节点 id"
+                }
+              ]
+            },
+            "description": "逻辑删除（state=3）：仅空节点可删。前端建议先本地预检 children.length>0 时禁用删除按钮。\n\n失败：803120104 存在子分类 / 803120100 节点不存在。"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"业务成功 code=00000000\", function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.code).to.eql(\"00000000\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "成功示例（data 为 null）",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/web/equipment-category/delete/:id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "web",
+                    "equipment-category",
+                    "delete",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "62",
+                      "description": "待删除节点 id"
+                    }
+                  ]
+                },
+                "description": "逻辑删除（state=3）：仅空节点可删。前端建议先本地预检 children.length>0 时禁用删除按钮。\n\n失败：803120104 存在子分类 / 803120100 节点不存在。"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"00000000\",\n  \"msg\": \"success\",\n  \"data\": null\n}"
+            }
+          ]
+        },
+        {
+          "name": "7. 详情回显",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/web/equipment-category/detail/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "web",
+                "equipment-category",
+                "detail",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "61",
+                  "description": "节点 id"
+                }
+              ]
+            },
+            "description": "详情回显：编辑表单只允许改 name/nameEn（走 rename 接口），code/level/parentId/status 仅展示。"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"业务成功 code=00000000\", function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.code).to.eql(\"00000000\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "成功示例",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/web/equipment-category/detail/:id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "web",
+                    "equipment-category",
+                    "detail",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "61",
+                      "description": "节点 id"
+                    }
+                  ]
+                },
+                "description": "详情回显：编辑表单只允许改 name/nameEn（走 rename 接口），code/level/parentId/status 仅展示。"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"00000000\",\n  \"msg\": \"success\",\n  \"data\": {\n    \"id\": 61,\n    \"parentId\": 6,\n    \"code\": \"6.001\",\n    \"name\": \"推进用柴油机\",\n    \"nameEn\": \"PROPULSION DIESEL ENGINE\",\n    \"level\": 2,\n    \"sortOrder\": 0,\n    \"status\": 1,\n    \"updateTime\": \"2026/09/03 10:30:00\",\n    \"updateBy\": \"张三\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "前台导航 /web/portal/equipment-category",
+      "description": "询价嵌入页接口，登录态即可，无细粒度权限点。",
+      "item": [
+        {
+          "name": "8. 前台导航树（仅启用）",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/web/portal/equipment-category/nav-tree",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "web",
+                "portal",
+                "equipment-category",
+                "nav-tree"
+              ]
+            },
+            "description": "前台询价页导航树：仅启用节点（停用节点及其子孙已剔除），字段比后台树少（无 parentId/sortOrder/status）。\n\nR-01：分类仅作导航，点击分类节点不进入询价、不产生价格；设备叶子由设备模块后续挂入 children。"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"业务成功 code=00000000\", function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.code).to.eql(\"00000000\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "成功示例-仅启用节点",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/web/portal/equipment-category/nav-tree",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "web",
+                    "portal",
+                    "equipment-category",
+                    "nav-tree"
+                  ]
+                },
+                "description": "前台询价页导航树：仅启用节点（停用节点及其子孙已剔除），字段比后台树少（无 parentId/sortOrder/status）。\n\nR-01：分类仅作导航，点击分类节点不进入询价、不产生价格；设备叶子由设备模块后续挂入 children。"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"00000000\",\n  \"msg\": \"success\",\n  \"data\": [\n    {\n      \"id\": 6,\n      \"code\": \"6\",\n      \"name\": \"机械设备主要部件\",\n      \"nameEn\": \"MECHANICAL EQUIPMENT MAIN COMPONENTS\",\n      \"level\": 1,\n      \"children\": [\n        {\n          \"id\": 61,\n          \"code\": \"6.001\",\n          \"name\": \"推进用柴油机\",\n          \"nameEn\": \"PROPULSION DIESEL ENGINE\",\n          \"level\": 2,\n          \"children\": [\n            {\n              \"id\": 611,\n              \"code\": \"6.001.001\",\n              \"name\": \"主机柴油机\",\n              \"nameEn\": \"MAIN DIESEL ENGINE\",\n              \"level\": 3,\n              \"children\": []\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"id\": 7,\n      \"code\": \"7\",\n      \"name\": \"管路及阀件系统\",\n      \"nameEn\": \"PIPING AND VALVES\",\n      \"level\": 1,\n      \"children\": []\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "9. 双语搜索",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/web/portal/equipment-category/search?keyword=diesel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "web",
+                "portal",
+                "equipment-category",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "keyword",
+                  "value": "diesel",
+                  "description": "关键词，匹配 编码/中文名/英文名，不区分大小写"
+                }
+              ]
+            },
+            "description": "前台双语搜索：返回平铺列表（非树），每项带 pathText 完整路径；前端防抖 300ms，空关键词切回整树。"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"业务成功 code=00000000\", function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.code).to.eql(\"00000000\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "成功示例-英文关键词命中",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/web/portal/equipment-category/search?keyword=diesel",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "web",
+                    "portal",
+                    "equipment-category",
+                    "search"
+                  ],
+                  "query": [
+                    {
+                      "key": "keyword",
+                      "value": "diesel",
+                      "description": "关键词，匹配 编码/中文名/英文名，不区分大小写"
+                    }
+                  ]
+                },
+                "description": "前台双语搜索：返回平铺列表（非树），每项带 pathText 完整路径；前端防抖 300ms，空关键词切回整树。"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": \"00000000\",\n  \"msg\": \"success\",\n  \"data\": [\n    {\n      \"id\": 611,\n      \"code\": \"6.001.001\",\n      \"name\": \"主机柴油机\",\n      \"nameEn\": \"Main Diesel Engine\",\n      \"level\": 3,\n      \"pathText\": \"机械设备主要部件 / 推进用柴油机 / 主机柴油机\"\n    }\n  ]\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8031",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyQ29kZSI6IlVDMDAwMDAwMDA1OCIsInRva2VuVmVyc2lvbiI6IjE3ODg0MjIzNTEyOTQiLCJwbGF0Zm9ybSI6InBjIiwiYXBwIjoid2stYml6LW1pZGRsZSIsInVzZXJPcmlnaW4iOiJpbnRlcm5hbC11c2VyIiwiZXhwIjoxNzg5Mjg2MzUxfQ.t1CVsmUiTth5QL5oDiLgrT6eYBg1FC6MgVwv8tHwO0Y",
+      "type": "string",
+      "description": "平台登录 JWT，直接作为 Authorization 头原始值（无 Bearer 前缀）。过期后仅需替换本变量值。"
+    }
+  ],
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "key",
+        "value": "Authorization",
+        "type": "string"
+      },
+      {
+        "key": "value",
+        "value": "{{token}}",
+        "type": "string"
+      },
+      {
+        "key": "in",
+        "value": "header",
+        "type": "string"
+      }
+    ]
+  }
+}
