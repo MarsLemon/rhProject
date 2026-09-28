@@ -4,31 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "812711a2a64d5979",
+        "id": "79441e26c0beb79e",
         "type": "tabs",
         "children": [
           {
-            "id": "f90d86dff9abf3a6",
+            "id": "899430bdeee94210",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "欢迎.md",
+                "file": "customer-pricing/backend/1.0/docs/船舶维保定价系统-开发需求文档.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "欢迎"
-            }
-          },
-          {
-            "id": "a41a9970d183812d",
-            "type": "leaf",
-            "state": {
-              "type": "empty",
-              "state": {},
-              "icon": "lucide-file",
-              "title": "新标签页"
+              "title": "船舶维保定价系统-开发需求文档"
             }
           }
         ]
@@ -51,7 +41,7 @@
               "type": "file-explorer",
               "state": {
                 "sortOrder": "alphabetical",
-                "autoReveal": false,
+                "autoReveal": true,
                 "showSearch": false,
                 "searchQuery": ""
               },
@@ -223,44 +213,44 @@
       "templater-obsidian:Templater": false
     }
   },
-  "active": "a84579d21184d1ad",
+  "active": "899430bdeee94210",
   "lastOpenFiles": [
+    "wk-mhc-ui/docs/changelog.md",
+    "wk-mhc-ui/docs/PRD.md",
+    "wk-train-center/backend/README.md",
+    "wk-train-center/_index.md",
+    "wk-train-center/LINK-BREAKAGE.md",
     "wk-train-center/BROKEN-LINKS-REPORT.md",
-    "wk-train-center/origin/1.0/docs/decisions/sedF7YqQe",
-    "wk-train-center/mobile/1.5/tasks/sedecWfWF",
-    "wk-train-center/mobile/1.5/tasks/sedsQF8AH",
-    "wk-train-center/mobile/1.5/tasks/sedwRBQJB",
-    "wk-train-center/mobile/1.5/reviews/sed0EraIf",
-    "wk-train-center/mobile/1.5/design/mobile1.1/2026-07-14-self-ai-gateway(claude)/sedTdLlin",
-    "wk-train-center/frontend/v3/docs/sedT2bsJQ",
-    "wk-train-center/frontend/v3/docs/sedbF4mPP",
-    "wk-train-center/frontend/v3/docs/audit-reports/sedtCfI7E",
-    "wk-train-center/frontend/v3/docs/audit-reports/sedCWYp1d",
-    "wk-train-center/origin/1.0/design/README.md",
-    "wk-train-center/origin/1.0/tasks/2026-07-09-tech-debt-data-table-api-func.md",
-    "wk-train-center/origin/1.0/tasks/task_plan.md",
-    "wk-train-center/origin/1.0/tasks/README.md",
-    "wk-train-center/origin/1.0/reviews/CONVENTIONS.md",
-    "wk-train-center/origin/1.0/reviews/README.md",
-    "wk-train-center/origin/1.0/plans/README.md",
-    "wk-train-center/origin/1.0/iterations/README.md",
-    "wk-train-center/origin/1.0/design/_legacy/README.md",
-    "wk-train-center/origin/1.0/design/_legacy/2026-07-14-self-ai-gateway(qoder)/final-plan(qoder).md",
-    "wk-train-center/origin/1.0/design/_legacy/2026-07-14-self-ai-gateway(qoder)/2026-07-14-ai-agent-gateway-v2-h5-migration(qoder).md",
-    "wk-train-center/backend/db/README.md",
-    "wk-train-center/backend/db/lint-report.md",
-    "wk-train-center/backend/db/GOVERNANCE.md",
-    "wk-train-center/tasks/README.md",
-    "wk-train-center/tasks/task_plan.md",
-    "wk-train-center/tasks/2026-07-09-tech-debt-data-table-api-func.md",
-    "wk-train-center/reviews/_archive/CONVENTIONS.md",
-    "wk-train-center/reviews/README.md",
-    "wk-train-center/frontend/1.5/reviews/2026-08-03-release-1.5-full-review-by-qoder.md",
-    "wk-train-center/backend/1.5/reviews/2026-08-03-release-1.5-full-review-by-qoder.md",
-    "wk-train-center/frontend/1.5.1/reviews/2026-08-04-plan-extend-makeup-v2-gap-review-by-claude.md",
-    "wk-train-center/frontend/1.5.1/reviews/2026-08-04-plan-extend-makeup-v4-gap-review-by-claude.md",
-    "wk-train-center/frontend/1.5.1/reviews/2026-08-04-plan-extend-makeup-v3-gap-review-by-claude.md",
-    "wk-train-center/frontend/1.5.1/reviews/2026-08-04-plan-extend-makeup-v5-gap-review-by-claude.md",
+    "wk-train-center/frontend/README.md",
+    "1.5/README.md",
+    "1.5",
+    "wk-train-center/README.md",
+    "wk-train-center/origin/1.0/index.md",
+    "customer-pricing/backend/1.0/docs.md",
+    "wk-train-center/pptist/1.0/docs/README_zh.md",
+    "wk-train-center/pptist/README.md",
+    "wk-train-center/backend/1.5/reviews/2026-07-24-文件读取问题驱动重构-计划v2复审-by-claude.md",
+    "wk-train-center/backend/1.5/db/README.md",
+    "wk-train-center/backend/1.5/db/ai/02_dml_ai_agent_init copy.sql",
+    "wk-train-center/backend/1.5/db/ai/01_ddl_ai_agent copy.sql",
+    "wk-train-center/backend/1.5/db/log/ddl.sql",
+    "wk-train-center/backend/1.5/db/plan copy/dml.sql",
+    "wk-train-center/backend/1.5/db/plan copy/ddl.sql",
+    "wk-train-center/backend/1.5/db/plan copy",
+    "wk-train-center/backend/1.5/db/notify",
+    "wk-train-center/backend/1.5/db/log copy/ddl.sql",
+    "wk-train-center/backend/1.5/db/log copy",
+    "wk-train-center/frontend/1.5/reviews/2026-08-04-plan-extend-makeup-v5-gap-review-by-claude.md",
+    "wk-train-center/frontend/1.5/reviews/2026-08-04-plan-extend-makeup-v4-gap-review-by-claude.md",
+    "wk-train-center/frontend/1.5/reviews/2026-08-04-plan-extend-makeup-v3-gap-review-by-claude.md",
+    "wk-train-center/frontend/1.5/reviews/2026-08-04-plan-extend-makeup-v2-gap-review-by-claude.md",
+    "wk-train-center/frontend/1.5/reviews/2026-08-04-plan-extend-makeup-gap-review-by-claude.md",
+    "wk-train-center/frontend/1.5/plans/一键延期补考功能_v2_集成 Bug 修复_and 评审意见.md",
+    "wk-train-center/frontend/1.5/plans/2026-08-04-延期补考交互设计.md",
+    "wk-train-center/backend/1.5/reviews/2026-08-04-plan-extend-makeup-v5-gap-review-by-claude.md",
+    "wk-train-center/backend/1.5/reviews/2026-08-04-plan-extend-makeup-v4-gap-review-by-claude.md",
+    "wk-train-center/backend/1.5/reviews/2026-08-04-plan-extend-makeup-v3-gap-review-by-claude.md",
+    "wk-train-center/backend/1.5/reviews/2026-08-04-plan-extend-makeup-v2-gap-review-by-claude.md",
     "未命名.canvas",
     "project/未命名.canvas"
   ]

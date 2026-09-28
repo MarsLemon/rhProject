@@ -4,6 +4,7 @@
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/Backend/customer-pricing" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Backend/supply" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/Backend/wk-train-center-service" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/Frontend/angular/marinsmart-msite-ui.git" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/Frontend/angular/marinsmart-v2.0-ui.git" vcs="Git" />

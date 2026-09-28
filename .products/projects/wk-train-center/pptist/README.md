@@ -19,7 +19,6 @@
 
 ```
 pptist/
-├── README.md          # 本文件
 └── 1.0/               # 当前版本
 ```
 
@@ -27,6 +26,5 @@ pptist/
 
 ## 引用
 
-- 集合 README:[../README.md](../README.md)
 - 集合索引:[../_index.md](../_index.md)
 - 当前版本:[1.0/](1.0/README.md)
