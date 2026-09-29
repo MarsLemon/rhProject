@@ -12,7 +12,7 @@
   "showQuickSwitcherIcons": true,
   "showMoveFileIcons": true,
   "showItemName": "desktop",
-  "biggerSearchResults": "mobile",
+  "useSearchKeywords": "on",
   "maxSearchResults": 50,
   "colorPicker1": "list",
   "colorPicker2": "rgb",
@@ -59,9 +59,6 @@
     "Inbox": {
       "icon": "lucide-folders"
     },
-    "Tags": {
-      "icon": "lucide-tag"
-    },
     "Tools": {
       "icon": "lucide-tool-case"
     },
@@ -96,5 +93,6 @@
   "propertyIcons": {},
   "ribbonIcons": {},
   "fileRules": [],
-  "folderRules": []
+  "folderRules": [],
+  "biggerSearchResults": "mobile"
 }

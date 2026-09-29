@@ -118,7 +118,7 @@
 
 ## 📸 截图示例
 
-![组件测试页面](./screenshots/test-components-demo.png)
+!<screenshot>
 
 ---
 

@@ -15,5 +15,7 @@
   "tag-wrangler",
   "obsidian-tasks-plugin",
   "templater-obsidian",
-  "word-reader"
+  "word-reader",
+  "find-unlinked-files",
+  "obsidian-dangling-links"
 ]

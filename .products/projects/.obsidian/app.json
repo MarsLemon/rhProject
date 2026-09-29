@@ -1,5 +1,9 @@
 {
   "strictLineBreaks": true,
   "showLineNumber": true,
-  "promptDelete": false
+  "promptDelete": true,
+  "alwaysUpdateLinks": true,
+  "showUnsupportedFiles": false,
+  "uriCallbacks": true,
+  "newLinkFormat": "absolute"
 }

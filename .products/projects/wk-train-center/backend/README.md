@@ -50,4 +50,4 @@ backend/
 
 - 集合 README:[../README.md](../README.md)
 - 集合索引:[../_index.md](../_index.md)
-- 当前版本:[1.5/](1.5/README.md)
+- 当前版本:1.5 README

@@ -1,3 +1,7 @@
 {
-  "accentColor": "#008c8c"
+  "accentColor": "#008c8c",
+  "cssTheme": "Solarized",
+  "interfaceFontFamily": "微软雅黑,宋体,楷体",
+  "baseFontSize": 20,
+  "nativeMenus": true
 }

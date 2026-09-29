@@ -60,10 +60,10 @@ cd e:\rhProject\scripts && run-extension-test.bat
 - 🤖 **<deleted>**  
   → 7 种运行模式详解 + CI/CD集成示例
 
-- 🎮 [`test/extend-makeup.spec.ts`](./test/extend-makeup.spec.ts)  
+- 🎮 <test/extend-makeup.spec.ts>  
   → 可直接运行的 Playwright 脚本（332 行 TypeScript）
 
-- 🚀 [`scripts/run-extension-test.bat`](../../scripts/run-extension-test.bat)  
+- 🚀 <scripts/run-extension-test.bat>  
   → Windows 一键启动工具（批处理脚本）
 
 **预计时间**: 首次安装 10 分钟 | 后续回归每轮 5 分钟
@@ -120,8 +120,8 @@ cd e:\rhProject\scripts && run-extension-test.bat
 
 | # | 文件名 | 语言 | 行数 | 用途 | 推荐指数 |
 |---|--------|------|------|------|---------|
-| 1 | [test/extend-makeup.spec.ts](./test/extend-makeup.spec.ts) | TypeScript | 332 | Playwright 脚本 | ⭐⭐⭐⭐⭐ |
-| 2 | [scripts/run-extension-test.bat](../../scripts/run-extension-test.bat) | Batch | 233 | 一键启动器 | ⭐⭐⭐⭐ |
+| 1 | <test/extend-makeup.spec.ts> | TypeScript | 332 | Playwright 脚本 | ⭐⭐⭐⭐⭐ |
+| 2 | <scripts/run-extension-test.bat> | Batch | 233 | 一键启动器 | ⭐⭐⭐⭐ |
 
 **总计**: 11 个文件，约 **3,950 行** 高质量文档和代码
 

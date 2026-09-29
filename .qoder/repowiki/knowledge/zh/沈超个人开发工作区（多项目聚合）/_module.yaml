@@ -1,0 +1,11 @@
+schema_version: 1
+module_path: ""
+title: 沈超个人开发工作区（多项目聚合）
+scope:
+    - .code-workspace
+    - .gitignore
+    - AGENTS.md
+    - CLAUDE.md
+source_files: []
+depends_on: []
+related_to: []

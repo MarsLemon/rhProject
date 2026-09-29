@@ -52,7 +52,7 @@ wk-train-center-ui-v3/
 
 | 角色 | 项目 |
 |---|---|
-| 产品 | [.products/projects/wk-train-center/](../wk-train-center/) |
+| 产品 | [.products/projects/wk-train-center/](../../) |
 | 后端 | [.products/projects/wk-train-center-service/](../wk-train-center-service/) |
 | Vue2 老前端(被替代) | [.products/projects/wk-train-center-ui/](../wk-train-center-ui/) |
 | 移动端 | [.products/projects/wk-mhc-mobile/](../wk-mhc-mobile/) |

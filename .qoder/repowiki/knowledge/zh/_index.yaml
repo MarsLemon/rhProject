@@ -1,0 +1,29 @@
+# 知识卡导出索引文件
+schema_version: 1
+locale: zh-CN
+branch: main
+nodes_managed: true
+exported_at: "2026-09-28T10:19:04Z"
+modules:
+    "":
+        dir_name: 沈超个人开发工作区（多项目聚合）
+        title: 沈超个人开发工作区（多项目聚合）
+        scope:
+            - .code-workspace
+            - .gitignore
+            - AGENTS.md
+            - CLAUDE.md
+        source_files: []
+        children:
+            - knowledge_base
+        depends_on: []
+        related_to: []
+    knowledge_base:
+        dir_name: Thinkpad 本地知识库 (Obsidian Vault)
+        title: Thinkpad 本地知识库 (Obsidian Vault)
+        scope:
+            - Thinkpad/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []

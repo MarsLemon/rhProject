@@ -4,21 +4,31 @@
     "type": "split",
     "children": [
       {
-        "id": "79441e26c0beb79e",
+        "id": "1b9a00d132053cb8",
         "type": "tabs",
         "children": [
           {
-            "id": "899430bdeee94210",
+            "id": "7f93238c52f13cb4",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "customer-pricing/backend/1.0/docs/船舶维保定价系统-开发需求文档.md",
+                "file": "customer-pricing/backend/1.0/reports/three-pricing-methods-requirement-draft-v5.md",
                 "mode": "source",
-                "source": false
+                "source": false,
+                "backlinks": true,
+                "backlinkOpts": {
+                  "collapseAll": false,
+                  "extraContext": false,
+                  "sortOrder": "alphabetical",
+                  "showSearch": false,
+                  "searchQuery": "",
+                  "backlinkCollapsed": false,
+                  "unlinkedCollapsed": true
+                }
               },
               "icon": "lucide-file",
-              "title": "船舶维保定价系统-开发需求文档"
+              "title": "three-pricing-methods-requirement-draft-v5"
             }
           }
         ]
@@ -80,7 +90,7 @@
             }
           },
           {
-            "id": "ce19dd0968189463",
+            "id": "67d281723dab8072",
             "type": "leaf",
             "state": {
               "type": "mk-path-view",
@@ -93,7 +103,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 454.5
   },
   "right": {
     "id": "9a1d359c5b096d72",
@@ -109,7 +119,6 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "未命名.canvas",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -119,7 +128,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "未命名 的反向链接列表"
+              "title": "反向链接"
             }
           },
           {
@@ -128,12 +137,11 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "未命名.canvas",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "未命名 的出链列表"
+              "title": "出链"
             }
           },
           {
@@ -171,13 +179,12 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "未命名.canvas",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "未命名 的大纲"
+              "title": "大纲"
             }
           },
           {
@@ -190,67 +197,487 @@
               "title": "Calendar"
             }
           }
+        ],
+        "currentTab": 4
+      },
+      {
+        "id": "c9abc503071b03ad",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "9ca21da0a6685857",
+            "type": "leaf",
+            "state": {
+              "type": "dangling-links",
+              "state": {},
+              "icon": "broken-link",
+              "title": "Dangling links"
+            }
+          }
+        ]
+      },
+      {
+        "id": "11fa969d0cd8b2d7",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "4deb5326b8aee6d8",
+            "type": "leaf",
+            "state": {
+              "type": "dangling-links",
+              "state": {},
+              "icon": "broken-link",
+              "title": "Dangling links"
+            }
+          }
+        ]
+      },
+      {
+        "id": "93b896d06f7dfa75",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "c50a2c3076876840",
+            "type": "leaf",
+            "state": {
+              "type": "dangling-links",
+              "state": {},
+              "icon": "broken-link",
+              "title": "Dangling links"
+            }
+          }
+        ]
+      },
+      {
+        "id": "f1dada37160c1ba9",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "6c99b21d9722190c",
+            "type": "leaf",
+            "state": {
+              "type": "dangling-links",
+              "state": {},
+              "icon": "broken-link",
+              "title": "Dangling links"
+            }
+          }
+        ]
+      },
+      {
+        "id": "c67d05551d40d325",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "34a10ac923b3b278",
+            "type": "leaf",
+            "state": {
+              "type": "dangling-links",
+              "state": {},
+              "icon": "broken-link",
+              "title": "Dangling links"
+            }
+          }
+        ]
+      },
+      {
+        "id": "827fc408c097f503",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "408d221c5c1d09c2",
+            "type": "leaf",
+            "state": {
+              "type": "dangling-links",
+              "state": {},
+              "icon": "broken-link",
+              "title": "Dangling links"
+            }
+          }
+        ]
+      },
+      {
+        "id": "395b8cd850b825fb",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "fb195dd903a41631",
+            "type": "leaf",
+            "state": {
+              "type": "dangling-links",
+              "state": {},
+              "icon": "broken-link",
+              "title": "Dangling links"
+            }
+          }
+        ]
+      },
+      {
+        "id": "e5915d3754a26b01",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "e7861bb56ea60beb",
+            "type": "leaf",
+            "state": {
+              "type": "dangling-links",
+              "state": {},
+              "icon": "broken-link",
+              "title": "Dangling links"
+            }
+          }
+        ]
+      },
+      {
+        "id": "1bad3f3d7de774c8",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "9a2da89c5f07a98d",
+            "type": "leaf",
+            "state": {
+              "type": "dangling-links",
+              "state": {},
+              "icon": "broken-link",
+              "title": "Dangling links"
+            }
+          }
+        ]
+      },
+      {
+        "id": "539e0938f1f0ded4",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "b6596cfadf38e1ad",
+            "type": "leaf",
+            "state": {
+              "type": "dangling-links",
+              "state": {},
+              "icon": "broken-link",
+              "title": "Dangling links"
+            }
+          }
+        ]
+      },
+      {
+        "id": "3d46733c12ad7979",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "1e52e1e5db527dbe",
+            "type": "leaf",
+            "state": {
+              "type": "dangling-links",
+              "state": {},
+              "icon": "broken-link",
+              "title": "Dangling links"
+            }
+          }
+        ]
+      },
+      {
+        "id": "1cb78b64fddba3f9",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "29d1c3056ee82f7e",
+            "type": "leaf",
+            "state": {
+              "type": "dangling-links",
+              "state": {},
+              "icon": "broken-link",
+              "title": "Dangling links"
+            }
+          }
+        ]
+      },
+      {
+        "id": "fb54e59659da4c4d",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "f897c0bfc1db52fc",
+            "type": "leaf",
+            "state": {
+              "type": "dangling-links",
+              "state": {},
+              "icon": "broken-link",
+              "title": "Dangling links"
+            }
+          }
+        ]
+      },
+      {
+        "id": "f5aa40e1eb4415e2",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "42a42428bb7fe376",
+            "type": "leaf",
+            "state": {
+              "type": "dangling-links",
+              "state": {},
+              "icon": "broken-link",
+              "title": "Dangling links"
+            }
+          }
+        ]
+      },
+      {
+        "id": "862c8e60ce8f45ac",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "37e4bbde4a96e1a6",
+            "type": "leaf",
+            "state": {
+              "type": "dangling-links",
+              "state": {},
+              "icon": "broken-link",
+              "title": "Dangling links"
+            }
+          }
+        ]
+      },
+      {
+        "id": "c55c7bff7014da58",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "1991d176d0005889",
+            "type": "leaf",
+            "state": {
+              "type": "dangling-links",
+              "state": {},
+              "icon": "broken-link",
+              "title": "Dangling links"
+            }
+          }
+        ]
+      },
+      {
+        "id": "d6b43b4fa981f1fb",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "5eaab7496fb312ec",
+            "type": "leaf",
+            "state": {
+              "type": "dangling-links",
+              "state": {},
+              "icon": "broken-link",
+              "title": "Dangling links"
+            }
+          }
+        ]
+      },
+      {
+        "id": "9413f296c4d29dd9",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "868b896aba8e6968",
+            "type": "leaf",
+            "state": {
+              "type": "dangling-links",
+              "state": {},
+              "icon": "broken-link",
+              "title": "Dangling links"
+            }
+          }
+        ]
+      },
+      {
+        "id": "868d377a5c1d1f1d",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "7cf3f31b767442cd",
+            "type": "leaf",
+            "state": {
+              "type": "dangling-links",
+              "state": {},
+              "icon": "broken-link",
+              "title": "Dangling links"
+            }
+          }
+        ]
+      },
+      {
+        "id": "263070d20f04eb15",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "9cbf729506c2d535",
+            "type": "leaf",
+            "state": {
+              "type": "dangling-links",
+              "state": {},
+              "icon": "broken-link",
+              "title": "Dangling links"
+            }
+          }
+        ]
+      },
+      {
+        "id": "ab452238a375a29e",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "55fc822a2c93e5e2",
+            "type": "leaf",
+            "state": {
+              "type": "dangling-links",
+              "state": {},
+              "icon": "broken-link",
+              "title": "Dangling links"
+            }
+          }
+        ]
+      },
+      {
+        "id": "ccd72b3344aef779",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "98678a8a54051b1e",
+            "type": "leaf",
+            "state": {
+              "type": "dangling-links",
+              "state": {},
+              "icon": "broken-link",
+              "title": "Dangling links"
+            }
+          }
+        ]
+      },
+      {
+        "id": "598f53f3b873cbc7",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "bf776903a623d227",
+            "type": "leaf",
+            "state": {
+              "type": "dangling-links",
+              "state": {},
+              "icon": "broken-link",
+              "title": "Dangling links"
+            }
+          }
+        ]
+      },
+      {
+        "id": "3f9319baab2c770e",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "8d6ea20695f06bda",
+            "type": "leaf",
+            "state": {
+              "type": "dangling-links",
+              "state": {},
+              "icon": "broken-link",
+              "title": "Dangling links"
+            }
+          }
+        ]
+      },
+      {
+        "id": "d63a36040c0b8f81",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "bda77b4f2c627b3a",
+            "type": "leaf",
+            "state": {
+              "type": "dangling-links",
+              "state": {},
+              "icon": "broken-link",
+              "title": "Dangling links"
+            }
+          }
+        ]
+      },
+      {
+        "id": "7c478e4f16f16c5b",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "ba6dc64ee389b1ee",
+            "type": "leaf",
+            "state": {
+              "type": "dangling-links",
+              "state": {},
+              "icon": "broken-link",
+              "title": "Dangling links"
+            }
+          }
         ]
       }
     ],
     "direction": "horizontal",
-    "width": 300,
+    "width": 495.5,
     "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
-      "switcher:打开快速切换": false,
       "graph:查看关系图谱": false,
+      "switcher:打开快速切换": false,
       "canvas:新建白板": false,
       "daily-notes:打开/创建今天的日记": false,
       "templates:插入模板": false,
       "command-palette:打开命令面板": false,
-      "bases:新建数据库": false,
-      "obsidian-excalidraw-plugin:新建绘图文件": false,
-      "iconic:打开规则书": false,
-      "obsidian-kanban:Create new board": false,
-      "obsidian-shellcommands:Shell commands: Custom variables": false,
-      "templater-obsidian:Templater": false
+      "bases:新建数据库": true,
+      "obsidian-excalidraw-plugin:新建绘图文件": true,
+      "iconic:打开规则书": true,
+      "obsidian-kanban:Create new board": true,
+      "obsidian-shellcommands:Shell commands: Custom variables": true,
+      "templater-obsidian:Templater": true,
+      "obsidian-dangling-links:Show dangling links panel": false,
+      "workspaces:管理工作区布局": false,
+      "markdown-importer:打开 Markdown 格式转换器": false
     }
   },
-  "active": "899430bdeee94210",
+  "active": "7f93238c52f13cb4",
   "lastOpenFiles": [
+    "customer-pricing/backend/1.0/reports/three-pricing-methods-requirement-draft-v5.md.tmp.54916.b7bb8971ad2c",
+    "customer-pricing/backend/1.0/reports/three-pricing-methods-requirement-draft-v5.md.tmp.54916.5bee6f34bfb8",
+    "customer-pricing/backend/1.0/reports/three-pricing-methods-requirement-draft-v5.md.tmp.54916.c717896eb930",
+    "customer-pricing/backend/1.0/reports/three-pricing-methods-requirement-draft-v5.md.tmp.54916.fbee095e3bfb",
+    "customer-pricing/backend/1.0/reports/three-pricing-methods-requirement-draft-v5.md.tmp.54916.8efde31e9f8e",
+    "customer-pricing/backend/1.0/reports/three-pricing-methods-requirement-draft-v5.md.tmp.54916.3d39e79e3c1b",
+    "customer-pricing/backend/1.0/reports/three-pricing-methods-requirement-draft-v5.md.tmp.54916.39be0e395d7a",
+    "customer-pricing/backend/1.0/reports/three-pricing-methods-requirement-draft-v5.md.tmp.54916.f41abcf4a0aa",
+    "customer-pricing/backend/1.0/reports/three-pricing-methods-requirement-draft-v5.md.tmp.54916.cbd917fb6cf4",
+    "customer-pricing/backend/1.0/reports/three-pricing-methods-requirement-draft-v5.md.tmp.54916.23b8d56c88ab",
+    "customer-pricing/backend/1.0/reports/three-pricing-methods-requirement-draft.md",
+    "customer-pricing/backend/1.0/reports/three-pricing-methods-requirement-draft-v5.md.tmp.54916.7e1428a0096a",
+    "customer-pricing/backend/1.0/reports/three-pricing-methods-requirement-draft-v5.md",
+    "customer-pricing/backend/1.0/reports/three-pricing-methods-requirement-draft-v3.md",
+    "customer-pricing/backend/1.0/reports/three-pricing-methods-requirement-draft-v4.md",
+    "wk-train-center/origin/1.0/docs/bugs/2026-09-29-low-tech-debt.md",
+    "customer-pricing/backend/1.0/reports/three-pricing-methods-requirement-draft-v2.md",
+    "customer-pricing/backend/1.0/reports/customer-pricing-cost-accounting-reference-report.md",
+    "customer-pricing/backend/1.0/handoff/2026-09-28-cost-accounting-handoff.md",
+    "customer-pricing/backend/1.0/plans/服务信息与影响系数/服务信息与影响系数开发计划.md",
+    "wk-train-center/origin/1.0/docs/changelogs/2026-09-28-fix.md",
+    "wk-train-center/reports/2026-09-28-T1-T2-fix-changelog.md",
+    "customer-pricing/backend/1.0/docs/api/equipment/设备接口对接文档.md",
+    "wk-train-center/BROKEN-LINKS-REPORT.md",
+    "wk-train-center/backend/1.5/docs/changelog.md",
+    "Untitled.md",
+    "wk-train-center/backend/1.5/docs/README.md",
+    "customer-pricing/backend/1.0/docs/船舶维保定价系统-开发需求文档.md",
+    "wk-train-center/backend/1.5/reviews/2026-07-28-user-sync-1.5-review(claude).md",
+    "wk-train-center/backend/1.5/design/2026-07-28-user-sync-1.5(claude).md",
     "wk-mhc-ui/docs/changelog.md",
     "wk-mhc-ui/docs/PRD.md",
     "wk-train-center/backend/README.md",
     "wk-train-center/_index.md",
     "wk-train-center/LINK-BREAKAGE.md",
-    "wk-train-center/BROKEN-LINKS-REPORT.md",
     "wk-train-center/frontend/README.md",
-    "1.5/README.md",
-    "1.5",
-    "wk-train-center/README.md",
-    "wk-train-center/origin/1.0/index.md",
-    "customer-pricing/backend/1.0/docs.md",
-    "wk-train-center/pptist/1.0/docs/README_zh.md",
-    "wk-train-center/pptist/README.md",
-    "wk-train-center/backend/1.5/reviews/2026-07-24-文件读取问题驱动重构-计划v2复审-by-claude.md",
-    "wk-train-center/backend/1.5/db/README.md",
-    "wk-train-center/backend/1.5/db/ai/02_dml_ai_agent_init copy.sql",
-    "wk-train-center/backend/1.5/db/ai/01_ddl_ai_agent copy.sql",
-    "wk-train-center/backend/1.5/db/log/ddl.sql",
-    "wk-train-center/backend/1.5/db/plan copy/dml.sql",
-    "wk-train-center/backend/1.5/db/plan copy/ddl.sql",
-    "wk-train-center/backend/1.5/db/plan copy",
-    "wk-train-center/backend/1.5/db/notify",
-    "wk-train-center/backend/1.5/db/log copy/ddl.sql",
-    "wk-train-center/backend/1.5/db/log copy",
-    "wk-train-center/frontend/1.5/reviews/2026-08-04-plan-extend-makeup-v5-gap-review-by-claude.md",
-    "wk-train-center/frontend/1.5/reviews/2026-08-04-plan-extend-makeup-v4-gap-review-by-claude.md",
-    "wk-train-center/frontend/1.5/reviews/2026-08-04-plan-extend-makeup-v3-gap-review-by-claude.md",
-    "wk-train-center/frontend/1.5/reviews/2026-08-04-plan-extend-makeup-v2-gap-review-by-claude.md",
-    "wk-train-center/frontend/1.5/reviews/2026-08-04-plan-extend-makeup-gap-review-by-claude.md",
-    "wk-train-center/frontend/1.5/plans/一键延期补考功能_v2_集成 Bug 修复_and 评审意见.md",
-    "wk-train-center/frontend/1.5/plans/2026-08-04-延期补考交互设计.md",
-    "wk-train-center/backend/1.5/reviews/2026-08-04-plan-extend-makeup-v5-gap-review-by-claude.md",
-    "wk-train-center/backend/1.5/reviews/2026-08-04-plan-extend-makeup-v4-gap-review-by-claude.md",
-    "wk-train-center/backend/1.5/reviews/2026-08-04-plan-extend-makeup-v3-gap-review-by-claude.md",
-    "wk-train-center/backend/1.5/reviews/2026-08-04-plan-extend-makeup-v2-gap-review-by-claude.md",
     "未命名.canvas",
     "project/未命名.canvas"
   ]

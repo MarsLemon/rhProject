@@ -80,7 +80,6 @@
 | 项目 | 文档位置 |
 |---|---|
 | wk-mhc-ui | `.products/projects/wk-mhc-ui/` |
-| wk-user | `.products/projects/wk-user/` |
 
 ### wk-train-center 集合下组件(5 个)
 
