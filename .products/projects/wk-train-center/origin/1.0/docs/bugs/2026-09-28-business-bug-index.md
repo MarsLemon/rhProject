@@ -62,7 +62,7 @@ BUG-{YYYYMMDD}-{B|F|FB}-{3位序号}
 - **白话**:删除培训计划时,学员的学习进度和补考授权没一起删,变成"孤儿数据",学员端还能看到已删计划的进度
 - **文件**:`e:/rhProject/Backend/wk-train-center-service/yf-modules/yf-module-plan/src/main/java/com/yf/plan/modules/admin/plan/service/impl/PlanServiceImpl.java` 第 137-148 行
 - **影响**:学员困惑 / 管理员审计错乱
-- **状态**:⏳ 待修复
+- **状态**:✅ **已修复(T1.2 2026-09-28 抽 PlanDeletedEvent 领域事件重构 + T1.8 2026-09-28 IFNULL 兼容)**
 - **关联报告**:`2026-09-27-business-logic-bugs.md` BC-002
 
 ### `BUG-20260928-B-002`:删除课程不级联学员学习记录
